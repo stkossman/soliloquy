@@ -2,6 +2,8 @@
     import Sidebar from "./Sidebar.svelte";
     import ChatWindow from "./ChatWindow.svelte";
 
+    import NotebookPen from "lucide-svelte/icons/notebook-pen";
+
     let activeChatId = $state<number | null>(null);
 </script>
 
@@ -16,7 +18,7 @@
         {:else}
             <div class="flex h-full items-center justify-center text-muted-foreground flex-col gap-2">
                 <div class="bg-muted/20 p-4 rounded-full">
-                    <span class="text-4xl">📝</span>
+                    <span class="text-4xl"><NotebookPen /></span>
                 </div>
                 <p>Choose a chat to view</p>
             </div>

@@ -22,14 +22,23 @@
 
     $effect(() => {
         const subscription = liveQuery(async () => {
-            let collection = db.chats.orderBy("lastModified").reverse();
-            
+            let allChats = await db.chats.toArray();
+
             if (searchQuery.trim()) {
                 const lowerQuery = searchQuery.toLowerCase();
-                return collection.filter(chat => chat.title.toLowerCase().includes(lowerQuery)).toArray();
+                allChats = allChats.filter(chat => 
+                    chat.title.toLowerCase().includes(lowerQuery)
+                );
             }
-            
-            return collection.toArray();
+
+            return allChats.sort((a, b) => {
+                if (a.isPinned !== b.isPinned) {
+                    return a.isPinned ? -1 : 1;
+                }
+
+                return b.lastModified.getTime() - a.lastModified.getTime();
+            });
+
         }).subscribe((data) => {
             chats = data;
         });
