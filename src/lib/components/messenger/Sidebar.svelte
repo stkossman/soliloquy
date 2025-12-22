@@ -16,7 +16,9 @@
 
     let searchQuery = $state("");
     let chats = $state<Chat[]>([]);
-    let activeChatId = $state<number | null>(null);
+    let { activeChatId = $bindable(null) } = $props<{ 
+        activeChatId: number | null 
+    }>();
 
     $effect(() => {
         const subscription = liveQuery(async () => {
