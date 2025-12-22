@@ -29,6 +29,7 @@ The development is divided into phases. Below is the current status of features.
 - [x] **Smart Sorting:** Auto-sort chats by `lastModified` date.
 
 ### Phase 2: Chat Management (Current Focus)
+- [ ] **Transfer from Svelte to React:** Including lucide, shadcn, dexie-react-hooks
 - [x] **Search:** Filter chats by title in real-time.
 - [ ] **Pinning System:**
     - [x] Database logic for pinned chats.
