@@ -58,7 +58,7 @@ Make sure you have **Bun** installed.
 
 1. Clone the repository:
 ```bash
-git clone [https://github.com/stkossman/soliloquy.git](https://github.com/stkossman/soliloquy.git)
+git clone https://github.com/stkossman/soliloquy.git
 cd soliloquy
 ```
 
