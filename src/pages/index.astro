@@ -1,6 +1,6 @@
 ---
-import '../styles/global.css'
-import MessengerLayout from '@/lib/components/messenger/MessengerLayout.svelte'
+import '@/styles/global.css';
+import MessengerLayout from '@/lib/components/messenger/MessengerLayout';
 ---
 
 <html lang='uk' class='dark'>
@@ -11,6 +11,6 @@ import MessengerLayout from '@/lib/components/messenger/MessengerLayout.svelte'
 		<title>Soliloquy</title>
 	</head>
 	<body class='bg-background text-foreground font-sans antialiased'>
-		<MessengerLayout client:only='svelte' />
+		<MessengerLayout client:only='react' />
 	</body>
 </html>
