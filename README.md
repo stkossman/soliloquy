@@ -12,9 +12,9 @@ This project leverages a modern, performance-oriented stack:
 
 - **Runtime:** [Bun](https://bun.sh) (Fast all-in-one JavaScript runtime)
 - **Core Framework:** [Astro](https://astro.build) (Server-first architecture)
-- **UI Logic:** [Svelte 5](https://svelte.dev) (Runes API for fine-grained reactivity)
+- **UI Logic:** [React](https://react.dev) + [dexie-react-hooks](https://dexie.org/docs/dexie-react-hooks) (Real-time reactivity)
 - **Database:** [Dexie.js](https://dexie.org) (Wrapper for IndexedDB)
-- **Styling:** [TailwindCSS](https://tailwindcss.com) + [shadcn-svelte](https://www.shadcn-svelte.com)
+- **Styling:** [TailwindCSS](https://tailwindcss.com) + [shadcn/ui](https://ui.shadcn.com)
 - **Deployment:** Cloudflare Pages (via `@astrojs/cloudflare` adapter)
 
 ## Roadmap
@@ -28,26 +28,30 @@ The development is divided into phases. Below is the current status of features.
 - [x] **Messaging:** Sending and storing messages locally.
 - [x] **Smart Sorting:** Auto-sort chats by `lastModified` date.
 
-### Phase 2: Chat Management (Current Focus)
-- [ ] **Transfer from Svelte to React:** Including lucide, shadcn, dexie-react-hooks
+### Phase 2: Chat Management ✅
+- [x] **Transfer from Svelte to React:** Including lucide, shadcn, dexie-react-hooks
 - [x] **Search:** Filter chats by title in real-time.
-- [ ] **Pinning System:**
+- [x] **Pinning System:**
     - [x] Database logic for pinned chats.
     - [x] Sorting logic (Pinned chats always on top).
-    - [ ] UI for pinning/unpinning chats (Context Menu).
-- [ ] **Chat CRUD:**
-    - [ ] Edit chat title.
-    - [ ] Delete chat (with confirmation).
+    - [x] UI for pinning/unpinning chats (Context Menu).
+- [x] **Chat CRUD:**
+    - [x] Edit chat title.
+    - [x] Delete chat (with confirmation).
 
-### Phase 3: Message Interactions
+### Phase 3: Message Interactions (Current focus)
 - [ ] **Message Management:**
     - [ ] **Edit:** Modify sent messages (with "edited" label).
     - [ ] **Delete:** Remove messages from history.
     - [ ] **Pin:** Pin important messages within a chat context.
+    - [ ] **Copy:** One-click copy to clipboard.
+- [ ] **Search within Chat:** `Ctrl+F` logic to find specific text inside a conversation.
 - [ ] **Formatting:** Markdown support for rich text notes.
+- [ ] **Scroll Logic:** "Scroll to bottom" button when reading history.
 
 ### Phase 4: Data & Settings
 - [ ] **Data Persistence:** JSON Export/Import for backups (since data is local-only).
+- [ ] **Keyboard Shortcuts:** Navigation and actions via hotkeys (e.g., `Ctrl+N` for new chat).
 - [ ] **Theme:** Toggle between Dark/Light modes (Default: Dark).
 
 ## Getting Started
