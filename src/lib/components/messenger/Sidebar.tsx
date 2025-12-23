@@ -94,7 +94,7 @@ export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 							</div>
 
 							<div className='flex w-full items-center justify-between text-muted-foreground'>
-								<span className='truncate text-xs w-[200px]'>No preview</span>
+								{chat.previewText || <span className='opacity-50 italic'>No notes</span>}
 								{chat.isPinned && <Pin className='h-3 w-3 rotate-45' />}
 							</div>
 						</button>

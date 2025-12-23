@@ -1,11 +1,12 @@
 import Dexie, { type Table } from 'dexie';
 
 export interface Chat {
-	id?: number;
-	title: string;
-	isPinned: boolean;
-	createdAt: Date;
-	lastModified: Date;
+	id?: number
+	title: string
+	isPinned: boolean
+	createdAt: Date
+	lastModified: Date
+	previewText?: string
 }
 
 export interface Message {

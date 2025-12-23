@@ -42,6 +42,7 @@ export function ChatWindow({ activeChatId }: ChatWindowProps) {
 			})
 			await db.chats.update(activeChatId, {
 				lastModified: new Date(),
+				previewText: text
 			})
 		})
 	}
