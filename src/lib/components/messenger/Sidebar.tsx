@@ -17,7 +17,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 
 import { Label } from '$lib/components/ui/label'
 
-import { MessageSquare, Pin, Plus, Search, Pencil, Trash2, PinOff } from 'lucide-react'
+import { MessageSquare, Pin, Plus, Search, Pencil, Trash2, PinOff, Info } from 'lucide-react'
 
 interface SidebarProps {
 	activeChatId: number | null
@@ -131,10 +131,12 @@ export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 											activeChatId === chat.id && 'bg-accent'
 										)}
 										onClick={() => onChatSelect(chat.id!)}
-										onContextMenu={() => onChatSelect(chat.id!)}
 									>
 										<div className='flex w-full items-center justify-between'>
-											<span className='font-semibold truncate w-[180px]'>{chat.title}</span>
+											<span className='font-semibold truncate w-[180px] flex items-center gap-2'>
+												{chat.isSystem && <Info className='h-3.5 w-3.5 text-blue-400' />}
+												{chat.title}
+											</span>
 											<span className='text-xs text-muted-foreground tabular-nums'>
 												{formatChatDate(chat.lastModified)}
 											</span>
@@ -148,8 +150,8 @@ export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 										</div>
 									</button>
 								</ContextMenuTrigger>
-
-								<ContextMenuContent className='w-48'>
+								
+								{!chat.isSystem && (<ContextMenuContent className='w-48'>
 									<ContextMenuItem onClick={() => togglePin(chat)}>
 										{chat.isPinned ? (
 											<>
@@ -171,7 +173,7 @@ export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 									>
 										<Trash2 className='mr-2 h-4 w-4' /> Delete
 									</ContextMenuItem>
-								</ContextMenuContent>
+								</ContextMenuContent>)}
 							</ContextMenu>
 						))}
 
@@ -216,7 +218,8 @@ export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 					<AlertDialogHeader>
 						<AlertDialogTitle>Are you sure?</AlertDialogTitle>
 						<AlertDialogDescription>
-							This action is irreversible. The chat "{chatToDelete?.title}" and all its messages will be permanently deleted.
+							This action is irreversible. The chat "{chatToDelete?.title}" and all its messages will be permanently
+							deleted.
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>

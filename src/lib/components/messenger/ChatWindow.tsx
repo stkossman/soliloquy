@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, act } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db, type Message } from '$lib/db'
 import { cn } from '@/lib/utils'
@@ -7,7 +7,7 @@ import { MessageBubble } from './MessageBubble'
 import { Button } from '$lib/components/ui/button'
 import { Textarea } from '$lib/components/ui/textarea'
 import { Avatar, AvatarFallback } from '$lib/components/ui/avatar'
-import { Send, MoreVertical, X, Check, Pencil, ArrowLeft, List } from 'lucide-react'
+import { Send, MoreVertical, X, Check, Pencil, ArrowLeft, List, Info } from 'lucide-react'
 
 interface ChatWindowProps {
 	activeChatId: number
@@ -153,6 +153,8 @@ export function ChatWindow({ activeChatId }: ChatWindowProps) {
 
 	if (!chat) return <div className='flex h-full items-center justify-center'>Loading...</div>
 
+	const isSystemChat = chat?.isSystem
+
 	return (
 		<div className='flex h-full flex-col'>
 			<div className='flex h-16 items-center justify-between border-b px-6 py-4 bg-background/95 backdrop-blur z-10 transition-all'>
@@ -169,12 +171,14 @@ export function ChatWindow({ activeChatId }: ChatWindowProps) {
 					<div className='flex items-center gap-3 animate-in fade-in'>
 						<Avatar className='h-9 w-9'>
 							<AvatarFallback className='bg-muted text-muted-foreground'>
-								{chat.title.slice(0, 2).toUpperCase()}
+								{isSystemChat ? <Info className='h-5 w-5' /> : chat.title.slice(0, 2).toUpperCase()}
 							</AvatarFallback>
 						</Avatar>
 						<div>
-							<h2 className='text-sm font-semibold'>{chat.title}</h2>
-							<p className='text-xs text-muted-foreground'>{allMessages?.length || 0} messages</p>
+							<h2 className='text-sm font-semibold flex items-center gap-2'>{chat.title}</h2>
+							<p className='text-xs text-muted-foreground'>
+								{isSystemChat ? 'Read-only' : `${allMessages?.length || 0} messages`}
+							</p>
 						</div>
 					</div>
 				)}
@@ -234,6 +238,10 @@ export function ChatWindow({ activeChatId }: ChatWindowProps) {
 					>
 						Unpin all {pinnedMessages?.length} messages
 					</Button>
+				) : isSystemChat ? (
+					<div className='flex h-12 items-center justify-center rounded-xl bg-muted/20 text-xs text-muted-foreground italic'>
+						This is a system chat. Read-only.
+					</div>
 				) : (
 					<>
 						{editingMessage && (
