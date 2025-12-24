@@ -1,71 +1,78 @@
-# Soliloquy
+<div align="center">
+  <h1>Soliloquy</h1>
+  <p>
+    <strong>A private dialogue with yourself.</strong><br>
+    Local-first. Distraction-free.
+  </p>
 
-> ***Soliloquy** - a speech in a play that the character speaks to himself or herself or to the people watching rather than to the other characters*
+  <p>
+    <img src="https://img.shields.io/badge/Status-Active_Development-success?style=flat-square" alt="Status" />
+    <img src="https://img.shields.io/badge/Stack-Astro_•_React_•_Dexie-blue?style=flat-square" alt="Tech Stack" />
+    <img src="https://img.shields.io/badge/Privacy-100%25_Local-gray?style=flat-square" alt="Privacy" />
+  </p>
+</div>
 
-**Soliloquy** is a local-first note-taking application designed with the familiar UX of a modern messenger. It reimagines the concept of "Saved Messages" by turning your notes into a private dialogue with yourself.
+> ***Soliloquy** - a speech in a play that the character speaks to himself or herself or to the people watching rather than to the other characters.*
 
-Built with a focus on privacy, and speed, Soliloquy stores all data directly in your browser using IndexedDB. No servers, no tracking - just your thoughts.
+**Soliloquy** reimagines the concept of "Saved Messages". It's not just a note-taking app; it's a messenger where the only contact is **you**. 
 
-## Tech Stack
+Built with a focus on privacy and speed, Soliloquy stores all data directly in your browser using **IndexedDB**. No servers, no tracking, no login screens. Just open and write.
 
-This project leverages a modern, performance-oriented stack:
+## 💎 Key Features
 
-- **Runtime:** [Bun](https://bun.sh) (Fast all-in-one JavaScript runtime)
-- **Core Framework:** [Astro](https://astro.build) (Server-first architecture)
-- **UI Logic:** [React](https://react.dev) + [dexie-react-hooks](https://dexie.org/docs/dexie-react-hooks) (Real-time reactivity)
-- **Database:** [Dexie.js](https://dexie.org) (Wrapper for IndexedDB)
+| Feature | Description |
+| :--- | :--- |
+| **🔒 Local-First** | 100% of your data lives in your browser (IndexedDB). Zero cloud dependency. |
+| **💬 Messenger UX** | Familiar interface. If you know how to use Telegram, you know Soliloquy. |
+| **📌 Power Pinning** | Pin chats and messages. Navigate through pinned messages like a carousel. |
+| **📝 Rich Text** | Full **Markdown** support: code blocks, lists, quotes, and links. |
+| **⚡ Blazing Fast** | Powered by **Bun** and **Astro**. Instant load times and reactivity. |
+
+## 🛠️ Tech Stack
+
+<div align="center">
+  <img src="https://skillicons.dev/icons?i=astro,react,ts,tailwind,bun" />
+</div>
+
+- **Runtime:** [Bun](https://bun.sh)
+- **Framework:** [Astro](https://astro.build) + [React](https://react.dev)
+- **Database:** [Dexie.js](https://dexie.org) (IndexedDB wrapper)
 - **Styling:** [TailwindCSS](https://tailwindcss.com) + [shadcn/ui](https://ui.shadcn.com)
-- **Deployment:** Cloudflare Pages (via `@astrojs/cloudflare` adapter)
+- **Deployment:** Cloudflare Pages
 
-## Roadmap
+## 🗺️ Roadmap
 
-The development is divided into phases. Below is the current status of features.
-
-### Phase 1: Core Foundation (MVP) ✅
-- [x] **Project Setup:** Astro + Svelte + Bun integration.
-- [x] **Database Schema:** Designed `Chats` and `Messages` tables with indexing.
-- [x] **Sidebar:** Real-time chat list fetching with `liveQuery`.
-- [x] **Messaging:** Sending and storing messages locally.
-- [x] **Smart Sorting:** Auto-sort chats by `lastModified` date.
+### Phase 1: Foundation (MVP) ✅
+- [x] **Project Setup:** Astro + Bun integration.
+- [x] **Database:** `Chats` and `Messages` schema with indexing.
+- [x] **Core UI:** Sidebar & Chat Interface.
+- [x] **Smart Sorting:** Auto-sort by modification date.
 
 ### Phase 2: Chat Management ✅
-- [x] **Transfer from Svelte to React:** Including lucide, shadcn, dexie-react-hooks
-- [x] **Search:** Filter chats by title in real-time.
-- [x] **Pinning System:**
-    - [x] Database logic for pinned chats.
-    - [x] Sorting logic (Pinned chats always on top).
-    - [x] UI for pinning/unpinning chats (Context Menu).
-- [x] **Chat CRUD:**
-    - [x] Edit chat title.
-    - [x] Delete chat (with confirmation).
+- [x] **Refactoring:** Migration from Svelte to React.
+- [x] **Search:** Real-time chat filtering.
+- [x] **CRUD:** Create, Rename, Delete (Cascading), Pin chats.
+- [x] **System Chat:** Read-only "About" chat seeded on first load.
 
 ### Phase 3: Message Interactions ✅
-- [x] **Message Management:**
-    - [x] **Edit:** Modify sent messages (with "edited" label).
-    - [x] **Delete:** Remove messages from history.
-    - [x] **Pin:** Pin important messages within a chat context (Pinned Bar, Carousel Navigation, Pinned View Mode).
-    - [x] **Copy:** One-click copy to clipboard.
-- [x] **Rich Text:** Markdown rendering support (Bold, Italic, Lists, Code, Links) via `react-markdown`.
+- [x] **Actions:** Edit, Delete, Copy messages.
+- [x] **Advanced Pinning:** Pinned Bar, Carousel Navigation, Pinned View Mode.
+- [x] **Rich Text:** Markdown rendering (`react-markdown`).
 
-### Phase 4: Advanced Features
-- [ ] **Chat Settings (More Menu):**
-    - [ ] **Clear History:** Delete all messages without deleting the chat.
-    - [ ] **Export Chat:** Download chat history as `.md` or `.json`.
-    - [ ] **Chat Info:** Word/Character count statistics.
-- [ ] **Customization:**
-    - [ ] **Chat Identity:** Ability to change chat icon (Emoji/Color) or upload avatar.
-    - [ ] **Theme:** Toggle between Dark/Light modes (Default: Dark).
-- [ ] **Search within Chat:** `Ctrl+F` logic to find specific text inside a conversation.
-- [ ] **Scroll Logic:** "Scroll to bottom" button when reading history.
+### Phase 4: Optimization & Refactoring 🛠️
+- [ ] **Code Splitting:** Extract huge components (`ChatWindow`, `Sidebar`).
+- [ ] **Performance:** Memoization and custom hooks (`useChatLogic`).
+- [ ] **CI/CD:** Automated deployment to Cloudflare Pages.
 
-### Phase 5: Data Persistence
-- [ ] **Backup System:** Full JSON Export/Import for moving data between devices.
-- [ ] **Keyboard Shortcuts:** Navigation and actions via hotkeys (e.g., `Ctrl+N` for new chat).
+### Phase 5: Advanced Features 🔮
+- [ ] **Chat Actions:** Clear History, Export Chat (`.md`/`.json`).
+- [ ] **Customization:** Chat Avatars & Theme Toggle.
+- [ ] **Persistence:** Global Backup/Restore.
 
-## Getting Started
+## 🚀 Getting Started
 
 ### Prerequisites
-Make sure you have **Bun** installed.
+- **Bun** (v1.0+)
 
 ### Installation
 
@@ -89,4 +96,4 @@ bun dev
 
 ---
 
-*Developed by [Kossman](https://github.com/stkossman)*
+<div align="center"> <p>Developed with ❤️ by <a href="https://github.com/stkossman">Kossman</a> 🇺🇦</p>
