@@ -10,11 +10,12 @@ export interface Chat {
 }
 
 export interface Message {
-	id?: number;
-	chatId: number;
-	content: string;
-	createdAt: Date;
-	isEdited: boolean;
+	id?: number
+	chatId: number
+	content: string
+	createdAt: Date
+	isEdited: boolean
+	isPinned?: boolean
 }
 
 export class SoliloquyDB extends Dexie {

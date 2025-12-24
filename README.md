@@ -40,11 +40,11 @@ The development is divided into phases. Below is the current status of features.
     - [x] Delete chat (with confirmation).
 
 ### Phase 3: Message Interactions (Current focus)
-- [ ] **Message Management:**
-    - [ ] **Edit:** Modify sent messages (with "edited" label).
-    - [ ] **Delete:** Remove messages from history.
-    - [ ] **Pin:** Pin important messages within a chat context.
-    - [ ] **Copy:** One-click copy to clipboard.
+- [x] **Message Management:**
+    - [x] **Edit:** Modify sent messages (with "edited" label).
+    - [x] **Delete:** Remove messages from history.
+    - [x] **Pin:** Pin important messages within a chat context (Pinned Bar, Carousel Navigation, Pinned View Mode).
+    - [x] **Copy:** One-click copy to clipboard.
 - [ ] **Search within Chat:** `Ctrl+F` logic to find specific text inside a conversation.
 - [ ] **Formatting:** Markdown support for rich text notes.
 - [ ] **Scroll Logic:** "Scroll to bottom" button when reading history.
