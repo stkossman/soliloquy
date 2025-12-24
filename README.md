@@ -38,6 +38,7 @@ Built with a focus on privacy and speed, Soliloquy stores all data directly in y
 - **Framework:** [Astro](https://astro.build) + [React](https://react.dev)
 - **Database:** [Dexie.js](https://dexie.org) (IndexedDB wrapper)
 - **Styling:** [TailwindCSS](https://tailwindcss.com) + [shadcn/ui](https://ui.shadcn.com)
+- **Formatter:** [Biome](https://biomejs.dev/)
 - **Deployment:** Cloudflare Pages
 
 ## 🗺️ Roadmap
