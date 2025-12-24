@@ -1,31 +1,42 @@
-import { type Message } from '$lib/db'
+import { Check, Copy, Pencil, Pin, Trash2 } from 'lucide-react'
+import { useState } from 'react'
 import { cn } from '@/lib/utils'
+
+import {
+	ContextMenu,
+	ContextMenuContent,
+	ContextMenuItem,
+	ContextMenuSeparator,
+	ContextMenuTrigger,
+} from '$lib/components/ui/context-menu'
+import type { Message } from '$lib/db'
 import { MarkdownRenderer } from '../shared/MarkdownRenderer'
 
-import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuTrigger } from "$lib/components/ui/context-menu"
-import { Pin, Pencil, Trash2, Copy, Check } from "lucide-react"
-import { useState } from "react"
-
 interface MessageBubbleProps {
-	message: Message;
-	onEdit: (msg: Message) => void;
-	onDelete: (id: number) => void;
-	onPin: (msg: Message) => void;
+	message: Message
+	onEdit: (msg: Message) => void
+	onDelete: (id: number) => void
+	onPin: (msg: Message) => void
 }
 
-export function MessageBubble({ message, onEdit, onDelete, onPin }: MessageBubbleProps) {
-	const [copied, setCopied] = useState(false);
+export function MessageBubble({
+	message,
+	onEdit,
+	onDelete,
+	onPin,
+}: MessageBubbleProps) {
+	const [copied, setCopied] = useState(false)
 
 	const timeStr = message.createdAt.toLocaleTimeString('uk-UA', {
 		hour: '2-digit',
 		minute: '2-digit',
-	});
+	})
 
 	const handleCopy = async () => {
-		await navigator.clipboard.writeText(message.content);
-		setCopied(true);
-		setTimeout(() => setCopied(false), 2000);
-	};
+		await navigator.clipboard.writeText(message.content)
+		setCopied(true)
+		setTimeout(() => setCopied(false), 2000)
+	}
 
 	return (
 		<ContextMenu>
@@ -36,7 +47,7 @@ export function MessageBubble({ message, onEdit, onDelete, onPin }: MessageBubbl
 							'relative max-w-[70%] rounded-2xl px-4 py-2 text-sm shadow-sm transition-all',
 							'bg-primary text-primary-foreground',
 							'rounded-br-none',
-							message.isPinned && 'border-2 border-accent'
+							message.isPinned && 'border-2 border-accent',
 						)}
 					>
 						{message.isPinned && (
@@ -68,7 +79,10 @@ export function MessageBubble({ message, onEdit, onDelete, onPin }: MessageBubbl
 					<Pencil className='mr-2 h-4 w-4' /> Edit
 				</ContextMenuItem>
 				<ContextMenuSeparator />
-				<ContextMenuItem className='text-destructive focus:text-destructive' onClick={() => onDelete(message.id!)}>
+				<ContextMenuItem
+					className='text-destructive focus:text-destructive'
+					onClick={() => onDelete(message.id!)}
+				>
 					<Trash2 className='mr-2 h-4 w-4' /> Delete
 				</ContextMenuItem>
 			</ContextMenuContent>

@@ -1,23 +1,47 @@
-import { db, type Chat } from '$lib/db'
-import { cn, formatChatDate } from '@/lib/utils'
 import { useLiveQuery } from 'dexie-react-hooks'
+import {
+	Info,
+	MessageSquare,
+	Pencil,
+	Pin,
+	PinOff,
+	Plus,
+	Search,
+	Trash2,
+} from 'lucide-react'
 import { useState } from 'react'
-
+import { cn, formatChatDate } from '@/lib/utils'
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from '$lib/components/ui/alert-dialog'
 import { Avatar, AvatarFallback, AvatarImage } from '$lib/components/ui/avatar'
 import { Button } from '$lib/components/ui/button'
+import {
+	ContextMenu,
+	ContextMenuContent,
+	ContextMenuItem,
+	ContextMenuSeparator,
+	ContextMenuTrigger,
+} from '$lib/components/ui/context-menu'
+import {
+	Dialog,
+	DialogContent,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from '$lib/components/ui/dialog'
 import { Input } from '$lib/components/ui/input'
+import { Label } from '$lib/components/ui/label'
 import { ScrollArea } from '$lib/components/ui/scroll-area'
 import { Separator } from '$lib/components/ui/separator'
-
-import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuTrigger, } from '$lib/components/ui/context-menu'
-
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '$lib/components/ui/dialog'
-
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '$lib/components/ui/alert-dialog'
-
-import { Label } from '$lib/components/ui/label'
-
-import { MessageSquare, Pin, Plus, Search, Pencil, Trash2, PinOff, Info } from 'lucide-react'
+import { type Chat, db } from '$lib/db'
 
 interface SidebarProps {
 	activeChatId: number | null
@@ -27,16 +51,18 @@ interface SidebarProps {
 export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 	const [searchQuery, setSearchQuery] = useState('')
 
-	const [chatToEdit, setChatToEdit] = useState<Chat | null>(null);
+	const [chatToEdit, setChatToEdit] = useState<Chat | null>(null)
 	const [chatToDelete, setChatToDelete] = useState<Chat | null>(null)
-	const [newTitle, setNewTitle] = useState('');
+	const [newTitle, setNewTitle] = useState('')
 
 	const chats = useLiveQuery(async () => {
 		let allChats = await db.chats.toArray()
 
 		if (searchQuery.trim()) {
 			const lowerQuery = searchQuery.toLowerCase()
-			allChats = allChats.filter(chat => chat.title.toLowerCase().includes(lowerQuery))
+			allChats = allChats.filter(chat =>
+				chat.title.toLowerCase().includes(lowerQuery),
+			)
 		}
 
 		return allChats.sort((a, b) => {
@@ -55,23 +81,23 @@ export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 			lastModified: new Date(),
 		})
 		onChatSelect(id as number)
-	};
+	}
 
 	const togglePin = async (chat: Chat) => {
-		await db.chats.update(chat.id!, { isPinned: !chat.isPinned });
-	};
+		await db.chats.update(chat.id!, { isPinned: !chat.isPinned })
+	}
 
 	const openEditDialog = (chat: Chat) => {
-		setChatToEdit(chat);
-		setNewTitle(chat.title);
-	};
+		setChatToEdit(chat)
+		setNewTitle(chat.title)
+	}
 
 	const saveChatTitle = async () => {
 		if (chatToEdit && newTitle.trim()) {
 			await db.chats.update(chatToEdit.id!, { title: newTitle.trim() })
 			setChatToEdit(null)
 		}
-	};
+	}
 
 	const deleteChat = async () => {
 		if (chatToDelete) {
@@ -85,7 +111,7 @@ export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 			}
 			setChatToDelete(null)
 		}
-	};
+	}
 
 	return (
 		<>
@@ -94,12 +120,17 @@ export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 					<div className='flex items-center justify-between'>
 						<div className='flex items-center gap-3'>
 							<Avatar className='h-9 w-9'>
-								<AvatarImage src='https://github.com/shadcn.png' alt='@stkossman' />
+								<AvatarImage
+									src='https://github.com/shadcn.png'
+									alt='@stkossman'
+								/>
 								<AvatarFallback>SK</AvatarFallback>
 							</Avatar>
 							<div className='flex flex-col'>
 								<span className='text-sm font-semibold'>Soliloquy</span>
-								<span className='text-xs text-muted-foreground'>Local Storage</span>
+								<span className='text-xs text-muted-foreground'>
+									Local Storage
+								</span>
 							</div>
 						</div>
 						<Button variant='ghost' size='icon' onClick={createNewChat}>
@@ -128,13 +159,15 @@ export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 									<button
 										className={cn(
 											'flex flex-col items-start gap-1 rounded-lg p-3 text-left text-sm transition-all hover:bg-accent w-full',
-											activeChatId === chat.id && 'bg-accent'
+											activeChatId === chat.id && 'bg-accent',
 										)}
 										onClick={() => onChatSelect(chat.id!)}
 									>
 										<div className='flex w-full items-center justify-between'>
 											<span className='font-semibold truncate w-[180px] flex items-center gap-2'>
-												{chat.isSystem && <Info className='h-3.5 w-3.5 text-blue-400' />}
+												{chat.isSystem && (
+													<Info className='h-3.5 w-3.5 text-blue-400' />
+												)}
 												{chat.title}
 											</span>
 											<span className='text-xs text-muted-foreground tabular-nums'>
@@ -144,36 +177,40 @@ export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 
 										<div className='flex w-full items-center justify-between text-muted-foreground'>
 											<span className='truncate text-xs w-[200px] h-4'>
-												{chat.previewText || <span className='opacity-50 italic'>No messages</span>}
+												{chat.previewText || (
+													<span className='opacity-50 italic'>No messages</span>
+												)}
 											</span>
 											{chat.isPinned && <Pin className='h-3 w-3 rotate-45' />}
 										</div>
 									</button>
 								</ContextMenuTrigger>
-								
-								{!chat.isSystem && (<ContextMenuContent className='w-48'>
-									<ContextMenuItem onClick={() => togglePin(chat)}>
-										{chat.isPinned ? (
-											<>
-												<PinOff className='mr-2 h-4 w-4' /> Unpin
-											</>
-										) : (
-											<>
-												<Pin className='mr-2 h-4 w-4' /> Pin
-											</>
-										)}
-									</ContextMenuItem>
-									<ContextMenuItem onClick={() => openEditDialog(chat)}>
-										<Pencil className='mr-2 h-4 w-4' /> Rename
-									</ContextMenuItem>
-									<ContextMenuSeparator />
-									<ContextMenuItem
-										className='text-red-600 focus:text-red-600 focus:bg-red-100 dark:focus:bg-red-900/30'
-										onClick={() => setChatToDelete(chat)}
-									>
-										<Trash2 className='mr-2 h-4 w-4' /> Delete
-									</ContextMenuItem>
-								</ContextMenuContent>)}
+
+								{!chat.isSystem && (
+									<ContextMenuContent className='w-48'>
+										<ContextMenuItem onClick={() => togglePin(chat)}>
+											{chat.isPinned ? (
+												<>
+													<PinOff className='mr-2 h-4 w-4' /> Unpin
+												</>
+											) : (
+												<>
+													<Pin className='mr-2 h-4 w-4' /> Pin
+												</>
+											)}
+										</ContextMenuItem>
+										<ContextMenuItem onClick={() => openEditDialog(chat)}>
+											<Pencil className='mr-2 h-4 w-4' /> Rename
+										</ContextMenuItem>
+										<ContextMenuSeparator />
+										<ContextMenuItem
+											className='text-red-600 focus:text-red-600 focus:bg-red-100 dark:focus:bg-red-900/30'
+											onClick={() => setChatToDelete(chat)}
+										>
+											<Trash2 className='mr-2 h-4 w-4' /> Delete
+										</ContextMenuItem>
+									</ContextMenuContent>
+								)}
 							</ContextMenu>
 						))}
 
@@ -187,7 +224,10 @@ export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 				</ScrollArea>
 			</div>
 
-			<Dialog open={!!chatToEdit} onOpenChange={open => !open && setChatToEdit(null)}>
+			<Dialog
+				open={!!chatToEdit}
+				onOpenChange={open => !open && setChatToEdit(null)}
+			>
 				<DialogContent>
 					<DialogHeader>
 						<DialogTitle>Rename Chat</DialogTitle>
@@ -213,18 +253,24 @@ export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 				</DialogContent>
 			</Dialog>
 
-			<AlertDialog open={!!chatToDelete} onOpenChange={open => !open && setChatToDelete(null)}>
+			<AlertDialog
+				open={!!chatToDelete}
+				onOpenChange={open => !open && setChatToDelete(null)}
+			>
 				<AlertDialogContent>
 					<AlertDialogHeader>
 						<AlertDialogTitle>Are you sure?</AlertDialogTitle>
 						<AlertDialogDescription>
-							This action is irreversible. The chat "{chatToDelete?.title}" and all its messages will be permanently
-							deleted.
+							This action is irreversible. The chat "{chatToDelete?.title}" and
+							all its messages will be permanently deleted.
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
 						<AlertDialogCancel>Cancel</AlertDialogCancel>
-						<AlertDialogAction onClick={deleteChat} className='bg-red-600 hover:bg-red-700 text-white'>
+						<AlertDialogAction
+							onClick={deleteChat}
+							className='bg-red-600 hover:bg-red-700 text-white'
+						>
 							Delete
 						</AlertDialogAction>
 					</AlertDialogFooter>

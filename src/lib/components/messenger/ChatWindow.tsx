@@ -1,13 +1,22 @@
-import { useState, useRef, useEffect } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { db, type Message } from '$lib/db'
+import {
+	ArrowLeft,
+	Check,
+	Info,
+	List,
+	MoreVertical,
+	Pencil,
+	Send,
+	X,
+} from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 import { cn } from '@/lib/utils'
-import { MessageBubble } from './MessageBubble'
+import { Avatar, AvatarFallback } from '$lib/components/ui/avatar'
 
 import { Button } from '$lib/components/ui/button'
 import { Textarea } from '$lib/components/ui/textarea'
-import { Avatar, AvatarFallback } from '$lib/components/ui/avatar'
-import { Send, MoreVertical, X, Check, Pencil, ArrowLeft, List, Info } from 'lucide-react'
+import { db, type Message } from '$lib/db'
+import { MessageBubble } from './MessageBubble'
 
 interface ChatWindowProps {
 	activeChatId: number
@@ -35,7 +44,7 @@ export function ChatWindow({ activeChatId }: ChatWindowProps) {
 			.equals(activeChatId)
 			.filter(msg => !!msg.isPinned)
 			.toArray()
-	}, [activeChatId]);
+	}, [activeChatId])
 
 	useEffect(() => {
 		setIsPinnedView(false)
@@ -55,7 +64,8 @@ export function ChatWindow({ activeChatId }: ChatWindowProps) {
 
 	useEffect(() => {
 		if (scrollViewportRef.current && !editingMessage && !isPinnedView) {
-			scrollViewportRef.current.scrollTop = scrollViewportRef.current.scrollHeight
+			scrollViewportRef.current.scrollTop =
+				scrollViewportRef.current.scrollHeight
 		}
 	}, [allMessages?.length, activeChatId, isPinnedView])
 
@@ -67,7 +77,10 @@ export function ChatWindow({ activeChatId }: ChatWindowProps) {
 		if (el) {
 			el.scrollIntoView({ behavior: 'smooth', block: 'center' })
 			el.classList.add('bg-primary/10', 'ring-2', 'ring-primary/20')
-			setTimeout(() => el.classList.remove('bg-primary/10', 'ring-2', 'ring-primary/20'), 1000)
+			setTimeout(
+				() => el.classList.remove('bg-primary/10', 'ring-2', 'ring-primary/20'),
+				1000,
+			)
 		}
 
 		setActivePinIndex(prev => {
@@ -76,15 +89,24 @@ export function ChatWindow({ activeChatId }: ChatWindowProps) {
 		})
 	}
 
-	const currentDisplayPin = pinnedMessages && activePinIndex !== -1 ? pinnedMessages[activePinIndex] : null;
+	const currentDisplayPin =
+		pinnedMessages && activePinIndex !== -1
+			? pinnedMessages[activePinIndex]
+			: null
 
 	const handleSendOrUpdate = async () => {
 		if (!inputValue.trim()) return
 		const text = inputValue.trim()
 
 		if (editingMessage) {
-			await db.messages.update(editingMessage.id!, { content: text, isEdited: true })
-			const lastMsg = await db.messages.where('chatId').equals(activeChatId).last()
+			await db.messages.update(editingMessage.id!, {
+				content: text,
+				isEdited: true,
+			})
+			const lastMsg = await db.messages
+				.where('chatId')
+				.equals(activeChatId)
+				.last()
 			if (lastMsg && lastMsg.id === editingMessage.id) {
 				await db.chats.update(activeChatId, { previewText: text })
 			}
@@ -113,8 +135,13 @@ export function ChatWindow({ activeChatId }: ChatWindowProps) {
 			setIsPinnedView(false)
 		}
 
-		const lastMsg = await db.messages.where('chatId').equals(activeChatId).last()
-		await db.chats.update(activeChatId, { previewText: lastMsg ? lastMsg.content : '' })
+		const lastMsg = await db.messages
+			.where('chatId')
+			.equals(activeChatId)
+			.last()
+		await db.chats.update(activeChatId, {
+			previewText: lastMsg ? lastMsg.content : '',
+		})
 	}
 
 	const pinMessage = async (msg: Message) => {
@@ -151,7 +178,10 @@ export function ChatWindow({ activeChatId }: ChatWindowProps) {
 
 	const messagesToRender = isPinnedView ? pinnedMessages : allMessages
 
-	if (!chat) return <div className='flex h-full items-center justify-center'>Loading...</div>
+	if (!chat)
+		return (
+			<div className='flex h-full items-center justify-center'>Loading...</div>
+		)
 
 	const isSystemChat = chat?.isSystem
 
@@ -160,24 +190,38 @@ export function ChatWindow({ activeChatId }: ChatWindowProps) {
 			<div className='flex h-16 items-center justify-between border-b px-6 py-4 bg-background/95 backdrop-blur z-10 transition-all'>
 				{isPinnedView ? (
 					<div className='flex items-center gap-3 animate-in slide-in-from-left-2'>
-						<Button variant='ghost' size='icon' onClick={() => setIsPinnedView(false)}>
+						<Button
+							variant='ghost'
+							size='icon'
+							onClick={() => setIsPinnedView(false)}
+						>
 							<ArrowLeft className='h-5 w-5' />
 						</Button>
 						<div>
-							<h2 className='text-sm font-semibold'>{pinnedMessages?.length || 0} pinned messages</h2>
+							<h2 className='text-sm font-semibold'>
+								{pinnedMessages?.length || 0} pinned messages
+							</h2>
 						</div>
 					</div>
 				) : (
 					<div className='flex items-center gap-3 animate-in fade-in'>
 						<Avatar className='h-9 w-9'>
 							<AvatarFallback className='bg-muted text-muted-foreground'>
-								{isSystemChat ? <Info className='h-5 w-5' /> : chat.title.slice(0, 2).toUpperCase()}
+								{isSystemChat ? (
+									<Info className='h-5 w-5' />
+								) : (
+									chat.title.slice(0, 2).toUpperCase()
+								)}
 							</AvatarFallback>
 						</Avatar>
 						<div>
-							<h2 className='text-sm font-semibold flex items-center gap-2'>{chat.title}</h2>
+							<h2 className='text-sm font-semibold flex items-center gap-2'>
+								{chat.title}
+							</h2>
 							<p className='text-xs text-muted-foreground'>
-								{isSystemChat ? 'Read-only' : `${allMessages?.length || 0} messages`}
+								{isSystemChat
+									? 'Read-only'
+									: `${allMessages?.length || 0} messages`}
 							</p>
 						</div>
 					</div>
@@ -198,8 +242,12 @@ export function ChatWindow({ activeChatId }: ChatWindowProps) {
 					<div className='flex items-center gap-3 overflow-hidden'>
 						<div className='w-0.5 h-8 bg-primary rounded-full shrink-0'></div>
 						<div className='flex flex-col overflow-hidden'>
-							<span className='font-semibold text-primary'>Pinned Message #{activePinIndex + 1}</span>
-							<span className='truncate text-muted-foreground opacity-90'>{currentDisplayPin.content}</span>
+							<span className='font-semibold text-primary'>
+								Pinned Message #{activePinIndex + 1}
+							</span>
+							<span className='truncate text-muted-foreground opacity-90'>
+								{currentDisplayPin.content}
+							</span>
 						</div>
 					</div>
 					<button
@@ -214,7 +262,10 @@ export function ChatWindow({ activeChatId }: ChatWindowProps) {
 				</div>
 			)}
 
-			<div className='flex-1 overflow-y-auto p-4 space-y-4 scroll-smooth' ref={scrollViewportRef}>
+			<div
+				className='flex-1 overflow-y-auto p-4 space-y-4 scroll-smooth'
+				ref={scrollViewportRef}
+			>
 				{messagesToRender?.map(msg => (
 					<div
 						key={msg.id}
@@ -224,7 +275,12 @@ export function ChatWindow({ activeChatId }: ChatWindowProps) {
 						}}
 						className='transition-all duration-500 rounded-2xl'
 					>
-						<MessageBubble message={msg} onDelete={deleteMessage} onPin={pinMessage} onEdit={startEditing} />
+						<MessageBubble
+							message={msg}
+							onDelete={deleteMessage}
+							onPin={pinMessage}
+							onEdit={startEditing}
+						/>
 					</div>
 				))}
 			</div>
@@ -250,7 +306,10 @@ export function ChatWindow({ activeChatId }: ChatWindowProps) {
 									<Pencil className='h-3 w-3' />
 									<span>Editing message</span>
 								</div>
-								<button onClick={cancelEdit} className='hover:text-destructive transition-colors'>
+								<button
+									onClick={cancelEdit}
+									className='hover:text-destructive transition-colors'
+								>
 									<X className='h-3 w-3' />
 								</button>
 							</div>
@@ -259,7 +318,8 @@ export function ChatWindow({ activeChatId }: ChatWindowProps) {
 						<div
 							className={cn(
 								'flex items-end gap-2 rounded-xl border bg-muted/30 p-2 transition-all',
-								editingMessage && 'ring-1 ring-primary/20 border-primary/20 bg-primary/5'
+								editingMessage &&
+									'ring-1 ring-primary/20 border-primary/20 bg-primary/5',
 							)}
 						>
 							<Textarea
@@ -276,7 +336,11 @@ export function ChatWindow({ activeChatId }: ChatWindowProps) {
 								className='mb-1 h-8 w-8 shrink-0 rounded-full transition-all'
 								variant={editingMessage ? 'secondary' : 'default'}
 							>
-								{editingMessage ? <Check className='h-4 w-4' /> : <Send className='h-4 w-4' />}
+								{editingMessage ? (
+									<Check className='h-4 w-4' />
+								) : (
+									<Send className='h-4 w-4' />
+								)}
 							</Button>
 						</div>
 					</>

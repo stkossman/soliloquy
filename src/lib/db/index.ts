@@ -1,4 +1,4 @@
-import Dexie, { type Table } from 'dexie';
+import Dexie, { type Table } from 'dexie'
 
 export interface Chat {
 	id?: number
@@ -20,16 +20,16 @@ export interface Message {
 }
 
 export class SoliloquyDB extends Dexie {
-	chats!: Table<Chat>;
-	messages!: Table<Message>;
+	chats!: Table<Chat>
+	messages!: Table<Message>
 
 	constructor() {
-		super('SoliloquyDB');
+		super('SoliloquyDB')
 
 		this.version(1).stores({
 			chats: '++id, title, isPinned, lastModified',
-			messages: '++id, chatId, createdAt'
-		});
+			messages: '++id, chatId, createdAt',
+		})
 
 		this.on('populate', () => {
 			// system chat
@@ -88,4 +88,4 @@ export class SoliloquyDB extends Dexie {
 	}
 }
 
-export const db = new SoliloquyDB();
+export const db = new SoliloquyDB()
