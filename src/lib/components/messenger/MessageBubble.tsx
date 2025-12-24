@@ -1,5 +1,7 @@
 import { type Message } from '$lib/db'
 import { cn } from '@/lib/utils'
+import { MarkdownRenderer } from '../shared/MarkdownRenderer'
+
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuTrigger } from "$lib/components/ui/context-menu"
 import { Pin, Pencil, Trash2, Copy, Check } from "lucide-react"
 import { useState } from "react"
@@ -25,19 +27,6 @@ export function MessageBubble({ message, onEdit, onDelete, onPin }: MessageBubbl
 		setTimeout(() => setCopied(false), 2000);
 	};
 
-	const formatText = (text: string) => {
-		let formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-
-		formatted = formatted.replace(
-			/\[(.*?)\]\((.*?)\)/g,
-			'<a href="$2" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline">$1</a>'
-		)
-
-		formatted = formatted.replace(/\n/g, '<br />')
-
-		return formatted
-	}
-
 	return (
 		<ContextMenu>
 			<ContextMenuTrigger>
@@ -57,10 +46,7 @@ export function MessageBubble({ message, onEdit, onDelete, onPin }: MessageBubbl
 							</div>
 						)}
 
-						<p
-							className='whitespace-pre-wrap leading-relaxed'
-							dangerouslySetInnerHTML={{ __html: formatText(message.content) }}
-						></p>
+						<MarkdownRenderer content={message.content} />
 
 						<div className='mt-1 flex items-center justify-end gap-1 opacity-70'>
 							{message.isEdited && <span className='text-[10px]'>edited</span>}
