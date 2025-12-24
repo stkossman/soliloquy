@@ -39,20 +39,28 @@ The development is divided into phases. Below is the current status of features.
     - [x] Edit chat title.
     - [x] Delete chat (with confirmation).
 
-### Phase 3: Message Interactions (Current focus)
+### Phase 3: Message Interactions ✅
 - [x] **Message Management:**
     - [x] **Edit:** Modify sent messages (with "edited" label).
     - [x] **Delete:** Remove messages from history.
     - [x] **Pin:** Pin important messages within a chat context (Pinned Bar, Carousel Navigation, Pinned View Mode).
     - [x] **Copy:** One-click copy to clipboard.
+- [x] **Rich Text:** Markdown rendering support (Bold, Italic, Lists, Code, Links) via `react-markdown`.
+
+### Phase 4: Advanced Features
+- [ ] **Chat Settings (More Menu):**
+    - [ ] **Clear History:** Delete all messages without deleting the chat.
+    - [ ] **Export Chat:** Download chat history as `.md` or `.json`.
+    - [ ] **Chat Info:** Word/Character count statistics.
+- [ ] **Customization:**
+    - [ ] **Chat Identity:** Ability to change chat icon (Emoji/Color) or upload avatar.
+    - [ ] **Theme:** Toggle between Dark/Light modes (Default: Dark).
 - [ ] **Search within Chat:** `Ctrl+F` logic to find specific text inside a conversation.
-- [ ] **Formatting:** Markdown support for rich text notes.
 - [ ] **Scroll Logic:** "Scroll to bottom" button when reading history.
 
-### Phase 4: Data & Settings
-- [ ] **Data Persistence:** JSON Export/Import for backups (since data is local-only).
+### Phase 5: Data Persistence
+- [ ] **Backup System:** Full JSON Export/Import for moving data between devices.
 - [ ] **Keyboard Shortcuts:** Navigation and actions via hotkeys (e.g., `Ctrl+N` for new chat).
-- [ ] **Theme:** Toggle between Dark/Light modes (Default: Dark).
 
 ## Getting Started
 
