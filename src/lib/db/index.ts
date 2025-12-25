@@ -44,7 +44,7 @@ export class SoliloquyDB extends Dexie {
 						{
 							chatId: id as number,
 							content:
-								'### **Markdown Support**\n\nSoliloquy supports rich text formatting. Try these:\n\n- **Bold**: `**text**`\n- *Italic*: `*text*`\n- [Links](https://soliloquy.app): `[Link](url)`\n\n> Blockquotes are great for highlighting ideas (`> text`)\n\nCode blocks work too:\n```js\nconsole.log("Hello Soliloquy");\n```',
+								'### **Markdown Support**\n\nSoliloquy supports rich text formatting. Try these:\n\n- **Bold**: `**text**`\n- *Italic*: `*text*`\n- [Links](https://soliloquy-notes.vercel.app/): `[Link](url)`\n\n> Blockquotes are great for highlighting ideas (`> text`)\n\nCode blocks work too:\n```js\nconsole.log("Hello Soliloquy");\n```',
 							createdAt: new Date(Date.now() - 5000),
 							isEdited: false,
 						},
