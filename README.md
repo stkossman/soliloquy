@@ -60,10 +60,10 @@ Built with a focus on privacy and speed, Soliloquy stores all data directly in y
 - [x] **Advanced Pinning:** Pinned Bar, Carousel Navigation, Pinned View Mode.
 - [x] **Rich Text:** Markdown rendering (`react-markdown`).
 
-### Phase 4: Optimization & Refactoring 🛠️
+### Phase 4: Optimization & Refactoring ✅
 - [x] **Code Splitting:** Extract huge components (`ChatWindow`, `Sidebar`).
 - [x] **Performance:** Memoization and custom hooks (`useChatLogic`).
-- [ ] **CI/CD:** Automated deployment to Cloudflare Pages.
+- [x] **CI/CD:** Automated deployment to Vercel.
 
 ### Phase 5: Advanced Features 🔮
 - [ ] **Chat Actions:** Clear History, Export Chat (`.md`/`.json`).
