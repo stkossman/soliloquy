@@ -61,8 +61,8 @@ Built with a focus on privacy and speed, Soliloquy stores all data directly in y
 - [x] **Rich Text:** Markdown rendering (`react-markdown`).
 
 ### Phase 4: Optimization & Refactoring 🛠️
-- [ ] **Code Splitting:** Extract huge components (`ChatWindow`, `Sidebar`).
-- [ ] **Performance:** Memoization and custom hooks (`useChatLogic`).
+- [x] **Code Splitting:** Extract huge components (`ChatWindow`, `Sidebar`).
+- [x] **Performance:** Memoization and custom hooks (`useChatLogic`).
 - [ ] **CI/CD:** Automated deployment to Cloudflare Pages.
 
 ### Phase 5: Advanced Features 🔮

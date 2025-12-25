@@ -1,6 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useEffect, useRef, useState } from 'react'
-import { db, type Message } from '$lib/db'
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react'
+import type { Message } from '$lib/types'
+import { db } from '$lib/db'
 
 export function useChatWindow(activeChatId: number) {
 	const [inputValue, setInputValue] = useState('')
@@ -49,12 +50,13 @@ export function useChatWindow(activeChatId: number) {
 			scrollViewportRef.current.scrollTop =
 				scrollViewportRef.current.scrollHeight
 		}
-	}, [allMessages?.length, activeChatId, isPinnedView])
+	}, [allMessages, editingMessage, isPinnedView, activeChatId])
 
-	const handlePinClick = () => {
+	const handlePinClick = useCallback(() => {
 		if (!pinnedMessages || activePinIndex === -1) return
 		const targetMsg = pinnedMessages[activePinIndex]
 		const el = messageRefs.current.get(targetMsg.id!)
+
 		if (el) {
 			el.scrollIntoView({ behavior: 'smooth', block: 'center' })
 			el.classList.add('bg-primary/10', 'ring-2', 'ring-primary/20')
@@ -63,13 +65,14 @@ export function useChatWindow(activeChatId: number) {
 				1000,
 			)
 		}
+
 		setActivePinIndex(prev => {
 			const next = prev - 1
 			return next < 0 ? pinnedMessages.length - 1 : next
 		})
-	}
+	}, [pinnedMessages, activePinIndex])
 
-	const handleSendOrUpdate = async () => {
+	const handleSendOrUpdate = useCallback(async () => {
 		if (!inputValue.trim()) return
 		const text = inputValue.trim()
 
@@ -103,26 +106,28 @@ export function useChatWindow(activeChatId: number) {
 			})
 			setInputValue('')
 		}
-	}
+	}, [inputValue, editingMessage, activeChatId])
 
-	const deleteMessage = async (id: number) => {
-		await db.messages.delete(id)
-		if (isPinnedView && pinnedMessages && pinnedMessages.length <= 1) {
-			setIsPinnedView(false)
-		}
-		const lastMsg = await db.messages
-			.where('chatId')
-			.equals(activeChatId)
-			.last()
-		await db.chats.update(activeChatId, {
-			previewText: lastMsg ? lastMsg.content : '',
-		})
-	}
+	const deleteMessage = useCallback(
+		async (id: number) => {
+			await db.messages.delete(id)
 
-	const pinMessage = async (msg: Message) =>
-		db.messages.update(msg.id!, { isPinned: !msg.isPinned })
+			const lastMsg = await db.messages
+				.where('chatId')
+				.equals(activeChatId)
+				.last()
+			await db.chats.update(activeChatId, {
+				previewText: lastMsg ? lastMsg.content : '',
+			})
+		},
+		[activeChatId],
+	)
 
-	const unpinAllMessages = async () => {
+	const pinMessage = useCallback(async (msg: Message) => {
+		await db.messages.update(msg.id!, { isPinned: !msg.isPinned })
+	}, [])
+
+	const unpinAllMessages = useCallback(async () => {
 		if (!pinnedMessages) return
 		await db.transaction('rw', db.messages, async () => {
 			for (const msg of pinnedMessages) {
@@ -130,18 +135,26 @@ export function useChatWindow(activeChatId: number) {
 			}
 		})
 		setIsPinnedView(false)
-	}
+	}, [pinnedMessages])
 
-	const startEditing = (msg: Message) => {
-		if (isPinnedView) setIsPinnedView(false)
+	const startEditing = useCallback((msg: Message) => {
+		setIsPinnedView(false)
 		setEditingMessage(msg)
 		setInputValue(msg.content)
-	}
+	}, [])
 
-	const cancelEdit = () => {
+	const cancelEdit = useCallback(() => {
 		setEditingMessage(null)
 		setInputValue('')
-	}
+	}, [])
+
+	const currentDisplayPin = useMemo(
+		() =>
+			pinnedMessages && activePinIndex !== -1
+				? pinnedMessages[activePinIndex]
+				: null,
+		[pinnedMessages, activePinIndex],
+	)
 
 	return {
 		// State
@@ -155,10 +168,7 @@ export function useChatWindow(activeChatId: number) {
 		chat,
 		allMessages,
 		pinnedMessages,
-		currentDisplayPin:
-			pinnedMessages && activePinIndex !== -1
-				? pinnedMessages[activePinIndex]
-				: null,
+		currentDisplayPin,
 		// Refs
 		scrollViewportRef,
 		messageRefs,

@@ -1,6 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useState } from 'react'
-import { type Chat, db } from '$lib/db'
+import { useState, useCallback } from 'react'
+import { db } from '$lib/db'
+import type { Chat } from '$lib/types'
 
 export function useSidebar() {
 	const [searchQuery, setSearchQuery] = useState('')
@@ -22,7 +23,7 @@ export function useSidebar() {
 		})
 	}, [searchQuery])
 
-	const createNewChat = async (onSelect: (id: number) => void) => {
+	const createNewChat = useCallback(async (onSelect: (id: number) => void) => {
 		const id = await db.chats.add({
 			title: 'New Note',
 			isPinned: false,
@@ -30,39 +31,42 @@ export function useSidebar() {
 			lastModified: new Date(),
 		})
 		onSelect(id as number)
-	}
+	}, [])
 
-	const togglePin = async (chat: Chat) => {
+	const togglePin = useCallback(async (chat: Chat) => {
 		await db.chats.update(chat.id!, { isPinned: !chat.isPinned })
-	}
+	}, [])
 
-	const saveChatTitle = async () => {
+	const saveChatTitle = useCallback(async () => {
 		if (chatToEdit && newTitle.trim()) {
 			await db.chats.update(chatToEdit.id!, { title: newTitle.trim() })
 			setChatToEdit(null)
 		}
-	}
+	}, [chatToEdit, newTitle])
 
-	const deleteChat = async (
-		activeChatId: number | null,
-		onSelect: (id: number | null) => void,
-	) => {
-		if (chatToDelete) {
-			await db.transaction('rw', db.chats, db.messages, async () => {
-				await db.messages.where({ chatId: chatToDelete.id! }).delete()
-				await db.chats.delete(chatToDelete.id!)
-			})
-			if (activeChatId === chatToDelete.id) {
-				onSelect(null)
+	const deleteChat = useCallback(
+		async (
+			activeChatId: number | null,
+			onSelect: (id: number | null) => void,
+		) => {
+			if (chatToDelete) {
+				await db.transaction('rw', db.chats, db.messages, async () => {
+					await db.messages.where({ chatId: chatToDelete.id! }).delete()
+					await db.chats.delete(chatToDelete.id!)
+				})
+				if (activeChatId === chatToDelete.id) {
+					onSelect(null)
+				}
+				setChatToDelete(null)
 			}
-			setChatToDelete(null)
-		}
-	}
+		},
+		[chatToDelete],
+	)
 
-	const openEditDialog = (chat: Chat) => {
+	const openEditDialog = useCallback((chat: Chat) => {
 		setChatToEdit(chat)
 		setNewTitle(chat.title)
-	}
+	}, [])
 
 	return {
 		chats,
