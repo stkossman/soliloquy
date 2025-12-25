@@ -9,7 +9,7 @@ import {
 	ContextMenuSeparator,
 	ContextMenuTrigger,
 } from '$lib/components/ui/context-menu'
-import type { Message } from '$lib/db'
+import type { Message } from '$lib/types'
 import { MarkdownRenderer } from '../shared/MarkdownRenderer'
 
 interface MessageBubbleProps {
