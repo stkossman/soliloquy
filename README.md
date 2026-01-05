@@ -66,7 +66,9 @@ Built with a focus on privacy and speed, Soliloquy stores all data directly in y
 - [x] **CI/CD:** Automated deployment to Vercel.
 
 ### Phase 5: Advanced Features 🔮
-- [ ] **Chat Actions:** Clear History, Export Chat (`.md`/`.json`).
+- [ ] **Chat Actions:** 
+  - [x] Clear History, Export Chat (`.md`/`.json`).
+  - [ ] Import chat (from `.md`/`.json`)
 - [ ] **Customization:** Chat Avatars & Theme Toggle.
 - [ ] **Persistence:** Global Backup/Restore.
 
