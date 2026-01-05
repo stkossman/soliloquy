@@ -2,12 +2,15 @@ import { ArrowLeft, Info, MoreVertical } from 'lucide-react'
 import { Avatar, AvatarFallback } from '$lib/components/ui/avatar'
 import { Button } from '$lib/components/ui/button'
 import type { Chat } from '$lib/types'
+import { ChatActionsMenu } from './ChatActionsMenu'
 
 interface ChatHeaderProps {
 	chat: Chat
 	isPinnedView: boolean
 	pinnedCount: number
 	onBackToNormal: () => void
+	onClearHistory: () => void
+	onExport: (format: 'json' | 'md') => void
 }
 
 export function ChatHeader({
@@ -15,6 +18,8 @@ export function ChatHeader({
 	isPinnedView,
 	pinnedCount,
 	onBackToNormal,
+	onClearHistory,
+	onExport,
 }: ChatHeaderProps) {
 	const isSystemChat = chat.isSystem
 
@@ -56,9 +61,11 @@ export function ChatHeader({
 					</p>
 				</div>
 			</div>
-			<Button variant='ghost' size='icon'>
-				<MoreVertical className='h-5 w-5' />
-			</Button>
+			<ChatActionsMenu
+				onClearHistory={onClearHistory}
+				onExport={onExport}
+				disabled={!!isSystemChat}
+			/>
 		</div>
 	)
 }

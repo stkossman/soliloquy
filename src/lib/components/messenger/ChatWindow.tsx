@@ -27,6 +27,8 @@ export function ChatWindow({ activeChatId }: ChatWindowProps) {
 				isPinnedView={logic.isPinnedView}
 				pinnedCount={logic.pinnedMessages?.length || 0}
 				onBackToNormal={() => logic.setIsPinnedView(false)}
+				onClearHistory={() => logic.clearHistory()}
+				onExport={format => logic.exportChat(format)}
 			/>
 
 			{!logic.isPinnedView && (

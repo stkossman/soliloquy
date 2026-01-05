@@ -1,5 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useState, useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { db } from '$lib/db'
 import type { Chat } from '$lib/types'
 

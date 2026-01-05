@@ -1,7 +1,8 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useEffect, useRef, useState, useCallback, useMemo } from 'react'
-import type { Message } from '$lib/types'
+import { saveAs } from 'file-saver'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { db } from '$lib/db'
+import type { Message } from '$lib/types'
 
 export function useChatWindow(activeChatId: number) {
 	const [inputValue, setInputValue] = useState('')
@@ -156,6 +157,63 @@ export function useChatWindow(activeChatId: number) {
 		[pinnedMessages, activePinIndex],
 	)
 
+	const clearHistory = useCallback(async () => {
+		await db.transaction('rw', db.messages, db.chats, async () => {
+			await db.messages.where({ chatId: activeChatId }).delete()
+			await db.chats.update(activeChatId, {
+				previewText: '',
+				lastModified: new Date(),
+			})
+		})
+
+		setIsPinnedView(false)
+	}, [activeChatId])
+
+	const exportChat = useCallback(
+		async (format: 'json' | 'md') => {
+			const messages = await db.messages
+				.where('chatId')
+				.equals(activeChatId)
+				.sortBy('createdAt')
+
+			const chatInfo = await db.chats.get(activeChatId)
+			const title = chatInfo?.title || 'Unknown Chat'
+			const dateStr = new Date().toISOString().split('T')[0]
+			const fileName = `soliloquy_export_${title.replace(/\s+/g, '_')}_${dateStr}`
+
+			if (format === 'json') {
+				const data = JSON.stringify({ chat: chatInfo, messages }, null, 2)
+				const blob = new Blob([data], { type: 'application/json' })
+
+				const url = URL.createObjectURL(blob)
+				const a = document.createElement('a')
+				a.href = url
+				a.download = `${fileName}.json`
+				a.click()
+				URL.revokeObjectURL(url)
+			} else if (format === 'md') {
+				let mdContent = `# ${title}\n\n`
+				mdContent += `*Exported on ${new Date().toLocaleString()}*\n\n---\n\n`
+
+				messages.forEach(msg => {
+					const time = msg.createdAt.toLocaleString()
+					mdContent += `### [${time}]\n${msg.content}\n\n`
+					if (msg.isPinned) mdContent += `> 📌 Pinned\n\n`
+					mdContent += `---\n\n`
+				})
+
+				const blob = new Blob([mdContent], { type: 'text/markdown' })
+				const url = URL.createObjectURL(blob)
+				const a = document.createElement('a')
+				a.href = url
+				a.download = `${fileName}.md`
+				a.click()
+				URL.revokeObjectURL(url)
+			}
+		},
+		[activeChatId],
+	)
+
 	return {
 		// State
 		inputValue,
@@ -180,5 +238,7 @@ export function useChatWindow(activeChatId: number) {
 		unpinAllMessages,
 		startEditing,
 		cancelEdit,
+		clearHistory,
+		exportChat,
 	}
 }
