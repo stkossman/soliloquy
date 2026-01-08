@@ -43,34 +43,35 @@ Built with a focus on privacy and speed, Soliloquy stores all data directly in y
 
 ## 🗺️ Roadmap
 
-### Phase 1: Foundation (MVP) ✅
-- [x] **Project Setup:** Astro + Bun integration.
-- [x] **Database:** `Chats` and `Messages` schema with indexing.
-- [x] **Core UI:** Sidebar & Chat Interface.
-- [x] **Smart Sorting:** Auto-sort by modification date.
+### Completed Milestones ✅
+- [x] **Core Foundation**: Architecture (Astro/React/Dexie), CRUD, Smart Sorting.
+- [x] **Architecture & Performance**: Refactored components, Custom Hooks, Vercel CI/CD.
+- [x] **Basic Chat Actions**: Context Menu, Clear History, Export (.md/.json).
+- [x] **Rich Text**: Markdown rendering support.
 
-### Phase 2: Chat Management ✅
-- [x] **Refactoring:** Migration from Svelte to React.
-- [x] **Search:** Real-time chat filtering.
-- [x] **CRUD:** Create, Rename, Delete (Cascading), Pin chats.
-- [x] **System Chat:** Read-only "About" chat seeded on first load.
+### Phase 5: UX Polish (Current Focus)
+- [ ] **UX Improvements**:
+  - [ ] **Fix Sidebar Scroll**: Ensure chat list scrolls correctly when overflowing.
+  - [ ] **Quick Delete**: Auto-focus "Delete" button in confirmation dialogs (or enable Enter to confirm).
+  - [ ] **Scroll Logic**: Add "Scroll to Bottom" button in chat view.
+- [ ] **Bulk Actions (Multi-select)**:
+  - [ ] **Selection mode in Sidebar** (Select multiple chats).
+  - [ ] **Batch Delete & Batch Pin/Unpin** actions.
+- [ ] **Drag-and-Drop Reordering**:
+  - [ ] Custom order for pinned chats.
+  - [ ] Logic to prevent mixing pinned/unpinned items during drag.
 
-### Phase 3: Message Interactions ✅
-- [x] **Actions:** Edit, Delete, Copy messages.
-- [x] **Advanced Pinning:** Pinned Bar, Carousel Navigation, Pinned View Mode.
-- [x] **Rich Text:** Markdown rendering (`react-markdown`).
-
-### Phase 4: Optimization & Refactoring ✅
-- [x] **Code Splitting:** Extract huge components (`ChatWindow`, `Sidebar`).
-- [x] **Performance:** Memoization and custom hooks (`useChatLogic`).
-- [x] **CI/CD:** Automated deployment to Vercel.
-
-### Phase 5: Advanced Features 🔮
-- [ ] **Chat Actions:** 
-  - [x] Clear History, Export Chat (`.md`/`.json`).
-  - [ ] Import chat (from `.md`/`.json`)
-- [ ] **Customization:** Chat Avatars & Theme Toggle.
-- [ ] **Persistence:** Global Backup/Restore.
+### Phase 6: Advanced Functionality
+- [ ] **Editor Experience**:
+    - [ ] **Visual Formatting Menu**: Custom Context Menu (Right-Click) on text selection to apply formatting (Bold, Italic, Link, Monospace, Spoiler) without typing Markdown syntax manually.
+- [ ] **Search**:
+  - [ ] **Search within Chat**: Ctrl+F style search to find specific messages inside a conversation.
+- [ ] **Data Portability**:
+  - [ ] **Import Chat**: Restore chat from exported .json/.md.
+  - [ ] **Global Backup**: Full database export/import file.
+- [ ] **Personalization**:
+  - [ ] **Chat Identity**: Custom Emoji/Avatar for chats.
+  - [ ] **Theme Toggle**: Switch between Light/Dark modes.
 
 ## 🚀 Getting Started
 
