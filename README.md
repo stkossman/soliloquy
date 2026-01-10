@@ -50,10 +50,10 @@ Built with a focus on privacy and speed, Soliloquy stores all data directly in y
 - [x] **Rich Text**: Markdown rendering support.
 
 ### Phase 5: UX Polish (Current Focus)
-- [ ] **UX Improvements**:
+- [x] **UX Improvements**:
   - [x] **Fix Sidebar Scroll**: Ensure chat list scrolls correctly when overflowing.
   - [x] **Quick Delete**: Auto-focus "Delete" button in confirmation dialogs (or enable Enter to confirm).
-  - [ ] **Scroll Logic**: Add "Scroll to Bottom" button in chat view.
+  - [x] **Scroll Logic**: Add "Scroll to Bottom" button in chat view.
 - [ ] **Bulk Actions (Multi-select)**:
   - [ ] **Selection mode in Sidebar** (Select multiple chats).
   - [ ] **Batch Delete & Batch Pin/Unpin** actions.

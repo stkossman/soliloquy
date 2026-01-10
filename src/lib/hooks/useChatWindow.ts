@@ -3,12 +3,15 @@ import { saveAs } from 'file-saver'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { db } from '$lib/db'
 import type { Message } from '$lib/types'
+import { set } from 'astro:schema'
 
 export function useChatWindow(activeChatId: number) {
 	const [inputValue, setInputValue] = useState('')
 	const [editingMessage, setEditingMessage] = useState<Message | null>(null)
 	const [isPinnedView, setIsPinnedView] = useState(false)
 	const [activePinIndex, setActivePinIndex] = useState<number>(-1)
+
+	const [showScrollToBottom, setShowScrollToBottom] = useState(false)
 
 	const scrollViewportRef = useRef<HTMLDivElement>(null)
 	const messageRefs = useRef<Map<number, HTMLDivElement>>(new Map())
@@ -34,6 +37,7 @@ export function useChatWindow(activeChatId: number) {
 		setIsPinnedView(false)
 		setEditingMessage(null)
 		setInputValue('')
+		setShowScrollToBottom(false)
 	}, [activeChatId])
 
 	useEffect(() => {
@@ -214,6 +218,23 @@ export function useChatWindow(activeChatId: number) {
 		[activeChatId],
 	)
 
+	const handleScroll = useCallback(() => {
+		if (!scrollViewportRef.current) return
+
+		const { scrollTop, scrollHeight, clientHeight } = scrollViewportRef.current
+
+		const isDistanceFromBottom = scrollHeight - scrollTop - clientHeight > 100
+		setShowScrollToBottom(isDistanceFromBottom)
+	}, [])
+
+	const scrollToBottom = useCallback(() => {
+		scrollViewportRef.current?.scrollTo({
+			top: scrollViewportRef.current.scrollHeight,
+			behavior: 'smooth',
+		})
+		setShowScrollToBottom(false)
+	}, [])
+
 	return {
 		// State
 		inputValue,
@@ -240,5 +261,9 @@ export function useChatWindow(activeChatId: number) {
 		cancelEdit,
 		clearHistory,
 		exportChat,
+		// Scroll
+		handleScroll,
+		scrollToBottom,
+		showScrollToBottom,
 	}
 }

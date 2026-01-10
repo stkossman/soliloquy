@@ -8,6 +8,7 @@ interface MessageListProps {
 	onDelete: (id: number) => void
 	onPin: (msg: Message) => void
 	onEdit: (msg: Message) => void
+	onScroll?: () => void
 }
 
 export function MessageList({
@@ -17,11 +18,13 @@ export function MessageList({
 	onDelete,
 	onPin,
 	onEdit,
+	onScroll,
 }: MessageListProps) {
 	return (
 		<div
 			className='flex-1 overflow-y-auto p-4 space-y-4 scroll-smooth'
 			ref={scrollRef}
+			onScroll={onScroll}
 		>
 			{messages?.map(msg => (
 				<div
