@@ -19,7 +19,7 @@ export function SidebarHeader({
 			<div className='flex items-center justify-between'>
 				<div className='flex items-center gap-3'>
 					<Avatar className='h-9 w-9'>
-						<AvatarImage src='https://github.com/shadcn.png' alt='@stkossman' />
+						<AvatarImage src='/logo.svg' alt='@stkossman' />
 						<AvatarFallback>SK</AvatarFallback>
 					</Avatar>
 					<div className='flex flex-col'>
