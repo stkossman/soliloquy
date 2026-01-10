@@ -1,5 +1,5 @@
 import { MessageSquare } from 'lucide-react'
-import { ScrollArea } from '$lib/components/ui/scroll-area'
+//import { ScrollArea } from '$lib/components/ui/scroll-area'
 import { Separator } from '$lib/components/ui/separator'
 import { useSidebar } from '$lib/hooks/useSidebar'
 import { SidebarDialogs } from './sidebar/SidebarDialogs'
@@ -25,7 +25,7 @@ export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 
 				<Separator />
 
-				<ScrollArea className='flex-1'>
+				<div className='flex-1 overflow-y-auto min-h-0'>
 					<div className='flex flex-col gap-1 p-2'>
 						{logic.chats?.map(chat => (
 							<SidebarItem
@@ -46,7 +46,7 @@ export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 							</div>
 						)}
 					</div>
-				</ScrollArea>
+				</div>
 			</div>
 
 			<SidebarDialogs

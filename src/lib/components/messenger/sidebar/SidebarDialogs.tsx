@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -41,6 +42,8 @@ export function SidebarDialogs({
 	onCloseDelete,
 	onConfirmDelete,
 }: SidebarDialogsProps) {
+	const deleteButtonRef = useRef<HTMLButtonElement>(null)
+
 	return (
 		<>
 			<Dialog open={!!chatToEdit} onOpenChange={open => !open && onCloseEdit()}>
@@ -73,7 +76,12 @@ export function SidebarDialogs({
 				open={!!chatToDelete}
 				onOpenChange={open => !open && onCloseDelete()}
 			>
-				<AlertDialogContent>
+				<AlertDialogContent
+					onOpenAutoFocus={e => {
+						e.preventDefault()
+						deleteButtonRef.current?.focus()
+					}}
+				>
 					<AlertDialogHeader>
 						<AlertDialogTitle>Are you sure?</AlertDialogTitle>
 						<AlertDialogDescription>
@@ -84,6 +92,7 @@ export function SidebarDialogs({
 					<AlertDialogFooter>
 						<AlertDialogCancel>Cancel</AlertDialogCancel>
 						<AlertDialogAction
+							ref={deleteButtonRef}
 							onClick={onConfirmDelete}
 							className='bg-red-600 hover:bg-red-700 text-white'
 						>
