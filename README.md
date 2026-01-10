@@ -1,4 +1,8 @@
+
+
 <div align="center">
+  <img src="./public/logo.svg" alt="logo"/>
+  
   <h1>Soliloquy</h1>
   <p>
     <strong>A private dialogue with yourself.</strong><br>
