@@ -62,6 +62,7 @@ export function useSidebar() {
 
 					await db.messages.bulkAdd(messagesToAdd)
 					onSelect(chatId as number)
+					return
 				} else if (extension === 'md') {
 					const lines = text.split('\n')
 					const titleMatch = lines[0].match(/^# (.*)/)
@@ -107,16 +108,17 @@ export function useSidebar() {
 
 					if (messagesToAdd.length > 0) {
 						await db.messages.bulkAdd(messagesToAdd)
-						// Update preview
 						await db.chats.update(chatId as number, {
 							previewText: messagesToAdd[messagesToAdd.length - 1].content,
 						})
 					}
 					onSelect(chatId as number)
+					return
 				}
+				throw new Error('Unsupported file format')
 			} catch (error) {
 				console.error('Import failed:', error)
-				alert('Failed to import chat. Invalid file format.')
+				throw error
 			}
 		},
 		[],
