@@ -73,7 +73,7 @@ Built with a focus on privacy and speed, Soliloquy stores all data directly in y
 - [ ] **Search**:
   - [ ] **Search within Chat**: Ctrl+F style search to find specific messages inside a conversation.
 - [ ] **Data Portability**:
-  - [ ] **Import Chat**: Restore chat from exported .json/.md.
+  - [x] **Import Chat**: Restore chat from exported .json/.md.
   - [ ] **Global Backup**: Full database export/import file.
 - [ ] **Personalization**:
   - [ ] **Chat Identity**: Custom Emoji/Avatar for chats.

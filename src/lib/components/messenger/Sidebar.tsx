@@ -21,6 +21,7 @@ export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 					searchQuery={logic.searchQuery}
 					onSearchChange={logic.setSearchQuery}
 					onCreateChat={() => logic.createNewChat(onChatSelect)}
+					onImportChat={file => logic.importChat(file, onChatSelect)}
 				/>
 
 				<Separator />

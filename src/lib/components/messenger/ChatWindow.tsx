@@ -48,17 +48,20 @@ export function ChatWindow({ activeChatId }: ChatWindowProps) {
 			)}
 
 			<div className='relative flex-1 min-h-0 flex flex-col'>
-				<div style={{ zoom: logic.zoomLevel }} className="flex-1 flex flex-col min-h-0">
-                    <MessageList
-                        messages={messagesToRender}
-                        messageRefs={logic.messageRefs}
-                        scrollRef={logic.scrollViewportRef}
-                        onDelete={logic.deleteMessage}
-                        onPin={logic.pinMessage}
-                        onEdit={logic.startEditing}
-                        onScroll={logic.handleScroll}
-                    />
-                </div>
+				<div
+					style={{ zoom: logic.zoomLevel }}
+					className='flex-1 flex flex-col min-h-0'
+				>
+					<MessageList
+						messages={messagesToRender}
+						messageRefs={logic.messageRefs}
+						scrollRef={logic.scrollViewportRef}
+						onDelete={logic.deleteMessage}
+						onPin={logic.pinMessage}
+						onEdit={logic.startEditing}
+						onScroll={logic.handleScroll}
+					/>
+				</div>
 
 				{logic.showScrollToBottom && (
 					<Button

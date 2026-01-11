@@ -70,24 +70,26 @@ export function ChatActionsMenu({
 					<DropdownMenuSeparator />
 
 					<DropdownMenuSub>
-                        <DropdownMenuSubTrigger>
-                            <ZoomIn className="mr-2 h-4 w-4" /> Zoom Level
-                        </DropdownMenuSubTrigger>
-                        <DropdownMenuSubContent>
-                            {zoomOptions.map((option) => (
-                                <DropdownMenuItem 
-                                    key={option.value} 
-                                    onClick={() => onSetZoom(option.value)}
-                                    className="justify-between"
-                                >
-                                    {option.label}
-                                    {zoomLevel === option.value && <Check className="h-4 w-4 ml-2" />}
-                                </DropdownMenuItem>
-                            ))}
-                        </DropdownMenuSubContent>
-                    </DropdownMenuSub>
+						<DropdownMenuSubTrigger>
+							<ZoomIn className='mr-2 h-4 w-4' /> Zoom Level
+						</DropdownMenuSubTrigger>
+						<DropdownMenuSubContent>
+							{zoomOptions.map(option => (
+								<DropdownMenuItem
+									key={option.value}
+									onClick={() => onSetZoom(option.value)}
+									className='justify-between'
+								>
+									{option.label}
+									{zoomLevel === option.value && (
+										<Check className='h-4 w-4 ml-2' />
+									)}
+								</DropdownMenuItem>
+							))}
+						</DropdownMenuSubContent>
+					</DropdownMenuSub>
 
-                    <DropdownMenuSeparator />
+					<DropdownMenuSeparator />
 
 					<DropdownMenuSub>
 						<DropdownMenuSubTrigger>

@@ -1,19 +1,32 @@
-import { Plus, Search } from 'lucide-react'
+import { Plus, Search, Upload } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '$lib/components/ui/avatar'
 import { Button } from '$lib/components/ui/button'
 import { Input } from '$lib/components/ui/input'
+import { useRef } from 'react'
 
 interface SidebarHeaderProps {
 	searchQuery: string
 	onSearchChange: (val: string) => void
 	onCreateChat: () => void
+	onImportChat: (file: File) => void
 }
 
 export function SidebarHeader({
 	searchQuery,
 	onSearchChange,
 	onCreateChat,
+	onImportChat,
 }: SidebarHeaderProps) {
+	const fileInputRef = useRef<HTMLInputElement>(null)
+
+	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0]
+		if (file) {
+			onImportChat(file)
+		}
+		if (fileInputRef.current) fileInputRef.current.value = ''
+	}
+
 	return (
 		<div className='p-4 space-y-4'>
 			<div className='flex items-center justify-between'>
@@ -27,6 +40,22 @@ export function SidebarHeader({
 						<span className='text-xs text-muted-foreground'>Local Storage</span>
 					</div>
 				</div>
+				<input
+					type='file'
+					ref={fileInputRef}
+					onChange={handleFileChange}
+					className='hidden'
+					accept='.json,.md'
+				/>
+
+				<Button
+					variant='ghost'
+					size='icon'
+					onClick={() => fileInputRef.current?.click()}
+					title='Import Chat (.json / .md)'
+				>
+					<Upload className='h-5 w-5' />
+				</Button>
 				<Button variant='ghost' size='icon' onClick={onCreateChat}>
 					<Plus className='h-5 w-5' />
 				</Button>

@@ -1,7 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useCallback, useState } from 'react'
 import { db } from '$lib/db'
-import type { Chat } from '$lib/types'
+import type { Chat, Message } from '$lib/types'
 
 export function useSidebar() {
 	const [searchQuery, setSearchQuery] = useState('')
@@ -32,6 +32,95 @@ export function useSidebar() {
 		})
 		onSelect(id as number)
 	}, [])
+
+	const importChat = useCallback(
+		async (file: File, onSelect: (id: number) => void) => {
+			const text = await file.text()
+			const extension = file.name.split('.').pop()?.toLowerCase()
+
+			try {
+				if (extension === 'json') {
+					const data = JSON.parse(text)
+					if (!data.chat || !data.messages)
+						throw new Error('Invalid JSON format')
+
+					const chatId = await db.chats.add({
+						title: data.chat.title + ' (Imported)',
+						isPinned: false,
+						createdAt: new Date(data.chat.createdAt),
+						lastModified: new Date(),
+						previewText: data.chat.previewText,
+					})
+
+					const messagesToAdd = data.messages.map((msg: any) => ({
+						chatId: chatId,
+						content: msg.content,
+						createdAt: new Date(msg.createdAt),
+						isEdited: msg.isEdited,
+						isPinned: msg.isPinned,
+					}))
+
+					await db.messages.bulkAdd(messagesToAdd)
+					onSelect(chatId as number)
+				} else if (extension === 'md') {
+					const lines = text.split('\n')
+					const titleMatch = lines[0].match(/^# (.*)/)
+					const title = titleMatch
+						? titleMatch[1]
+						: file.name.replace('.md', '')
+
+					const chatId = await db.chats.add({
+						title: title + ' (Imported)',
+						isPinned: false,
+						createdAt: new Date(),
+						lastModified: new Date(),
+					})
+
+					const rawMessages = text.split('\n---\n\n')
+					const messagesToAdd: Message[] = []
+
+					const contentChunks = rawMessages.slice(1)
+
+					for (const chunk of contentChunks) {
+						if (!chunk.trim()) continue
+
+						const dateMatch = chunk.match(/^### \[(.*?)\]/)
+						const createdAt = dateMatch ? new Date(dateMatch[1]) : new Date()
+
+						const isPinned = chunk.includes('> 📌 Pinned')
+
+						let content = chunk
+							.replace(/^### \[.*?\]\n/, '')
+							.replace(/> 📌 Pinned\n\n?/, '')
+							.trim()
+
+						if (content) {
+							messagesToAdd.push({
+								chatId: chatId as number,
+								content,
+								createdAt,
+								isEdited: false,
+								isPinned,
+							})
+						}
+					}
+
+					if (messagesToAdd.length > 0) {
+						await db.messages.bulkAdd(messagesToAdd)
+						// Update preview
+						await db.chats.update(chatId as number, {
+							previewText: messagesToAdd[messagesToAdd.length - 1].content,
+						})
+					}
+					onSelect(chatId as number)
+				}
+			} catch (error) {
+				console.error('Import failed:', error)
+				alert('Failed to import chat. Invalid file format.')
+			}
+		},
+		[],
+	)
 
 	const togglePin = useCallback(async (chat: Chat) => {
 		await db.chats.update(chat.id!, { isPinned: !chat.isPinned })
@@ -79,6 +168,7 @@ export function useSidebar() {
 		newTitle,
 		setNewTitle,
 		createNewChat,
+		importChat,
 		togglePin,
 		saveChatTitle,
 		deleteChat,
