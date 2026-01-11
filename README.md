@@ -58,8 +58,8 @@ Built with a focus on privacy and speed, Soliloquy stores all data directly in y
   - [x] **Fix Sidebar Scroll**: Ensure chat list scrolls correctly when overflowing.
   - [x] **Quick Delete**: Auto-focus "Delete" button in confirmation dialogs (or enable Enter to confirm).
   - [x] **Scroll Logic**: Add "Scroll to Bottom" button in chat view.
-- [ ] **View Settings**:
-  - [ ] **Chat Zoom**: Ability to change text size (50% - 150%).
+- [x] **View Settings**:
+  - [x] **Chat Zoom**: Ability to change text size (50% - 150%).
 - [ ] **Bulk Actions (Multi-select)**:
   - [ ] **Selection mode in Sidebar** (Select multiple chats).
   - [ ] **Batch Delete & Batch Pin/Unpin** actions.

@@ -4,6 +4,8 @@ import {
 	FileText,
 	MoreVertical,
 	Trash2,
+	ZoomIn,
+	Check,
 } from 'lucide-react'
 import { useState } from 'react'
 import {
@@ -32,15 +34,27 @@ import {
 interface ChatActionsMenuProps {
 	onClearHistory: () => void
 	onExport: (format: 'json' | 'md') => void
+	zoomLevel: number
+	onSetZoom: (level: number) => void
 	disabled?: boolean
 }
 
 export function ChatActionsMenu({
 	onClearHistory,
 	onExport,
+	zoomLevel,
+	onSetZoom,
 	disabled,
 }: ChatActionsMenuProps) {
 	const [showClearConfirm, setShowClearConfirm] = useState(false)
+
+	const zoomOptions = [
+		{ label: '50%', value: 0.5 },
+		{ label: '75%', value: 0.75 },
+		{ label: '100%', value: 1 },
+		{ label: '125%', value: 1.25 },
+		{ label: '150%', value: 1.5 },
+	]
 
 	return (
 		<>
@@ -54,6 +68,26 @@ export function ChatActionsMenu({
 				<DropdownMenuContent align='end' className='w-48'>
 					<DropdownMenuLabel>Chat Actions</DropdownMenuLabel>
 					<DropdownMenuSeparator />
+
+					<DropdownMenuSub>
+                        <DropdownMenuSubTrigger>
+                            <ZoomIn className="mr-2 h-4 w-4" /> Zoom Level
+                        </DropdownMenuSubTrigger>
+                        <DropdownMenuSubContent>
+                            {zoomOptions.map((option) => (
+                                <DropdownMenuItem 
+                                    key={option.value} 
+                                    onClick={() => onSetZoom(option.value)}
+                                    className="justify-between"
+                                >
+                                    {option.label}
+                                    {zoomLevel === option.value && <Check className="h-4 w-4 ml-2" />}
+                                </DropdownMenuItem>
+                            ))}
+                        </DropdownMenuSubContent>
+                    </DropdownMenuSub>
+
+                    <DropdownMenuSeparator />
 
 					<DropdownMenuSub>
 						<DropdownMenuSubTrigger>

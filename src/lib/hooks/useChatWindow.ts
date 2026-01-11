@@ -10,8 +10,9 @@ export function useChatWindow(activeChatId: number) {
 	const [editingMessage, setEditingMessage] = useState<Message | null>(null)
 	const [isPinnedView, setIsPinnedView] = useState(false)
 	const [activePinIndex, setActivePinIndex] = useState<number>(-1)
-
 	const [showScrollToBottom, setShowScrollToBottom] = useState(false)
+
+	const [zoomLevel, setZoomLevel] = useState(1)
 
 	const scrollViewportRef = useRef<HTMLDivElement>(null)
 	const messageRefs = useRef<Map<number, HTMLDivElement>>(new Map())
@@ -32,6 +33,18 @@ export function useChatWindow(activeChatId: number) {
 				.toArray(),
 		[activeChatId],
 	)
+
+	useEffect(() => {
+		const savedZoom = localStorage.getItem('soliloquy-zoom-level')
+		if (savedZoom) {
+			setZoomLevel(parseFloat(savedZoom))
+		}
+	}, [])
+
+	const handleSetZoom = useCallback((level: number) => {
+		setZoomLevel(level)
+		localStorage.setItem('soliloquy-zoom-level', level.toString())
+	}, [])
 
 	useEffect(() => {
 		setIsPinnedView(false)
@@ -265,5 +278,8 @@ export function useChatWindow(activeChatId: number) {
 		handleScroll,
 		scrollToBottom,
 		showScrollToBottom,
+		// Zoom
+		zoomLevel,
+		setZoomLevel: handleSetZoom,
 	}
 }

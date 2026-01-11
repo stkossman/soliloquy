@@ -11,6 +11,8 @@ interface ChatHeaderProps {
 	onBackToNormal: () => void
 	onClearHistory: () => void
 	onExport: (format: 'json' | 'md') => void
+	zoomLevel: number
+	onSetZoom: (level: number) => void
 }
 
 export function ChatHeader({
@@ -20,6 +22,8 @@ export function ChatHeader({
 	onBackToNormal,
 	onClearHistory,
 	onExport,
+	zoomLevel,
+	onSetZoom,
 }: ChatHeaderProps) {
 	const isSystemChat = chat.isSystem
 
@@ -64,6 +68,8 @@ export function ChatHeader({
 			<ChatActionsMenu
 				onClearHistory={onClearHistory}
 				onExport={onExport}
+				zoomLevel={zoomLevel}
+				onSetZoom={onSetZoom}
 				disabled={!!isSystemChat}
 			/>
 		</div>
