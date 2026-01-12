@@ -22,6 +22,16 @@
 
 Built with a focus on privacy and speed, Soliloquy stores all data directly in your browser using **IndexedDB**. No servers, no tracking, no login screens. Just open and write.
 
+##### Check out my projects
+<table>
+    <tbody>
+        <tr>
+        <td><a href="https://github.com/stkossman/StackFetch">StackFetch</a></td>
+        <td>CLI that displays essential information about your current working directory.</td>
+        </tr>
+    </tbody>
+</table>
+
 ## 💎 Key Features
 
 | Feature | Description |
