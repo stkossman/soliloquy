@@ -22,6 +22,7 @@ export function useSidebar() {
 			)
 		}
 		return allChats.sort((a, b) => {
+			if (a.isSystem !== b.isSystem) return a.isSystem ? -1 : 1
 			if (a.isPinned !== b.isPinned) return a.isPinned ? -1 : 1
 			return b.lastModified.getTime() - a.lastModified.getTime()
 		})
