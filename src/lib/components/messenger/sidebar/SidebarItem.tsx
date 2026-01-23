@@ -8,6 +8,7 @@ import {
 	ContextMenuTrigger,
 } from '$lib/components/ui/context-menu'
 import type { Chat } from '$lib/types'
+import { Checkbox } from '$lib/components/ui/checkbox'
 
 interface SidebarItemProps {
 	chat: Chat
@@ -16,6 +17,9 @@ interface SidebarItemProps {
 	onPin: () => void
 	onEdit: () => void
 	onDelete: () => void
+	isSelectionMode: boolean
+	isSelected: boolean
+	onToggleSelection: () => void
 }
 
 export function SidebarItem({
@@ -25,39 +29,75 @@ export function SidebarItem({
 	onPin,
 	onEdit,
 	onDelete,
+	isSelectionMode,
+	isSelected,
+	onToggleSelection,
 }: SidebarItemProps) {
+	const handleClick = (e: React.MouseEvent) => {
+		if (isSelectionMode) {
+			e.preventDefault()
+			onToggleSelection()
+		} else {
+			onSelect()
+		}
+	}
+
+	const Content = (
+		<div
+			onClick={handleClick}
+			className={cn(
+				'flex items-center gap-3 rounded-lg p-3 text-left text-sm transition-all hover:bg-sidebar-accent w-full cursor-pointer',
+				isActive &&
+					!isSelectionMode &&
+					'bg-sidebar-accent text-sidebar-accent-foreground',
+				isSelected &&
+					isSelectionMode &&
+					'bg-sidebar-accent/70 ring-1 ring-sidebar-ring/20',
+			)}
+		>
+			{isSelectionMode && (
+				<div className='animate-in slide-in-from-left-2 fade-in duration-200'>
+					<Checkbox
+						checked={isSelected}
+						onCheckedChange={() => onToggleSelection()}
+						onClick={e => e.stopPropagation()}
+						className='border-sidebar-primary data-[state=checked]:bg-sidebar-primary data-[state=checked]:text-sidebar-primary-foreground'
+					/>
+				</div>
+			)}
+
+			<div className='flex flex-col flex-1 gap-1 overflow-hidden'>
+				<div className='flex w-full items-center justify-between'>
+					<span className='font-semibold truncate flex items-center gap-2'>
+						{chat.isSystem && <Info className='h-3.5 w-3.5 text-blue-400' />}
+						{chat.title}
+					</span>
+					<span className='text-xs text-muted-foreground tabular-nums'>
+						{formatChatDate(chat.lastModified)}
+					</span>
+				</div>
+
+				<div className='flex w-full items-center justify-between text-muted-foreground'>
+					<span className='truncate text-xs h-4 block flex-1 pr-2'>
+						{chat.previewText || (
+							<span className='opacity-50 italic'>No messages</span>
+						)}
+					</span>
+					{chat.isPinned && <Pin className='h-3 w-3 rotate-45 shrink-0' />}
+				</div>
+			</div>
+		</div>
+	)
+
+	if (isSelectionMode) {
+		return Content
+	}
+
 	return (
 		<ContextMenu>
 			<ContextMenuTrigger disabled={chat.isSystem}>
-				<button
-					type='button'
-					className={cn(
-						'flex flex-col items-start gap-1 rounded-lg p-3 text-left text-sm transition-all hover:bg-accent w-full',
-						isActive && 'bg-accent',
-					)}
-					onClick={onSelect}
-				>
-					<div className='flex w-full items-center justify-between'>
-						<span className='font-semibold truncate w-[180px] flex items-center gap-2'>
-							{chat.isSystem && <Info className='h-3.5 w-3.5 text-blue-400' />}
-							{chat.title}
-						</span>
-						<span className='text-xs text-muted-foreground tabular-nums'>
-							{formatChatDate(chat.lastModified)}
-						</span>
-					</div>
-
-					<div className='flex w-full items-center justify-between text-muted-foreground'>
-						<span className='truncate text-xs w-[200px] h-4'>
-							{chat.previewText || (
-								<span className='opacity-50 italic'>No messages</span>
-							)}
-						</span>
-						{chat.isPinned && <Pin className='h-3 w-3 rotate-45' />}
-					</div>
-				</button>
+				{Content}
 			</ContextMenuTrigger>
-
 			{!chat.isSystem && (
 				<ContextMenuContent className='w-48'>
 					<ContextMenuItem onClick={onPin}>

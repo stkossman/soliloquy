@@ -1,4 +1,11 @@
-import { MessageSquare, CheckCircle2, XCircle } from 'lucide-react'
+import {
+	MessageSquare,
+	CheckCircle2,
+	XCircle,
+	Trash2,
+	Pin,
+	PinOff,
+} from 'lucide-react'
 //import { ScrollArea } from '$lib/components/ui/scroll-area'
 import { Separator } from '$lib/components/ui/separator'
 import { useSidebar } from '$lib/hooks/useSidebar'
@@ -7,6 +14,17 @@ import { SidebarHeader } from './sidebar/SidebarHeader'
 import { SidebarItem } from './sidebar/SidebarItem'
 import { useState, useEffect } from 'react'
 import { cn } from '$lib/utils'
+import { Button } from '$lib/components/ui/button'
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from '$lib/components/ui/alert-dialog'
 
 interface SidebarProps {
 	activeChatId: number | null
@@ -39,15 +57,17 @@ export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 
 	return (
 		<>
-			<div className='relative flex h-full w-[320px] flex-col border-r bg-background'>
+			<div className='relative flex h-full w-[320px] flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground'>
 				<SidebarHeader
 					searchQuery={logic.searchQuery}
 					onSearchChange={logic.setSearchQuery}
 					onCreateChat={() => logic.createNewChat(onChatSelect)}
 					onImportChat={handleImportWrapper}
+					isSelectionMode={logic.isSelectionMode}
+					onToggleSelectionMode={logic.toggleSelectionMode}
 				/>
 
-				<Separator />
+				<Separator className='bg-sidebar-border' />
 
 				{toast && (
 					<div
@@ -78,6 +98,9 @@ export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 								onPin={() => logic.togglePin(chat)}
 								onEdit={() => logic.openEditDialog(chat)}
 								onDelete={() => logic.setChatToDelete(chat)}
+								isSelectionMode={logic.isSelectionMode}
+								isSelected={logic.selectedChatIds.has(chat.id!)}
+								onToggleSelection={() => logic.toggleChatSelection(chat.id!)}
 							/>
 						))}
 
@@ -88,6 +111,44 @@ export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 							</div>
 						)}
 					</div>
+
+					{logic.isSelectionMode && logic.selectedChatIds.size > 0 && (
+						<div className='absolute bottom-4 left-4 right-4 bg-sidebar-primary text-sidebar-primary-foreground p-2 rounded-xl shadow-xl flex items-center justify-between animate-in slide-in-from-bottom-4 duration-300 z-40'>
+							<span className='text-xs font-semibold pl-2'>
+								{logic.selectedChatIds.size} selected
+							</span>
+							<div className='flex items-center gap-1'>
+								<Button
+									size='icon'
+									variant='ghost'
+									className='h-8 w-8 hover:bg-sidebar-foreground/20 text-sidebar-primary-foreground'
+									onClick={logic.batchPin}
+									title='Pin Selected'
+								>
+									<Pin className='h-4 w-4' />
+								</Button>
+								<Button
+									size='icon'
+									variant='ghost'
+									className='h-8 w-8 hover:bg-sidebar-primary-foreground/20 text-sidebar-primary-foreground'
+									onClick={logic.batchUnpin}
+									title='Unpin Selected'
+								>
+									<PinOff className='h-4 w-4' />
+								</Button>
+								<div className='w-px h-4 bg-sidebar-primary-foreground/20 mx-1'></div>
+								<Button
+									size='icon'
+									variant='ghost'
+									className='h-8 w-8 hover:bg-red-500/20 text-sidebar-primary-foreground hover:text-white'
+									onClick={() => logic.setShowBatchDeleteConfirm(true)}
+									title='Delete Selected'
+								>
+									<Trash2 className='h-4 w-4' />
+								</Button>
+							</div>
+						</div>
+					)}
 				</div>
 			</div>
 
@@ -101,6 +162,33 @@ export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 				onCloseDelete={() => logic.setChatToDelete(null)}
 				onConfirmDelete={() => logic.deleteChat(activeChatId, onChatSelect)}
 			/>
+
+			<AlertDialog
+				open={logic.showBatchDeleteConfirm}
+				onOpenChange={logic.setShowBatchDeleteConfirm}
+			>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>
+							Delete {logic.selectedChatIds.size} chats?
+						</AlertDialogTitle>
+						<AlertDialogDescription>
+							This action is irreversible. All selected chats and their messages
+							will be deleted permanently.
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel>Cancel</AlertDialogCancel>
+						<AlertDialogAction
+							onClick={() => logic.batchDelete(activeChatId, onChatSelect)}
+							className='bg-red-600 hover:bg-red-700 text-white'
+							autoFocus
+						>
+							Delete All
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
 		</>
 	)
 }

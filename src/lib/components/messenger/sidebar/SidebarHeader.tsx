@@ -1,4 +1,4 @@
-import { Plus, Search, Upload } from 'lucide-react'
+import { Plus, Search, Upload, CheckSquare, X } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '$lib/components/ui/avatar'
 import { Button } from '$lib/components/ui/button'
 import { Input } from '$lib/components/ui/input'
@@ -9,6 +9,8 @@ interface SidebarHeaderProps {
 	onSearchChange: (val: string) => void
 	onCreateChat: () => void
 	onImportChat: (file: File) => void
+	isSelectionMode: boolean
+	onToggleSelectionMode: () => void
 }
 
 export function SidebarHeader({
@@ -16,6 +18,8 @@ export function SidebarHeader({
 	onSearchChange,
 	onCreateChat,
 	onImportChat,
+	isSelectionMode,
+	onToggleSelectionMode,
 }: SidebarHeaderProps) {
 	const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -40,34 +44,65 @@ export function SidebarHeader({
 						<span className='text-xs text-muted-foreground'>Local Storage</span>
 					</div>
 				</div>
-				<input
-					type='file'
-					ref={fileInputRef}
-					onChange={handleFileChange}
-					className='hidden'
-					accept='.json,.md'
-				/>
 
-				<Button
-					variant='ghost'
-					size='icon'
-					onClick={() => fileInputRef.current?.click()}
-					title='Import Chat (.json / .md)'
-				>
-					<Upload className='h-5 w-5' />
-				</Button>
-				<Button variant='ghost' size='icon' onClick={onCreateChat}>
-					<Plus className='h-5 w-5' />
-				</Button>
+				<div className='flex items-center gap-1'>
+					<Button
+						variant={isSelectionMode ? 'secondary' : 'ghost'}
+						size='icon'
+						onClick={onToggleSelectionMode}
+						title={isSelectionMode ? 'Cancel Selection' : 'Select Chats'}
+						className={
+							isSelectionMode
+								? 'bg-sidebar-primary/10 text-sidebar-primary hover:bg-sidebar-primary/20'
+								: ''
+						}
+					>
+						{isSelectionMode ? (
+							<X className='h-5 w-5' />
+						) : (
+							<CheckSquare className='h-5 w-5' />
+						)}
+					</Button>
+
+					{!isSelectionMode && (
+						<>
+							<input
+								type='file'
+								ref={fileInputRef}
+								onChange={handleFileChange}
+								className='hidden'
+								accept='.json,.md'
+							/>
+							<Button
+								variant='ghost'
+								size='icon'
+								onClick={() => fileInputRef.current?.click()}
+								title='Import Chat'
+							>
+								<Upload className='h-5 w-5' />
+							</Button>
+
+							<Button
+								variant='ghost'
+								size='icon'
+								onClick={onCreateChat}
+								title='New Chat'
+							>
+								<Plus className='h-5 w-5' />
+							</Button>
+						</>
+					)}
+				</div>
 			</div>
 
 			<div className='relative'>
 				<Search className='absolute left-2 top-2.5 h-4 w-4 text-muted-foreground' />
 				<Input
 					placeholder='Search...'
-					className='pl-8'
+					className='pl-8 bg-background/50 border-sidebar-border focus-visible:ring-sidebar-ring'
 					value={searchQuery}
 					onChange={e => onSearchChange(e.target.value)}
+					disabled={isSelectionMode}
 				/>
 			</div>
 		</div>

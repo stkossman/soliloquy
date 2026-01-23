@@ -9,6 +9,10 @@ export function useSidebar() {
 	const [chatToDelete, setChatToDelete] = useState<Chat | null>(null)
 	const [newTitle, setNewTitle] = useState('')
 
+	const [isSelectionMode, setIsSelectionMode] = useState(false)
+	const [selectedChatIds, setSelectedChatIds] = useState<Set<number>>(new Set())
+	const [showBatchDeleteConfirm, setShowBatchDeleteConfirm] = useState(false)
+
 	const chats = useLiveQuery(async () => {
 		let allChats = await db.chats.toArray()
 		if (searchQuery.trim()) {
@@ -159,6 +163,69 @@ export function useSidebar() {
 		setNewTitle(chat.title)
 	}, [])
 
+	const toggleSelectionMode = useCallback(() => {
+		setIsSelectionMode(prev => {
+			if (prev) {
+				setSelectedChatIds(new Set())
+			}
+			return !prev
+		})
+	}, [])
+
+	const toggleChatSelection = useCallback((id: number) => {
+		setSelectedChatIds(prev => {
+			const newSet = new Set(prev)
+			if (newSet.has(id)) {
+				newSet.delete(id)
+			} else {
+				newSet.add(id)
+			}
+			return newSet
+		})
+	}, [])
+
+	const batchPin = useCallback(async () => {
+		const ids = Array.from(selectedChatIds)
+		if (ids.length === 0) return
+
+		await db.chats.where('id').anyOf(ids).modify({ isPinned: true })
+		setIsSelectionMode(false)
+		setSelectedChatIds(new Set())
+	}, [selectedChatIds])
+
+	const batchUnpin = useCallback(async () => {
+		const ids = Array.from(selectedChatIds)
+		if (ids.length === 0) return
+
+		await db.chats.where('id').anyOf(ids).modify({ isPinned: false })
+		setIsSelectionMode(false)
+		setSelectedChatIds(new Set())
+	}, [selectedChatIds])
+
+	const batchDelete = useCallback(
+		async (
+			activeChatId: number | null,
+			onSelect: (id: number | null) => void,
+		) => {
+			const ids = Array.from(selectedChatIds)
+			if (ids.length === 0) return
+
+			await db.transaction('rw', db.chats, db.messages, async () => {
+				await db.messages.where('chatId').anyOf(ids).delete()
+				await db.chats.where('id').anyOf(ids).delete()
+			})
+
+			if (activeChatId && selectedChatIds.has(activeChatId)) {
+				onSelect(null)
+			}
+
+			setShowBatchDeleteConfirm(false)
+			setIsSelectionMode(false)
+			setSelectedChatIds(new Set())
+		},
+		[selectedChatIds],
+	)
+
 	return {
 		chats,
 		searchQuery,
@@ -175,5 +242,15 @@ export function useSidebar() {
 		saveChatTitle,
 		deleteChat,
 		openEditDialog,
+		// selection
+		toggleSelectionMode,
+		toggleChatSelection,
+		isSelectionMode,
+		selectedChatIds,
+		batchPin,
+		batchUnpin,
+		batchDelete,
+		showBatchDeleteConfirm,
+		setShowBatchDeleteConfirm,
 	}
 }

@@ -70,9 +70,9 @@ Built with a focus on privacy and speed, Soliloquy stores all data directly in y
   - [x] **Scroll Logic**: Add "Scroll to Bottom" button in chat view.
 - [x] **View Settings**:
   - [x] **Chat Zoom**: Ability to change text size (50% - 150%).
-- [ ] **Bulk Actions (Multi-select)**:
-  - [ ] **Selection mode in Sidebar** (Select multiple chats).
-  - [ ] **Batch Delete & Batch Pin/Unpin** actions.
+- [x] **Bulk Actions (Multi-select)**:
+  - [x] **Selection mode in Sidebar** (Select multiple chats).
+  - [x] **Batch Delete & Batch Pin/Unpin** actions.
 - [ ] **Drag-and-Drop Reordering**:
   - [ ] Custom order for pinned chats.
   - [ ] Logic to prevent mixing pinned/unpinned items during drag.
