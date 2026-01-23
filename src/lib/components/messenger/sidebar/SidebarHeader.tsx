@@ -10,7 +10,6 @@ interface SidebarHeaderProps {
 	onCreateChat: () => void
 	onImportChat: (file: File) => void
 	isSelectionMode: boolean
-	onToggleSelectionMode: () => void
 }
 
 export function SidebarHeader({
@@ -19,7 +18,6 @@ export function SidebarHeader({
 	onCreateChat,
 	onImportChat,
 	isSelectionMode,
-	onToggleSelectionMode,
 }: SidebarHeaderProps) {
 	const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -46,24 +44,6 @@ export function SidebarHeader({
 				</div>
 
 				<div className='flex items-center gap-1'>
-					<Button
-						variant={isSelectionMode ? 'secondary' : 'ghost'}
-						size='icon'
-						onClick={onToggleSelectionMode}
-						title={isSelectionMode ? 'Cancel Selection' : 'Select Chats'}
-						className={
-							isSelectionMode
-								? 'bg-sidebar-primary/10 text-sidebar-primary hover:bg-sidebar-primary/20'
-								: ''
-						}
-					>
-						{isSelectionMode ? (
-							<X className='h-5 w-5' />
-						) : (
-							<CheckSquare className='h-5 w-5' />
-						)}
-					</Button>
-
 					{!isSelectionMode && (
 						<>
 							<input

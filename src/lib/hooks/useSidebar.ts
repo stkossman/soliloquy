@@ -163,13 +163,9 @@ export function useSidebar() {
 		setNewTitle(chat.title)
 	}, [])
 
-	const toggleSelectionMode = useCallback(() => {
-		setIsSelectionMode(prev => {
-			if (prev) {
-				setSelectedChatIds(new Set())
-			}
-			return !prev
-		})
+	const startSelectionMode = useCallback((initialChatId: number) => {
+		setIsSelectionMode(true)
+		setSelectedChatIds(new Set([initialChatId]))
 	}, [])
 
 	const toggleChatSelection = useCallback((id: number) => {
@@ -180,6 +176,11 @@ export function useSidebar() {
 			} else {
 				newSet.add(id)
 			}
+
+			if (newSet.size === 0) {
+				setIsSelectionMode(false)
+			}
+
 			return newSet
 		})
 	}, [])
@@ -218,21 +219,17 @@ export function useSidebar() {
 		) => {
 			const ids = Array.from(selectedChatIds)
 			if (ids.length === 0) return
-
 			await db.transaction('rw', db.chats, db.messages, async () => {
 				const chatsToDelete = await db.chats.where('id').anyOf(ids).toArray()
 				const safeIds = chatsToDelete.filter(c => !c.isSystem).map(c => c.id!)
-
 				if (safeIds.length > 0) {
 					await db.messages.where('chatId').anyOf(safeIds).delete()
 					await db.chats.where('id').anyOf(safeIds).delete()
 				}
 			})
-
 			if (activeChatId && selectedChatIds.has(activeChatId)) {
 				onSelect(null)
 			}
-
 			setShowBatchDeleteConfirm(false)
 			setIsSelectionMode(false)
 			setSelectedChatIds(new Set())
@@ -257,7 +254,7 @@ export function useSidebar() {
 		deleteChat,
 		openEditDialog,
 		// selection
-		toggleSelectionMode,
+		startSelectionMode,
 		toggleChatSelection,
 		isSelectionMode,
 		selectedChatIds,

@@ -1,4 +1,4 @@
-import { Info, Pencil, Pin, PinOff, Trash2 } from 'lucide-react'
+import { Info, Pencil, Pin, PinOff, Trash2, CheckSquare } from 'lucide-react'
 import { cn, formatChatDate } from '@/lib/utils'
 import {
 	ContextMenu,
@@ -20,6 +20,7 @@ interface SidebarItemProps {
 	isSelectionMode: boolean
 	isSelected: boolean
 	onToggleSelection: () => void
+	onStartSelection: () => void
 }
 
 export function SidebarItem({
@@ -32,6 +33,7 @@ export function SidebarItem({
 	isSelectionMode,
 	isSelected,
 	onToggleSelection,
+	onStartSelection,
 }: SidebarItemProps) {
 	const handleClick = (e: React.MouseEvent) => {
 		if (isSelectionMode) {
@@ -107,6 +109,11 @@ export function SidebarItem({
 			</ContextMenuTrigger>
 			{!chat.isSystem && (
 				<ContextMenuContent className='w-48'>
+					<ContextMenuItem onClick={onStartSelection}>
+						<CheckSquare className='mr-2 h-4 w-4' /> Select Multiple
+					</ContextMenuItem>
+					<ContextMenuSeparator />
+
 					<ContextMenuItem onClick={onPin}>
 						{chat.isPinned ? (
 							<>

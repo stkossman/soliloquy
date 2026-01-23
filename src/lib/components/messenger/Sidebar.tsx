@@ -64,7 +64,6 @@ export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 					onCreateChat={() => logic.createNewChat(onChatSelect)}
 					onImportChat={handleImportWrapper}
 					isSelectionMode={logic.isSelectionMode}
-					onToggleSelectionMode={logic.toggleSelectionMode}
 				/>
 
 				<Separator className='bg-sidebar-border' />
@@ -101,6 +100,7 @@ export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 								isSelectionMode={logic.isSelectionMode}
 								isSelected={logic.selectedChatIds.has(chat.id!)}
 								onToggleSelection={() => logic.toggleChatSelection(chat.id!)}
+								onStartSelection={() => logic.startSelectionMode(chat.id!)}
 							/>
 						))}
 
