@@ -1,14 +1,33 @@
 ---
 import '@/styles/global.css'
 import MessengerLayout from '@/lib/components/messenger/MessengerLayout'
+
+const title = 'Soliloquy - Local-First Personal Messenger'
+const description = 'A private, local-first note-taking app desidneg as a messenger with yourself. Secure and minimalist. Your thoughts stay on your device'
+const url = 'https://soliloquy-notes.vercel.app/'
 ---
 
 <html lang='uk' class='dark'>
 	<head>
 		<meta charset='utf-8' />
 		<link rel='icon' type='image/svg+xml' href='/logo.svg' />
-		<meta name='viewport' content='width=device-width' />
-		<title>Soliloquy</title>
+		<meta name='viewport' content='width=device-width, initial-scale=1' />
+		<meta name='generator' content={Astro.generator} />
+
+		<title>{title}</title>
+		<meta name='title' content={title} />
+		<meta name='description' content={description} />
+		<meta name='author' content='Kossman' />
+
+		<meta property='og:type' content='website' />
+    <meta property='og:url' content={url} />
+    <meta property='og:title' content={title} />
+    <meta property='og:description' content={description} />
+    <meta property='twitter:card' content='summary_large_image' />
+    <meta property='twitter:url' content={url} />
+    <meta property='twitter:title' content={title} />
+    <meta property='twitter:description' content={description} />
+    <meta name='theme-color' content='#09090b' />
 	</head>
 	<body class='bg-background text-foreground font-sans antialiased'>
 		<MessengerLayout client:only='react' />
