@@ -184,11 +184,18 @@ export function useSidebar() {
 		})
 	}, [])
 
+	const getSafeSelectedIds = async (ids: number[]) => {
+		const chatsToCheck = await db.chats.where('id').anyOf(ids).toArray()
+		return chatsToCheck.filter(c => !c.isSystem).map(c => c.id!)
+	}
+
 	const batchPin = useCallback(async () => {
 		const ids = Array.from(selectedChatIds)
 		if (ids.length === 0) return
 
-		await db.chats.where('id').anyOf(ids).modify({ isPinned: true })
+		const safeIds = await getSafeSelectedIds(ids)
+
+		await db.chats.where('id').anyOf(safeIds).modify({ isPinned: true })
 		setIsSelectionMode(false)
 		setSelectedChatIds(new Set())
 	}, [selectedChatIds])
@@ -197,7 +204,9 @@ export function useSidebar() {
 		const ids = Array.from(selectedChatIds)
 		if (ids.length === 0) return
 
-		await db.chats.where('id').anyOf(ids).modify({ isPinned: false })
+		const safeIds = await getSafeSelectedIds(ids)
+
+		await db.chats.where('id').anyOf(safeIds).modify({ isPinned: false })
 		setIsSelectionMode(false)
 		setSelectedChatIds(new Set())
 	}, [selectedChatIds])
@@ -211,8 +220,13 @@ export function useSidebar() {
 			if (ids.length === 0) return
 
 			await db.transaction('rw', db.chats, db.messages, async () => {
-				await db.messages.where('chatId').anyOf(ids).delete()
-				await db.chats.where('id').anyOf(ids).delete()
+				const chatsToDelete = await db.chats.where('id').anyOf(ids).toArray()
+				const safeIds = chatsToDelete.filter(c => !c.isSystem).map(c => c.id!)
+
+				if (safeIds.length > 0) {
+					await db.messages.where('chatId').anyOf(safeIds).delete()
+					await db.chats.where('id').anyOf(safeIds).delete()
+				}
 			})
 
 			if (activeChatId && selectedChatIds.has(activeChatId)) {

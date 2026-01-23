@@ -36,7 +36,9 @@ export function SidebarItem({
 	const handleClick = (e: React.MouseEvent) => {
 		if (isSelectionMode) {
 			e.preventDefault()
-			onToggleSelection()
+			if (!chat.isSystem) {
+				onToggleSelection()
+			}
 		} else {
 			onSelect()
 		}
@@ -53,16 +55,21 @@ export function SidebarItem({
 				isSelected &&
 					isSelectionMode &&
 					'bg-sidebar-accent/70 ring-1 ring-sidebar-ring/20',
+				isSelectionMode && chat.isSystem && 'opacity-50 cursor-not-allowed',
 			)}
 		>
 			{isSelectionMode && (
 				<div className='animate-in slide-in-from-left-2 fade-in duration-200'>
-					<Checkbox
-						checked={isSelected}
-						onCheckedChange={() => onToggleSelection()}
-						onClick={e => e.stopPropagation()}
-						className='border-sidebar-primary data-[state=checked]:bg-sidebar-primary data-[state=checked]:text-sidebar-primary-foreground'
-					/>
+					{!chat.isSystem ? (
+						<Checkbox
+							checked={isSelected}
+							onCheckedChange={() => onToggleSelection()}
+							onClick={e => e.stopPropagation()}
+							className='border-sidebar-primary data-[state=checked]:bg-sidebar-primary data-[state=checked]:text-sidebar-primary-foreground'
+						/>
+					) : (
+						<div className='h-4 w-4' />
+					)}
 				</div>
 			)}
 
