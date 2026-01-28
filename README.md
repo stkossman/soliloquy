@@ -63,7 +63,7 @@ Built with a focus on privacy and speed, Soliloquy stores all data directly in y
 - [x] **Basic Chat Actions**: Context Menu, Clear History, Export (.md/.json).
 - [x] **Rich Text**: Markdown rendering support.
 
-### Phase 5: UX Polish (Current Focus)
+### Phase 5: UX Polish
 - [x] **UX Improvements**:
   - [x] **Fix Sidebar Scroll**: Ensure chat list scrolls correctly when overflowing.
   - [x] **Quick Delete**: Auto-focus "Delete" button in confirmation dialogs (or enable Enter to confirm).
@@ -73,11 +73,11 @@ Built with a focus on privacy and speed, Soliloquy stores all data directly in y
 - [x] **Bulk Actions (Multi-select)**:
   - [x] **Selection mode in Sidebar** (Select multiple chats).
   - [x] **Batch Delete & Batch Pin/Unpin** actions.
-- [ ] **Drag-and-Drop Reordering**:
-  - [ ] Custom order for pinned chats.
-  - [ ] Logic to prevent mixing pinned/unpinned items during drag.
+- [x] **Drag-and-Drop Reordering**:
+  - [x] Custom order for pinned chats.
+  - [x] Logic to prevent mixing pinned/unpinned items during drag.
 
-### Phase 6: Advanced Functionality
+### Phase 6: Advanced Functionality (Current focus)
 - [ ] **Editor Experience**:
     - [ ] **Visual Formatting Menu**: Custom Context Menu (Right-Click) on text selection to apply formatting (Bold, Italic, Link, Monospace, Spoiler) without typing Markdown syntax manually.
 - [ ] **Search**:

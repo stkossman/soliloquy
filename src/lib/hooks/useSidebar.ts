@@ -22,45 +22,63 @@ export function useSidebar() {
 				chat.title.toLowerCase().includes(lowerQuery),
 			)
 		}
+
 		return allChats.sort((a, b) => {
 			if (a.isSystem !== b.isSystem) return a.isSystem ? -1 : 1
 			if (a.isPinned !== b.isPinned) return a.isPinned ? -1 : 1
-			if (a.isPinned && b.isPinned) {
-				const orderA =
-					typeof a.order === 'number' ? a.order : Number.MAX_SAFE_INTEGER
-				const orderB =
-					typeof b.order === 'number' ? b.order : Number.MAX_SAFE_INTEGER
 
-				if (orderA !== orderB) return orderA - orderB
+			const orderA =
+				typeof a.order === 'number' ? a.order : Number.MAX_SAFE_INTEGER
+			const orderB =
+				typeof b.order === 'number' ? b.order : Number.MAX_SAFE_INTEGER
 
-				return b.lastModified.getTime() - a.lastModified.getTime()
-			}
+			if (orderA !== orderB) return orderA - orderB
 
 			return b.lastModified.getTime() - a.lastModified.getTime()
 		})
 	}, [searchQuery])
 
+	// Initializes order numbers for chats that don't have an order, ensuring proper sorting and display functionality
+	// Separates chats into pinned and regular categories, assigning each its own sequence within its category
 	useEffect(() => {
 		if (!chats) return
 
-		const pinnedMissingOrder = chats.filter(
-			c => c.isPinned && !c.isSystem && typeof c.order !== 'number',
+		const missingOrder = chats.filter(
+			c => !c.isSystem && typeof c.order !== 'number',
 		)
 
-		if (pinnedMissingOrder.length > 0) {
-			const allPinned = chats.filter(c => c.isPinned && !c.isSystem)
+		if (missingOrder.length > 0) {
+			const pinned = chats.filter(c => c.isPinned && !c.isSystem)
+			const regular = chats.filter(c => !c.isPinned && !c.isSystem)
+
 			db.transaction('rw', db.chats, async () => {
-				for (let i = 0; i < allPinned.length; i++) {
-					await db.chats.update(allPinned[i].id!, { order: i })
+				for (let i = 0; i < pinned.length; i++) {
+					if (typeof pinned[i].order !== 'number') {
+						await db.chats.update(pinned[i].id!, { order: i })
+					}
+				}
+				for (let i = 0; i < regular.length; i++) {
+					if (typeof regular[i].order !== 'number') {
+						await db.chats.update(regular[i].id!, { order: i })
+					}
 				}
 			})
 		}
 	}, [chats?.length])
 
 	const createNewChat = useCallback(async (onSelect: (id: number) => void) => {
+		const regularChats = await db.chats
+			.filter(c => !c.isPinned && !c.isSystem)
+			.toArray()
+		const minOrder = regularChats.reduce(
+			(min, c) => Math.min(min, c.order || 0),
+			0,
+		)
+
 		const id = await db.chats.add({
 			title: 'New Note',
 			isPinned: false,
+			order: minOrder - 1,
 			createdAt: new Date(),
 			lastModified: new Date(),
 		})
@@ -151,7 +169,6 @@ export function useSidebar() {
 				}
 				throw new Error('Unsupported file format')
 			} catch (error) {
-				console.error('Import failed:', error)
 				throw error
 			}
 		},
@@ -278,23 +295,35 @@ export function useSidebar() {
 		[selectedChatIds],
 	)
 
-	const updatePinnedOrder = useCallback(
+	const updateChatOrder = useCallback(
 		async (activeId: number, overId: number) => {
 			const currentChats = await db.chats.toArray()
 
-			const pinnedChats = currentChats
-				.filter(c => c.isPinned && !c.isSystem)
-				.sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-
-			const oldIndex = pinnedChats.findIndex(
+			const activeChat = currentChats.find(
 				c => String(c.id) === String(activeId),
 			)
-			const newIndex = pinnedChats.findIndex(
+			const overChat = currentChats.find(c => String(c.id) === String(overId))
+
+			if (!activeChat || !overChat) return
+
+			if (activeChat.isPinned !== overChat.isPinned) {
+				return
+			}
+
+			const isPinnedGroup = activeChat.isPinned
+			const groupChats = currentChats
+				.filter(c => c.isPinned === isPinnedGroup && !c.isSystem)
+				.sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+
+			const oldIndex = groupChats.findIndex(
+				c => String(c.id) === String(activeId),
+			)
+			const newIndex = groupChats.findIndex(
 				c => String(c.id) === String(overId),
 			)
 
 			if (oldIndex !== -1 && newIndex !== -1) {
-				const newOrder = arrayMove(pinnedChats, oldIndex, newIndex)
+				const newOrder = arrayMove(groupChats, oldIndex, newIndex)
 
 				await db.transaction('rw', db.chats, async () => {
 					for (let i = 0; i < newOrder.length; i++) {
@@ -333,6 +362,6 @@ export function useSidebar() {
 		showBatchDeleteConfirm,
 		setShowBatchDeleteConfirm,
 		// order
-		updatePinnedOrder,
+		updateChatOrder,
 	}
 }

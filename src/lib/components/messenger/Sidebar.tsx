@@ -8,7 +8,6 @@ import {
 	type DragEndEvent,
 } from '@dnd-kit/core'
 import {
-	arrayMove,
 	SortableContext,
 	sortableKeyboardCoordinates,
 	verticalListSortingStrategy,
@@ -62,9 +61,8 @@ export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 
 	const handleDragEnd = (event: DragEndEvent) => {
 		const { active, over } = event
-
-		if (over && active.id !== over.id) {
-			logic.updatePinnedOrder(active.id as number, over.id as number)
+		if (active.id !== over?.id) {
+			logic.updateChatOrder(active.id as number, over?.id as number)
 		}
 	}
 
@@ -174,9 +172,34 @@ export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 										/>
 									))}
 								</SortableContext>
+
+								<SortableContext
+									items={regularChats.map(c => c.id!)}
+									strategy={verticalListSortingStrategy}
+								>
+									{regularChats.map(chat => (
+										<SortableSidebarItem
+											key={chat.id}
+											chat={chat}
+											isActive={activeChatId === chat.id}
+											onSelect={() => onChatSelect(chat.id!)}
+											onPin={() => logic.togglePin(chat)}
+											onEdit={() => logic.openEditDialog(chat)}
+											onDelete={() => logic.setChatToDelete(chat)}
+											isSelectionMode={logic.isSelectionMode}
+											isSelected={logic.selectedChatIds.has(chat.id!)}
+											onToggleSelection={() =>
+												logic.toggleChatSelection(chat.id!)
+											}
+											onStartSelection={() =>
+												logic.startSelectionMode(chat.id!)
+											}
+										/>
+									))}
+								</SortableContext>
 							</DndContext>
 						) : (
-							pinnedChats.map(chat => (
+							[...pinnedChats, ...regularChats].map(chat => (
 								<SidebarItem
 									key={chat.id}
 									chat={chat}
@@ -192,23 +215,6 @@ export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 								/>
 							))
 						)}
-
-						{regularChats.map(chat => (
-							<SidebarItem
-								key={chat.id}
-								chat={chat}
-								isActive={activeChatId === chat.id}
-								onSelect={() => onChatSelect(chat.id!)}
-								onPin={() => logic.togglePin(chat)}
-								onEdit={() => logic.openEditDialog(chat)}
-								onDelete={() => logic.setChatToDelete(chat)}
-								isSelectionMode={logic.isSelectionMode}
-								isSelected={logic.selectedChatIds.has(chat.id!)}
-								onToggleSelection={() => logic.toggleChatSelection(chat.id!)}
-								onStartSelection={() => logic.startSelectionMode(chat.id!)}
-							/>
-						))}
-
 						{logic.chats?.length === 0 && (
 							<div className='flex flex-col items-center justify-center py-10 text-center text-muted-foreground'>
 								<MessageSquare className='mb-2 h-10 w-10 opacity-20' />
