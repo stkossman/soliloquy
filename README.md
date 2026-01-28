@@ -79,15 +79,15 @@ Built with a focus on privacy and speed, Soliloquy stores all data directly in y
 
 ### Phase 6: Advanced Functionality (Current focus)
 - [ ] **Editor Experience**:
-    - [ ] **Visual Formatting Menu**: Custom Context Menu (Right-Click) on text selection to apply formatting (Bold, Italic, Link, Monospace, Spoiler) without typing Markdown syntax manually.
+    - [ ] **Visual Formatting Menu**: Custom Context Menu (Right-Click) on text selection to apply formatting (Bold, Italic, Link, Monospace, Spoiler) without typing Markdown syntax manually. ([Issue #6](https://github.com/stkossman/soliloquy/issues/6))
 - [ ] **Search**:
-  - [ ] **Search within Chat**: Ctrl+F style search to find specific messages inside a conversation.
+  - [ ] **Search within Chat**: Ctrl+F style search to find specific messages inside a conversation. ([Issue #7](https://github.com/stkossman/soliloquy/issues/7))
 - [ ] **Data Portability**:
   - [x] **Import Chat**: Restore chat from exported .json/.md.
-  - [ ] **Global Backup**: Full database export/import file.
+  - [ ] **Global Backup**: Full database export/import file. ([Issue #8](https://github.com/stkossman/soliloquy/issues/8))
 - [ ] **Personalization**:
-  - [ ] **Chat Identity**: Custom Emoji/Avatar for chats.
-  - [ ] **Theme Toggle**: Switch between Light/Dark modes.
+  - [ ] **Chat Identity**: Custom Emoji/Avatar for chats. ([Issue #9](https://github.com/stkossman/soliloquy/issues/9))
+  - [ ] **Theme Toggle**: Switch between Light/Dark modes. ([Issue #10](https://github.com/stkossman/soliloquy/issues/10))
 
 ## 🚀 Getting Started
 
