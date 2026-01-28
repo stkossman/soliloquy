@@ -6,6 +6,7 @@ export interface Chat {
 	lastModified: Date
 	previewText?: string
 	isSystem?: boolean
+	order?: number
 }
 
 export interface Message {

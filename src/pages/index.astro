@@ -3,7 +3,8 @@ import '@/styles/global.css'
 import MessengerLayout from '@/lib/components/messenger/MessengerLayout'
 
 const title = 'Soliloquy - Local-First Personal Messenger'
-const description = 'A private, local-first note-taking app desidneg as a messenger with yourself. Secure and minimalist. Your thoughts stay on your device'
+const description =
+	'A private, local-first note-taking app desidneg as a messenger with yourself. Secure and minimalist. Your thoughts stay on your device'
 const url = 'https://soliloquy-notes.vercel.app/'
 ---
 
@@ -20,14 +21,14 @@ const url = 'https://soliloquy-notes.vercel.app/'
 		<meta name='author' content='Kossman' />
 
 		<meta property='og:type' content='website' />
-    <meta property='og:url' content={url} />
-    <meta property='og:title' content={title} />
-    <meta property='og:description' content={description} />
-    <meta property='twitter:card' content='summary_large_image' />
-    <meta property='twitter:url' content={url} />
-    <meta property='twitter:title' content={title} />
-    <meta property='twitter:description' content={description} />
-    <meta name='theme-color' content='#09090b' />
+		<meta property='og:url' content={url} />
+		<meta property='og:title' content={title} />
+		<meta property='og:description' content={description} />
+		<meta property='twitter:card' content='summary_large_image' />
+		<meta property='twitter:url' content={url} />
+		<meta property='twitter:title' content={title} />
+		<meta property='twitter:description' content={description} />
+		<meta name='theme-color' content='#09090b' />
 	</head>
 	<body class='bg-background text-foreground font-sans antialiased'>
 		<MessengerLayout client:only='react' />

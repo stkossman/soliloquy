@@ -1,7 +1,8 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useCallback, useState } from 'react'
+import { useCallback, useState, useEffect } from 'react'
 import { db } from '$lib/db'
 import type { Chat, Message } from '$lib/types'
+import { arrayMove } from '@dnd-kit/sortable'
 
 export function useSidebar() {
 	const [searchQuery, setSearchQuery] = useState('')
@@ -24,9 +25,37 @@ export function useSidebar() {
 		return allChats.sort((a, b) => {
 			if (a.isSystem !== b.isSystem) return a.isSystem ? -1 : 1
 			if (a.isPinned !== b.isPinned) return a.isPinned ? -1 : 1
+			if (a.isPinned && b.isPinned) {
+				const orderA =
+					typeof a.order === 'number' ? a.order : Number.MAX_SAFE_INTEGER
+				const orderB =
+					typeof b.order === 'number' ? b.order : Number.MAX_SAFE_INTEGER
+
+				if (orderA !== orderB) return orderA - orderB
+
+				return b.lastModified.getTime() - a.lastModified.getTime()
+			}
+
 			return b.lastModified.getTime() - a.lastModified.getTime()
 		})
 	}, [searchQuery])
+
+	useEffect(() => {
+		if (!chats) return
+
+		const pinnedMissingOrder = chats.filter(
+			c => c.isPinned && !c.isSystem && typeof c.order !== 'number',
+		)
+
+		if (pinnedMissingOrder.length > 0) {
+			const allPinned = chats.filter(c => c.isPinned && !c.isSystem)
+			db.transaction('rw', db.chats, async () => {
+				for (let i = 0; i < allPinned.length; i++) {
+					await db.chats.update(allPinned[i].id!, { order: i })
+				}
+			})
+		}
+	}, [chats?.length])
 
 	const createNewChat = useCallback(async (onSelect: (id: number) => void) => {
 		const id = await db.chats.add({
@@ -130,7 +159,18 @@ export function useSidebar() {
 	)
 
 	const togglePin = useCallback(async (chat: Chat) => {
-		await db.chats.update(chat.id!, { isPinned: !chat.isPinned })
+		if (!chat.isPinned) {
+			const lastPinned = await db.chats.where('isPinned').equals(1).last()
+			const allPinned = await db.chats.filter(c => !!c.isPinned).toArray()
+			const maxOrder = allPinned.reduce(
+				(max, c) => Math.max(max, c.order || 0),
+				-1,
+			)
+
+			await db.chats.update(chat.id!, { isPinned: true, order: maxOrder + 1 })
+		} else {
+			await db.chats.update(chat.id!, { isPinned: false })
+		}
 	}, [])
 
 	const saveChatTitle = useCallback(async () => {
@@ -238,6 +278,34 @@ export function useSidebar() {
 		[selectedChatIds],
 	)
 
+	const updatePinnedOrder = useCallback(
+		async (activeId: number, overId: number) => {
+			const currentChats = await db.chats.toArray()
+
+			const pinnedChats = currentChats
+				.filter(c => c.isPinned && !c.isSystem)
+				.sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+
+			const oldIndex = pinnedChats.findIndex(
+				c => String(c.id) === String(activeId),
+			)
+			const newIndex = pinnedChats.findIndex(
+				c => String(c.id) === String(overId),
+			)
+
+			if (oldIndex !== -1 && newIndex !== -1) {
+				const newOrder = arrayMove(pinnedChats, oldIndex, newIndex)
+
+				await db.transaction('rw', db.chats, async () => {
+					for (let i = 0; i < newOrder.length; i++) {
+						await db.chats.update(newOrder[i].id!, { order: i })
+					}
+				})
+			}
+		},
+		[],
+	)
+
 	return {
 		chats,
 		searchQuery,
@@ -264,5 +332,7 @@ export function useSidebar() {
 		batchDelete,
 		showBatchDeleteConfirm,
 		setShowBatchDeleteConfirm,
+		// order
+		updatePinnedOrder,
 	}
 }

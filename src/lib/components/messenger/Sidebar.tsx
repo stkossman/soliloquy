@@ -1,4 +1,19 @@
 import {
+	DndContext,
+	closestCenter,
+	KeyboardSensor,
+	PointerSensor,
+	useSensor,
+	useSensors,
+	type DragEndEvent,
+} from '@dnd-kit/core'
+import {
+	arrayMove,
+	SortableContext,
+	sortableKeyboardCoordinates,
+	verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
+import {
 	MessageSquare,
 	CheckCircle2,
 	XCircle,
@@ -6,12 +21,12 @@ import {
 	Pin,
 	PinOff,
 } from 'lucide-react'
-//import { ScrollArea } from '$lib/components/ui/scroll-area'
 import { Separator } from '$lib/components/ui/separator'
 import { useSidebar } from '$lib/hooks/useSidebar'
 import { SidebarDialogs } from './sidebar/SidebarDialogs'
 import { SidebarHeader } from './sidebar/SidebarHeader'
 import { SidebarItem } from './sidebar/SidebarItem'
+import { SortableSidebarItem } from './sidebar/SortableSidebarItem'
 import { useState, useEffect } from 'react'
 import { cn } from '$lib/utils'
 import { Button } from '$lib/components/ui/button'
@@ -34,6 +49,25 @@ interface SidebarProps {
 export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 	const logic = useSidebar()
 
+	const sensors = useSensors(
+		useSensor(PointerSensor, {
+			activationConstraint: {
+				distance: 8,
+			},
+		}),
+		useSensor(KeyboardSensor, {
+			coordinateGetter: sortableKeyboardCoordinates,
+		}),
+	)
+
+	const handleDragEnd = (event: DragEndEvent) => {
+		const { active, over } = event
+
+		if (over && active.id !== over.id) {
+			logic.updatePinnedOrder(active.id as number, over.id as number)
+		}
+	}
+
 	const [toast, setToast] = useState<{
 		type: 'success' | 'error'
 		message: string
@@ -54,6 +88,12 @@ export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 			setToast({ type: 'error', message: 'Failed to import chat.' })
 		}
 	}
+
+	// lists for draggable sorting
+	const systemChats = logic.chats?.filter(c => c.isSystem) || []
+	const pinnedChats = logic.chats?.filter(c => c.isPinned && !c.isSystem) || []
+	const regularChats =
+		logic.chats?.filter(c => !c.isPinned && !c.isSystem) || []
 
 	return (
 		<>
@@ -88,7 +128,72 @@ export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 
 				<div className='flex-1 overflow-y-auto min-h-0'>
 					<div className='flex flex-col gap-1 p-2'>
-						{logic.chats?.map(chat => (
+						{systemChats.map(chat => (
+							<SidebarItem
+								key={chat.id}
+								chat={chat}
+								isActive={activeChatId === chat.id}
+								onSelect={() => onChatSelect(chat.id!)}
+								onPin={() => logic.togglePin(chat)}
+								onEdit={() => logic.openEditDialog(chat)}
+								onDelete={() => logic.setChatToDelete(chat)}
+								isSelectionMode={logic.isSelectionMode}
+								isSelected={logic.selectedChatIds.has(chat.id!)}
+								onToggleSelection={() => logic.toggleChatSelection(chat.id!)}
+								onStartSelection={() => logic.startSelectionMode(chat.id!)}
+							/>
+						))}
+
+						{!logic.searchQuery && !logic.isSelectionMode ? (
+							<DndContext
+								sensors={sensors}
+								collisionDetection={closestCenter}
+								onDragEnd={handleDragEnd}
+							>
+								<SortableContext
+									items={pinnedChats.map(c => c.id!)}
+									strategy={verticalListSortingStrategy}
+								>
+									{pinnedChats.map(chat => (
+										<SortableSidebarItem
+											key={chat.id}
+											chat={chat}
+											isActive={activeChatId === chat.id}
+											onSelect={() => onChatSelect(chat.id!)}
+											onPin={() => logic.togglePin(chat)}
+											onEdit={() => logic.openEditDialog(chat)}
+											onDelete={() => logic.setChatToDelete(chat)}
+											isSelectionMode={logic.isSelectionMode}
+											isSelected={logic.selectedChatIds.has(chat.id!)}
+											onToggleSelection={() =>
+												logic.toggleChatSelection(chat.id!)
+											}
+											onStartSelection={() =>
+												logic.startSelectionMode(chat.id!)
+											}
+										/>
+									))}
+								</SortableContext>
+							</DndContext>
+						) : (
+							pinnedChats.map(chat => (
+								<SidebarItem
+									key={chat.id}
+									chat={chat}
+									isActive={activeChatId === chat.id}
+									onSelect={() => onChatSelect(chat.id!)}
+									onPin={() => logic.togglePin(chat)}
+									onEdit={() => logic.openEditDialog(chat)}
+									onDelete={() => logic.setChatToDelete(chat)}
+									isSelectionMode={logic.isSelectionMode}
+									isSelected={logic.selectedChatIds.has(chat.id!)}
+									onToggleSelection={() => logic.toggleChatSelection(chat.id!)}
+									onStartSelection={() => logic.startSelectionMode(chat.id!)}
+								/>
+							))
+						)}
+
+						{regularChats.map(chat => (
 							<SidebarItem
 								key={chat.id}
 								chat={chat}
