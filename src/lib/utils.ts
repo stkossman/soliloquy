@@ -20,3 +20,19 @@ export function formatChatDate(date: Date): string {
 	}
 	return date.toLocaleDateString('uk-UA', { day: '2-digit', month: '2-digit' })
 }
+
+export function stripMarkdown(text: string): string {
+	if (!text) return ''
+	return text
+		.replace(/(\*\*|__)(.*?)\1/g, '$2')
+		.replace(/(\*|_)(.*?)\1/g, '$2')
+		.replace(/~~(.*?)~~/g, '$1')
+		.replace(/`([^`]+)`/g, '$1')
+		.replace(/\|\|(.*?)\|\|/g, '$1')
+		.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+		.replace(/^#+\s+/gm, '')
+		.replace(/^\s*[-*+]\s+/gm, '')
+		.replace(/^\s*\d+\.\s+/gm, '')
+		.replace(/\n/g, ' ')
+		.trim()
+}

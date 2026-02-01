@@ -7,36 +7,57 @@ interface MarkdownRendererProps {
 	className?: string
 }
 
+const SpoilerText = ({ children }: { children: React.ReactNode }) => {
+	return (
+		<span className='bg-foreground text-transparent select-none rounded px-1 transition-all hover:bg-muted/50 hover:text-foreground hover:select-text cursor-pointer duration-300'>
+			{children}
+		</span>
+	)
+}
+
 export function MarkdownRenderer({
 	content,
 	className,
 }: MarkdownRendererProps) {
+	const processedContent = content
+		.replace(/^#/gm, '\\#')
+		.replace(/^>/gm, '\\>')
+		.replace(/^([-*+]) /gm, '\\$1 ')
+		.replace(/^(\d+)\. /gm, '$1\\. ')
+		.replace(/^---/gm, '\\---')
+		.replace(/\|\|(.*?)\|\|/g, '[$1](#spoiler)')
+
 	return (
 		<div
-			className={cn('text-sm leading-relaxed space-y-2 break-words', className)}
+			className={cn('text-sm leading-relaxed space-y-1 break-words', className)}
 		>
 			<ReactMarkdown
 				remarkPlugins={[remarkGfm]}
 				components={{
-					a: ({ node, ...props }) => (
-						<a
-							{...props}
-							target='_blank'
-							rel='noopener noreferrer'
-							className='font-semibold underline underline-offset-4 decoration-muted-foreground hover:decoration-primary transition-colors'
-						/>
-					),
+					a: ({ node, href, children, ...props }) => {
+						if (href === '#spoiler') {
+							return <SpoilerText>{children}</SpoilerText>
+						}
+
+						return (
+							<a
+								{...props}
+								href={href}
+								target='_blank'
+								rel='noopener noreferrer'
+								className='font-semibold underline underline-offset-4 decoration-muted-foreground hover:decoration-primary transition-colors'
+							>
+								{children}
+							</a>
+						)
+					},
 
 					strong: ({ node, ...props }) => (
 						<span {...props} className='font-bold' />
 					),
-
-					ul: ({ node, ...props }) => (
-						<ul {...props} className='list-disc pl-4 space-y-1 my-2' />
-					),
-
-					ol: ({ node, ...props }) => (
-						<ol {...props} className='list-decimal pl-4 space-y-1 my-2' />
+					em: ({ node, ...props }) => <span {...props} className='italic' />,
+					del: ({ node, ...props }) => (
+						<span {...props} className='line-through opacity-70' />
 					),
 
 					code: ({ node, className, children, ...props }: any) => {
@@ -47,7 +68,7 @@ export function MarkdownRenderer({
 							return (
 								<code
 									{...props}
-									className='px-1 py-0.5 rounded font-mono text-[0.8em]'
+									className='px-1.5 py-0.5 rounded bg-muted font-mono text-[0.85em] text-foreground'
 								>
 									{children}
 								</code>
@@ -64,29 +85,12 @@ export function MarkdownRenderer({
 						)
 					},
 
-					blockquote: ({ node, ...props }) => (
-						<blockquote
-							{...props}
-							className='border-l-2 border-primary/30 pl-4 italic text-muted-foreground my-2'
-						/>
-					),
-
-					h1: ({ node, ...props }) => (
-						<h1 {...props} className='text-lg font-bold mt-4 mb-2' />
-					),
-					h2: ({ node, ...props }) => (
-						<h2 {...props} className='text-base font-bold mt-3 mb-1' />
-					),
-					h3: ({ node, ...props }) => (
-						<h3 {...props} className='text-sm font-bold mt-2 mb-1' />
-					),
-
 					p: ({ node, ...props }) => (
-						<p {...props} className='mb-1 last:mb-0' />
+						<p {...props} className='mb-1 last:mb-0 whitespace-pre-wrap' />
 					),
 				}}
 			>
-				{content}
+				{processedContent}
 			</ReactMarkdown>
 		</div>
 	)

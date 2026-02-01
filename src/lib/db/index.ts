@@ -29,7 +29,7 @@ export class SoliloquyDB extends Dexie {
 						{
 							chatId: id as number,
 							content:
-								'# Welcome to Soliloquy\n\nA local-first space for your thoughts, designed as a monologue with yourself.\n\nEverything you write here lives **only** in your browser via IndexedDB. No servers, no tracking, pure privacy.',
+								'**Welcome to Soliloquy**\n\nA local-first space for your thoughts, designed as a monologue with yourself.\n\nEverything you write here lives **only** in your browser via IndexedDB. No servers, no tracking, pure privacy.',
 							createdAt: new Date(Date.now() - 15000),
 							isEdited: false,
 							isPinned: true,
@@ -37,28 +37,27 @@ export class SoliloquyDB extends Dexie {
 						{
 							chatId: id as number,
 							content:
-								'### **Controls Guide**\n\nManage your workflow efficiently:\n\n- **New Chat:** Click `+` in the sidebar.\n- **Context Menu:** Right-click chats or messages to **Pin**, **Edit**, or **Delete**.\n- **Pinned Navigation:** Click the pinned message bar at the top to cycle through saved notes.',
+								'**Controls Guide**\n\nManage your workflow efficiently:\n\n• **New Chat:** Click `+` in the sidebar.\n• **Context Menu:** Right-click chats or messages to **Pin**, **Edit**, or **Delete**.\n• **Pinned Navigation:** Click the pinned message bar at the top to cycle through saved notes.',
 							createdAt: new Date(Date.now() - 10000),
 							isEdited: false,
 						},
 						{
 							chatId: id as number,
 							content:
-								'### **Markdown Support**\n\nSoliloquy supports rich text formatting. Try these:\n\n- **Bold**: `**text**`\n- *Italic*: `*text*`\n- [Links](https://soliloquy-notes.vercel.app/): `[Link](url)`\n\n> Blockquotes are great for highlighting ideas (`> text`)\n\nCode blocks work too:\n```js\nconsole.log("Hello Soliloquy");\n```',
+								'**Formatting**\n\nSoliloquy uses a visual formatting menu.\n\nSimply **select any text** in the input field to see options for:\n\n• **Bold**\n• *Italic*\n• ~~Strikethrough~~\n• `Monospace`\n• ||Spoiler||\n• [Links](https://soliloquy-notes.vercel.app/)',
 							createdAt: new Date(Date.now() - 5000),
 							isEdited: false,
 						},
 						{
 							chatId: id as number,
 							content:
-								'### **About**\n\nCreated by **Kossman**.\n\n[GitHub Profile](https://github.com/stkossman)\n[Soliloquy Repo](https://github.com/stkossman/soliloquy)\n\n*Note: This is a system chat (read-only).*',
+								'**About**\n\nCreated by **Kossman**.\n\n[GitHub Profile](https://github.com/stkossman)\n[Soliloquy Repo](https://github.com/stkossman/soliloquy)\n\n*Note: This is a system chat (read-only).*',
 							createdAt: new Date(),
 							isEdited: false,
 						},
 					])
 				})
 
-			// default chat
 			this.chats.add({
 				title: 'Notes',
 				isPinned: false,

@@ -3,6 +3,8 @@ import { cn } from '@/lib/utils'
 import { Button } from '$lib/components/ui/button'
 import { Textarea } from '$lib/components/ui/textarea'
 import type { Message } from '$lib/types'
+import { ChatFormattingToolbar } from './ChatFormattingToolbar'
+import { useRef, useState } from 'react'
 
 interface ChatInputProps {
 	value: string
@@ -27,11 +29,89 @@ export function ChatInput({
 	pinnedCount,
 	onUnpinAll,
 }: ChatInputProps) {
+	const textareaRef = useRef<HTMLTextAreaElement>(null)
+	const [showToolbar, setShowToolbar] = useState(false)
+	const [selectionRange, setSelectionRange] = useState<{
+		start: number
+		end: number
+	} | null>(null)
+
 	const handleKeyDown = (e: React.KeyboardEvent) => {
 		if (e.key === 'Enter' && !e.shiftKey) {
 			e.preventDefault()
 			onSend()
+			setShowToolbar(false)
 		}
+	}
+
+	const handleSelect = () => {
+		const el = textareaRef.current
+		if (!el) return
+		if (el.selectionStart !== el.selectionEnd) {
+			setShowToolbar(true)
+			setSelectionRange({ start: el.selectionStart, end: el.selectionEnd })
+		} else {
+			setShowToolbar(false)
+			setSelectionRange(null)
+		}
+	}
+
+	const applyFormat = (
+		format: 'bold' | 'italic' | 'strike' | 'mono' | 'spoiler' | 'link',
+	) => {
+		if (!textareaRef.current || !selectionRange) return
+
+		const start = selectionRange.start
+		const end = selectionRange.end
+		const selectedText = value.substring(start, end)
+		let newText = ''
+		let offset = 0
+
+		switch (format) {
+			case 'bold':
+				newText = `**${selectedText}**`
+				offset = 2
+				break
+			case 'italic':
+				newText = `*${selectedText}*`
+				offset = 1
+				break
+			case 'strike':
+				newText = `~~${selectedText}~~`
+				offset = 2
+				break
+			case 'mono':
+				newText = `\`${selectedText}\``
+				offset = 1
+				break
+			case 'spoiler':
+				newText = `||${selectedText}||`
+				offset = 2
+				break
+			case 'link':
+				newText = `[${selectedText}](url)`
+				offset = 1
+				break
+		}
+
+		const newValue = value.substring(0, start) + newText + value.substring(end)
+		onChange(newValue)
+		setShowToolbar(false)
+
+		setTimeout(() => {
+			const el = textareaRef.current
+			if (el) {
+				el.focus()
+
+				if (format === 'link') {
+					const urlStart = start + selectedText.length + 3
+					const urlEnd = urlStart + 3
+					el.setSelectionRange(urlStart, urlEnd)
+				} else {
+					el.setSelectionRange(start + offset, end + offset)
+				}
+			}
+		}, 0)
 	}
 
 	if (isPinnedView) {
@@ -59,7 +139,11 @@ export function ChatInput({
 	}
 
 	return (
-		<div className='border-t p-4 bg-background'>
+		<div className='border-t p-4 bg-background relative'>
+			{showToolbar && !editingMessage && (
+				<ChatFormattingToolbar onFormat={applyFormat} />
+			)}
+
 			{editingMessage && (
 				<div className='flex items-center justify-between px-2 pb-2 text-xs text-primary/70 animate-in slide-in-from-bottom-2'>
 					<div className='flex items-center gap-2'>
@@ -68,7 +152,10 @@ export function ChatInput({
 					</div>
 					<button
 						type='button'
-						onClick={onCancelEdit}
+						onClick={() => {
+							onCancelEdit()
+							setShowToolbar(false)
+						}}
 						className='hover:text-destructive transition-colors'
 					>
 						<X className='h-3 w-3' />
@@ -84,9 +171,14 @@ export function ChatInput({
 				)}
 			>
 				<Textarea
+					ref={textareaRef}
 					value={value}
-					onChange={e => onChange(e.target.value)}
+					onChange={e => {
+						onChange(e.target.value)
+						if (showToolbar) setShowToolbar(false)
+					}}
 					onKeyDown={handleKeyDown}
+					onSelect={handleSelect}
 					placeholder={editingMessage ? 'Edit...' : 'Write a note...'}
 					className='min-h-[20px] max-h-[200px] w-full resize-none border-0 bg-transparent p-2 shadow-none focus-visible:ring-0'
 					rows={1}

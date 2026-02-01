@@ -1,5 +1,5 @@
 import { Info, Pencil, Pin, PinOff, Trash2, CheckSquare } from 'lucide-react'
-import { cn, formatChatDate } from '@/lib/utils'
+import { cn, formatChatDate, stripMarkdown } from '@/lib/utils'
 import {
 	ContextMenu,
 	ContextMenuContent,
@@ -102,10 +102,12 @@ export function SidebarItem({
 								<span className='text-destructive font-medium mr-1'>
 									Draft:
 								</span>
-								<span className='text-foreground/80'>{chat.draft}</span>
+								<span className='text-foreground/80'>
+									{stripMarkdown(chat.draft || '')}
+								</span>
 							</>
 						) : (
-							chat.previewText || (
+							stripMarkdown(chat.previewText || '') || (
 								<span className='opacity-50 italic'>No messages</span>
 							)
 						)}
