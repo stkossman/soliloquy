@@ -78,8 +78,8 @@ Built with a focus on privacy and speed, Soliloquy stores all data directly in y
   - [x] Logic to prevent mixing pinned/unpinned items during drag.
 
 ### Phase 6: Advanced Functionality (Current focus)
-- [ ] **Editor Experience**:
-    - [ ] **Visual Formatting Menu**: Custom Context Menu (Right-Click) on text selection to apply formatting (Bold, Italic, Link, Monospace, Spoiler) without typing Markdown syntax manually. ([Issue #6](https://github.com/stkossman/soliloquy/issues/6))
+- [x] **Editor Experience**:
+    - [x] **Visual Formatting Menu**: Custom Context Menu (Right-Click) on text selection to apply formatting (Bold, Italic, Link, Monospace, Spoiler) without typing Markdown syntax manually. ([Issue #6](https://github.com/stkossman/soliloquy/issues/6))
 - [ ] **Search**:
   - [ ] **Search within Chat**: Ctrl+F style search to find specific messages inside a conversation. ([Issue #7](https://github.com/stkossman/soliloquy/issues/7))
 - [ ] **Data Portability**:
