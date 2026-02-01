@@ -35,6 +35,30 @@ export function useChatWindow(activeChatId: number) {
 	)
 
 	useEffect(() => {
+		setIsPinnedView(false)
+		setEditingMessage(null)
+		setShowScrollToBottom(false)
+
+		db.chats.get(activeChatId).then(c => {
+			if (c?.draft) {
+				setInputValue(c.draft)
+			} else {
+				setInputValue('')
+			}
+		})
+	}, [activeChatId])
+
+	useEffect(() => {
+		const timer = setTimeout(() => {
+			if (activeChatId && !editingMessage) {
+				db.chats.update(activeChatId, { draft: inputValue })
+			}
+		}, 500)
+
+		return () => clearTimeout(timer)
+	}, [inputValue, activeChatId, editingMessage])
+
+	useEffect(() => {
 		const savedZoom = localStorage.getItem('soliloquy-zoom-level')
 		if (savedZoom) {
 			setZoomLevel(parseFloat(savedZoom))
@@ -120,6 +144,7 @@ export function useChatWindow(activeChatId: number) {
 				await db.chats.update(activeChatId, {
 					lastModified: new Date(),
 					previewText: text,
+					draft: '',
 				})
 			})
 			setInputValue('')
@@ -180,6 +205,7 @@ export function useChatWindow(activeChatId: number) {
 			await db.chats.update(activeChatId, {
 				previewText: '',
 				lastModified: new Date(),
+				draft: '',
 			})
 		})
 

@@ -46,6 +46,8 @@ export function SidebarItem({
 		}
 	}
 
+	const hasDraft = chat.draft && chat.draft.trim().length > 0
+
 	const Content = (
 		<div
 			onClick={handleClick}
@@ -81,15 +83,31 @@ export function SidebarItem({
 						{chat.isSystem && <Info className='h-3.5 w-3.5 text-blue-400' />}
 						{chat.title}
 					</span>
-					<span className='text-xs text-muted-foreground tabular-nums'>
+					<span
+						className={cn(
+							'text-xs tabular-nums',
+							hasDraft
+								? 'text-destructive font-medium'
+								: 'text-muted-foreground',
+						)}
+					>
 						{formatChatDate(chat.lastModified)}
 					</span>
 				</div>
 
 				<div className='flex w-full items-center justify-between text-muted-foreground'>
 					<span className='truncate text-xs h-4 block flex-1 pr-2'>
-						{chat.previewText || (
-							<span className='opacity-50 italic'>No messages</span>
+						{hasDraft ? (
+							<>
+								<span className='text-destructive font-medium mr-1'>
+									Draft:
+								</span>
+								<span className='text-foreground/80'>{chat.draft}</span>
+							</>
+						) : (
+							chat.previewText || (
+								<span className='opacity-50 italic'>No messages</span>
+							)
 						)}
 					</span>
 					{chat.isPinned && <Pin className='h-3 w-3 rotate-45 shrink-0' />}

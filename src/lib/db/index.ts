@@ -8,8 +8,8 @@ export class SoliloquyDB extends Dexie {
 	constructor() {
 		super('SoliloquyDB')
 
-		this.version(3).stores({
-			chats: '++id, title, isPinned, order, lastModified',
+		this.version(4).stores({
+			chats: '++id, title, isPinned, order, draft, lastModified',
 			messages: '++id, chatId, createdAt',
 		})
 

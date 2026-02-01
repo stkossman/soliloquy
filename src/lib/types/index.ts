@@ -5,6 +5,7 @@ export interface Chat {
 	createdAt: Date
 	lastModified: Date
 	previewText?: string
+	draft?: string
 	isSystem?: boolean
 	order?: number
 }
