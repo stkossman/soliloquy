@@ -1,18 +1,17 @@
-
-
 <div align="center">
-  <img src="./public/logo.svg" alt="logo"/>
+  <img src="./public/logo.svg" alt="Soliloquy Logo" width="120" height="120"/>
   
   <h1>Soliloquy</h1>
   <p>
     <strong>A private dialogue with yourself.</strong><br>
-    Local-first. Distraction-free.
+    Local-first. Distraction-free. Secure.
   </p>
 
   <p>
     <img src="https://img.shields.io/badge/Status-Active_Development-success?style=flat-square" alt="Status" />
     <img src="https://img.shields.io/badge/Stack-Astro_•_React_•_Dexie-blue?style=flat-square" alt="Tech Stack" />
     <img src="https://img.shields.io/badge/Privacy-100%25_Local-gray?style=flat-square" alt="Privacy" />
+    <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="License" /></a>
   </p>
 </div>
 
@@ -22,16 +21,6 @@
 
 Built with a focus on privacy and speed, Soliloquy stores all data directly in your browser using **IndexedDB**. No servers, no tracking, no login screens. Just open and write.
 
-##### Check out my projects
-<table>
-    <tbody>
-        <tr>
-        <td><a href="https://github.com/stkossman/StackFetch">StackFetch</a></td>
-        <td>CLI that displays essential information about your current working directory.</td>
-        </tr>
-    </tbody>
-</table>
-
 ## 💎 Key Features
 
 | Feature | Description |
@@ -39,8 +28,9 @@ Built with a focus on privacy and speed, Soliloquy stores all data directly in y
 | **🔒 Local-First** | 100% of your data lives in your browser (IndexedDB). Zero cloud dependency. |
 | **💬 Messenger UX** | Familiar interface. If you know how to use Telegram, you know Soliloquy. |
 | **📌 Power Pinning** | Pin chats and messages. Navigate through pinned messages like a carousel. |
-| **📝 Rich Text** | Full **Markdown** support: code blocks, lists, quotes, and links. |
+| **📝 Rich Text** | Visual formatting menu, Markdown support, and code highlighting. |
 | **⚡ Blazing Fast** | Powered by **Bun** and **Astro**. Instant load times and reactivity. |
+| **🎨 Personalization** | Custom icons and colors for every chat to match your mood. |
 
 ## 🛠️ Tech Stack
 
@@ -54,40 +44,6 @@ Built with a focus on privacy and speed, Soliloquy stores all data directly in y
 - **Styling:** [TailwindCSS](https://tailwindcss.com) + [shadcn/ui](https://ui.shadcn.com)
 - **Formatter:** [Biome](https://biomejs.dev/)
 - **Deployment:** [Vercel](https://vercel.com/)
-
-## 🗺️ Roadmap
-
-### Completed Milestones ✅
-- [x] **Core Foundation**: Architecture (Astro/React/Dexie), CRUD, Smart Sorting.
-- [x] **Architecture & Performance**: Refactored components, Custom Hooks, Vercel CI/CD.
-- [x] **Basic Chat Actions**: Context Menu, Clear History, Export (.md/.json).
-- [x] **Rich Text**: Markdown rendering support.
-
-### Phase 5: UX Polish
-- [x] **UX Improvements**:
-  - [x] **Fix Sidebar Scroll**: Ensure chat list scrolls correctly when overflowing.
-  - [x] **Quick Delete**: Auto-focus "Delete" button in confirmation dialogs (or enable Enter to confirm).
-  - [x] **Scroll Logic**: Add "Scroll to Bottom" button in chat view.
-- [x] **View Settings**:
-  - [x] **Chat Zoom**: Ability to change text size (50% - 150%).
-- [x] **Bulk Actions (Multi-select)**:
-  - [x] **Selection mode in Sidebar** (Select multiple chats).
-  - [x] **Batch Delete & Batch Pin/Unpin** actions.
-- [x] **Drag-and-Drop Reordering**:
-  - [x] Custom order for pinned chats.
-  - [x] Logic to prevent mixing pinned/unpinned items during drag.
-
-### Phase 6: Advanced Functionality (Current focus)
-- [x] **Editor Experience**:
-    - [x] **Visual Formatting Menu**: Custom Context Menu (Right-Click) on text selection to apply formatting (Bold, Italic, Link, Monospace, Spoiler) without typing Markdown syntax manually. ([Issue #6](https://github.com/stkossman/soliloquy/issues/6))
-- [ ] **Search**:
-  - [ ] **Search within Chat**: Ctrl+F style search to find specific messages inside a conversation. ([Issue #7](https://github.com/stkossman/soliloquy/issues/7))
-- [ ] **Data Portability**:
-  - [x] **Import Chat**: Restore chat from exported .json/.md.
-  - [ ] **Global Backup**: Full database export/import file. ([Issue #8](https://github.com/stkossman/soliloquy/issues/8))
-- [ ] **Personalization**:
-  - [ ] **Chat Identity**: Custom Emoji/Avatar for chats. ([Issue #9](https://github.com/stkossman/soliloquy/issues/9))
-  - [ ] **Theme Toggle**: Switch between Light/Dark modes. ([Issue #10](https://github.com/stkossman/soliloquy/issues/10))
 
 ## 🚀 Getting Started
 
@@ -113,6 +69,22 @@ bun dev
 ```
 
 4. Open your browser at `http://localhost:4321`
+
+## 🗺️ Roadmap & Future
+I am currently in Phase 6 of development. Here is what I am working on next:
+
+- [ ] **Media Support**:
+  - [ ] Image upload via Clipboard (`Ctrl+V`) or Attachment button
+  - [ ] Modal preview with caption support before sending
+  - [ ] Optimized local storage for blobs
+- [ ] **Data Portability**: Global backup (Import/Export full database).
+- [ ] **Personalization**: Light/Dark mode toggle.]
+
+👉 [View full Roadmap & History](ROADMAP.md)
+
+## 🤝 Contributing
+
+Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md) (English & Ukrainian) to get started.
 
 ---
 
