@@ -5,6 +5,8 @@ import { MessageList } from './chat/MessageList'
 import { PinnedBar } from './chat/PinnedBar'
 import { Button } from '$lib/components/ui/button'
 import { ArrowDown } from 'lucide-react'
+import { ChatSearchToolbar } from './chat/ChatSearchToolbar'
+import { useEffect } from 'react'
 
 interface ChatWindowProps {
 	activeChatId: number
@@ -12,6 +14,17 @@ interface ChatWindowProps {
 
 export function ChatWindow({ activeChatId }: ChatWindowProps) {
 	const logic = useChatWindow(activeChatId)
+
+	useEffect(() => {
+		const handleKeyDown = (e: KeyboardEvent) => {
+			if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+				e.preventDefault()
+				logic.setIsSearchOpen(true)
+			}
+		}
+		window.addEventListener('keydown', handleKeyDown)
+		return () => window.removeEventListener('keydown', handleKeyDown)
+	}, [])
 
 	if (!logic.chat)
 		return (
@@ -33,6 +46,7 @@ export function ChatWindow({ activeChatId }: ChatWindowProps) {
 				onExport={format => logic.exportChat(format)}
 				zoomLevel={logic.zoomLevel}
 				onSetZoom={level => logic.setZoomLevel(level)}
+				onToggleSearch={logic.toggleSearch}
 			/>
 
 			{!logic.isPinnedView && (
@@ -44,6 +58,19 @@ export function ChatWindow({ activeChatId }: ChatWindowProps) {
 						e.stopPropagation()
 						logic.setIsPinnedView(true)
 					}}
+				/>
+			)}
+
+			{logic.isSearchOpen && (
+				<ChatSearchToolbar
+					query={logic.searchQuery}
+					onQueryChange={logic.setSearchQuery}
+					currentMatch={logic.currentMatchIndex + 1}
+					totalMatches={logic.searchResults.length}
+					onNext={logic.nextMatch}
+					onPrev={logic.prevMatch}
+					onClose={() => logic.setIsSearchOpen(false)}
+					onDateSelect={logic.jumpToDate}
 				/>
 			)}
 
@@ -60,6 +87,11 @@ export function ChatWindow({ activeChatId }: ChatWindowProps) {
 						onPin={logic.pinMessage}
 						onEdit={logic.startEditing}
 						onScroll={logic.handleScroll}
+						activeSearchId={
+							logic.searchResults.length > 0 && logic.currentMatchIndex >= 0
+								? logic.searchResults[logic.currentMatchIndex]
+								: null
+						}
 					/>
 				</div>
 

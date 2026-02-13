@@ -1,5 +1,5 @@
 import { Check, Copy, Pencil, Pin, Trash2 } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { cn } from '@/lib/utils'
 
 import {
@@ -17,6 +17,7 @@ interface MessageBubbleProps {
 	onEdit: (msg: Message) => void
 	onDelete: (id: number) => void
 	onPin: (msg: Message) => void
+	isHighlighted?: boolean
 }
 
 export function MessageBubble({
@@ -24,8 +25,18 @@ export function MessageBubble({
 	onEdit,
 	onDelete,
 	onPin,
+	isHighlighted,
 }: MessageBubbleProps) {
 	const [copied, setCopied] = useState(false)
+	const [isFlashing, setIsFlashing] = useState(false)
+
+	useEffect(() => {
+		if (isHighlighted) {
+			setIsFlashing(true)
+			const timer = setTimeout(() => setIsFlashing(false), 1000)
+			return () => clearTimeout(timer)
+		}
+	}, [isHighlighted])
 
 	const timeStr = message.createdAt.toLocaleTimeString('uk-UA', {
 		hour: '2-digit',
@@ -44,14 +55,24 @@ export function MessageBubble({
 				<div className='flex w-full justify-end mb-2 group'>
 					<div
 						className={cn(
-							'relative max-w-[70%] rounded-2xl px-4 py-2 text-sm shadow-sm transition-all',
-							'bg-primary text-primary-foreground',
+							'relative max-w-[70%] rounded-2xl px-4 py-2 text-sm shadow-sm',
 							'rounded-br-none',
-							message.isPinned && 'border-2 border-accent',
+							'transition-all duration-1000 ease-out',
+							!isFlashing && 'bg-primary text-primary-foreground',
+							message.isPinned && !isFlashing && 'border-2 border-accent',
+							isFlashing &&
+								'bg-chart-3 text-accent-foreground scale-[1.02] shadow-md duration-75',
 						)}
 					>
 						{message.isPinned && (
-							<div className='flex items-center gap-1 text-[10px] opacity-70 mb-1 border-b border-primary-foreground/20 pb-1'>
+							<div
+								className={cn(
+									'flex items-center gap-1 text-[10px] opacity-70 mb-1 border-b pb-1',
+									isFlashing
+										? 'border-accent-foreground/20'
+										: 'border-primary-foreground/20',
+								)}
+							>
 								<Pin className='h-3 w-3' />
 								<span>Pinned</span>
 							</div>

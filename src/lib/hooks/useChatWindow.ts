@@ -14,6 +14,11 @@ export function useChatWindow(activeChatId: number) {
 
 	const [zoomLevel, setZoomLevel] = useState(1)
 
+	const [isSearchOpen, setIsSearchOpen] = useState(false)
+	const [searchQuery, setSearchQuery] = useState('')
+	const [searchResults, setSearchResults] = useState<number[]>([])
+	const [currentMatchIndex, setCurrentMatchIndex] = useState(-1)
+
 	const scrollViewportRef = useRef<HTMLDivElement>(null)
 	const messageRefs = useRef<Map<number, HTMLDivElement>>(new Map())
 
@@ -93,6 +98,87 @@ export function useChatWindow(activeChatId: number) {
 				scrollViewportRef.current.scrollHeight
 		}
 	}, [allMessages, editingMessage, isPinnedView, activeChatId])
+
+	useEffect(() => {
+		if (!searchQuery.trim() || !allMessages) {
+			setSearchResults([])
+			setCurrentMatchIndex(-1)
+			return
+		}
+
+		const lowerQuery = searchQuery.toLowerCase()
+		const matches = allMessages
+			.filter(msg => msg.content.toLowerCase().includes(lowerQuery))
+			.map(msg => msg.id!)
+
+		setSearchResults(matches)
+
+		if (matches.length > 0) {
+			setCurrentMatchIndex(matches.length - 1)
+		} else {
+			setCurrentMatchIndex(-1)
+		}
+	}, [searchQuery, allMessages])
+
+	useEffect(() => {
+		if (currentMatchIndex >= 0 && searchResults.length > 0) {
+			const msgId = searchResults[currentMatchIndex]
+			const el = messageRefs.current.get(msgId)
+
+			if (el) {
+				el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+			}
+		}
+	}, [currentMatchIndex, searchResults])
+
+	const toggleSearch = useCallback(() => {
+		setIsSearchOpen(prev => {
+			if (prev) {
+				setSearchQuery('')
+			}
+			return !prev
+		})
+	}, [])
+
+	const nextMatch = useCallback(() => {
+		if (searchResults.length === 0) return
+		setCurrentMatchIndex(prev =>
+			prev < searchResults.length - 1 ? prev + 1 : 0,
+		)
+	}, [searchResults])
+
+	const prevMatch = useCallback(() => {
+		if (searchResults.length === 0) return
+		setCurrentMatchIndex(prev =>
+			prev > 0 ? prev - 1 : searchResults.length - 1,
+		)
+	}, [searchResults])
+
+	const jumpToDate = useCallback(
+		(date: Date) => {
+			if (!allMessages) return
+
+			const targetTime = new Date(date).setHours(0, 0, 0, 0)
+
+			const targetMsg = allMessages.find(msg => {
+				const msgTime = new Date(msg.createdAt).setHours(0, 0, 0, 0)
+				return msgTime >= targetTime
+			})
+
+			if (targetMsg && targetMsg.id) {
+				const el = messageRefs.current.get(targetMsg.id)
+				if (el) {
+					el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+					el.classList.add('ring-2', 'ring-primary', 'bg-primary/5')
+					setTimeout(
+						() => el.classList.remove('ring-2', 'ring-primary', 'bg-primary/5'),
+						2000,
+					)
+				}
+			}
+		},
+		[allMessages],
+	)
 
 	const handlePinClick = useCallback(() => {
 		if (!pinnedMessages || activePinIndex === -1) return
@@ -307,5 +393,16 @@ export function useChatWindow(activeChatId: number) {
 		// Zoom
 		zoomLevel,
 		setZoomLevel: handleSetZoom,
+		// Search
+		isSearchOpen,
+		toggleSearch,
+		setIsSearchOpen,
+		searchQuery,
+		setSearchQuery,
+		searchResults,
+		currentMatchIndex,
+		nextMatch,
+		prevMatch,
+		jumpToDate,
 	}
 }

@@ -1,4 +1,4 @@
-import { ArrowLeft, Info, MoreVertical } from 'lucide-react'
+import { ArrowLeft, Info, Search } from 'lucide-react'
 import { Avatar, AvatarFallback } from '$lib/components/ui/avatar'
 import { Button } from '$lib/components/ui/button'
 import type { Chat } from '$lib/types'
@@ -13,6 +13,7 @@ interface ChatHeaderProps {
 	onExport: (format: 'json' | 'md') => void
 	zoomLevel: number
 	onSetZoom: (level: number) => void
+	onToggleSearch: () => void
 }
 
 export function ChatHeader({
@@ -24,6 +25,7 @@ export function ChatHeader({
 	onExport,
 	zoomLevel,
 	onSetZoom,
+	onToggleSearch,
 }: ChatHeaderProps) {
 	const isSystemChat = chat.isSystem
 
@@ -65,13 +67,25 @@ export function ChatHeader({
 					</p>
 				</div>
 			</div>
-			<ChatActionsMenu
-				onClearHistory={onClearHistory}
-				onExport={onExport}
-				zoomLevel={zoomLevel}
-				onSetZoom={onSetZoom}
-				disabled={!!isSystemChat}
-			/>
+			<div className='flex items-center gap-1'>
+				<Button
+					variant='ghost'
+					size='icon'
+					onClick={onToggleSearch}
+					disabled={!!isSystemChat}
+					title='Search in chat (Ctrl+F)'
+				>
+					<Search className='h-5 w-5' />
+				</Button>
+
+				<ChatActionsMenu
+					onClearHistory={onClearHistory}
+					onExport={onExport}
+					zoomLevel={zoomLevel}
+					onSetZoom={onSetZoom}
+					disabled={!!isSystemChat}
+				/>
+			</div>
 		</div>
 	)
 }

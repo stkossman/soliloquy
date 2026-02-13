@@ -9,6 +9,7 @@ interface MessageListProps {
 	onPin: (msg: Message) => void
 	onEdit: (msg: Message) => void
 	onScroll?: () => void
+	activeSearchId?: number | null
 }
 
 export function MessageList({
@@ -19,6 +20,7 @@ export function MessageList({
 	onPin,
 	onEdit,
 	onScroll,
+	activeSearchId,
 }: MessageListProps) {
 	return (
 		<div
@@ -33,13 +35,14 @@ export function MessageList({
 						if (el) messageRefs.current.set(msg.id!, el)
 						else messageRefs.current.delete(msg.id!)
 					}}
-					className='transition-all duration-500 rounded-2xl'
+					className='transition-all duration-500 rounded-2xl scroll-m-20'
 				>
 					<MessageBubble
 						message={msg}
 						onDelete={onDelete}
 						onPin={onPin}
 						onEdit={onEdit}
+						isHighlighted={activeSearchId === msg.id}
 					/>
 				</div>
 			))}
