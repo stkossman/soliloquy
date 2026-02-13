@@ -87,7 +87,6 @@ export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 		}
 	}
 
-	// lists for draggable sorting
 	const systemChats = logic.chats?.filter(c => c.isSystem) || []
 	const pinnedChats = logic.chats?.filter(c => c.isPinned && !c.isSystem) || []
 	const regularChats =
@@ -268,6 +267,10 @@ export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 				chatToDelete={logic.chatToDelete}
 				newTitle={logic.newTitle}
 				onNewTitleChange={logic.setNewTitle}
+				newIcon={logic.newIcon}
+				onNewIconChange={logic.setNewIcon}
+				newColor={logic.newColor}
+				onNewColorChange={logic.setNewColor}
 				onCloseEdit={() => logic.setChatToEdit(null)}
 				onSaveEdit={logic.saveChatTitle}
 				onCloseDelete={() => logic.setChatToDelete(null)}

@@ -8,6 +8,8 @@ export interface Chat {
 	draft?: string
 	isSystem?: boolean
 	order?: number
+	icon?: string
+	color?: string
 }
 
 export interface Message {

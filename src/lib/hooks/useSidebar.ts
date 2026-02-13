@@ -10,6 +10,9 @@ export function useSidebar() {
 	const [chatToDelete, setChatToDelete] = useState<Chat | null>(null)
 	const [newTitle, setNewTitle] = useState('')
 
+	const [newIcon, setNewIcon] = useState<string>('message')
+	const [newColor, setNewColor] = useState<string>('#71717a')
+
 	const [isSelectionMode, setIsSelectionMode] = useState(false)
 	const [selectedChatIds, setSelectedChatIds] = useState<Set<number>>(new Set())
 	const [showBatchDeleteConfirm, setShowBatchDeleteConfirm] = useState(false)
@@ -192,10 +195,14 @@ export function useSidebar() {
 
 	const saveChatTitle = useCallback(async () => {
 		if (chatToEdit && newTitle.trim()) {
-			await db.chats.update(chatToEdit.id!, { title: newTitle.trim() })
+			await db.chats.update(chatToEdit.id!, {
+				title: newTitle.trim(),
+				icon: newIcon,
+				color: newColor,
+			})
 			setChatToEdit(null)
 		}
-	}, [chatToEdit, newTitle])
+	}, [chatToEdit, newTitle, newIcon, newColor])
 
 	const deleteChat = useCallback(
 		async (
@@ -219,6 +226,8 @@ export function useSidebar() {
 	const openEditDialog = useCallback((chat: Chat) => {
 		setChatToEdit(chat)
 		setNewTitle(chat.title)
+		setNewIcon(chat.icon || 'message')
+		setNewColor(chat.color || '#71717a')
 	}, [])
 
 	const startSelectionMode = useCallback((initialChatId: number) => {
@@ -351,6 +360,10 @@ export function useSidebar() {
 		saveChatTitle,
 		deleteChat,
 		openEditDialog,
+		newIcon,
+		setNewIcon,
+		newColor,
+		setNewColor,
 		// selection
 		startSelectionMode,
 		toggleChatSelection,

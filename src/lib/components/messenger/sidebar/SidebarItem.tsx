@@ -9,6 +9,8 @@ import {
 } from '$lib/components/ui/context-menu'
 import type { Chat } from '$lib/types'
 import { Checkbox } from '$lib/components/ui/checkbox'
+import { Avatar, AvatarFallback } from '$lib/components/ui/avatar'
+import { ICON_MAP, type IconKey } from '@/lib/constants'
 
 interface SidebarItemProps {
 	chat: Chat
@@ -35,6 +37,8 @@ export function SidebarItem({
 	onToggleSelection,
 	onStartSelection,
 }: SidebarItemProps) {
+	const isSystemChat = chat.isSystem
+
 	const handleClick = (e: React.MouseEvent) => {
 		if (isSelectionMode) {
 			e.preventDefault()
@@ -47,6 +51,16 @@ export function SidebarItem({
 	}
 
 	const hasDraft = chat.draft && chat.draft.trim().length > 0
+
+	const IconComponent =
+		chat.icon && ICON_MAP[chat.icon as IconKey]
+			? ICON_MAP[chat.icon as IconKey]
+			: null
+
+	const iconColor = chat.color || 'currentColor'
+	const iconBgStyle = chat.color
+		? { backgroundColor: `${chat.color}20`, color: chat.color }
+		: {}
 
 	const Content = (
 		<div
@@ -77,10 +91,25 @@ export function SidebarItem({
 				</div>
 			)}
 
+			<Avatar className='h-9 w-9'>
+				{isSystemChat ? (
+					<AvatarFallback className='bg-blue-500/10 text-blue-500'>
+						<Info className='h-5 w-5' />
+					</AvatarFallback>
+				) : IconComponent ? (
+					<AvatarFallback style={iconBgStyle} className='transition-colors'>
+						<IconComponent className='h-5 w-5' />
+					</AvatarFallback>
+				) : (
+					<AvatarFallback className='bg-muted text-muted-foreground'>
+						{chat.title.slice(0, 2).toUpperCase()}
+					</AvatarFallback>
+				)}
+			</Avatar>
+
 			<div className='flex flex-col flex-1 gap-1 overflow-hidden'>
 				<div className='flex w-full items-center justify-between'>
 					<span className='font-semibold truncate flex items-center gap-2'>
-						{chat.isSystem && <Info className='h-3.5 w-3.5 text-blue-400' />}
 						{chat.title}
 					</span>
 					<span
@@ -146,7 +175,7 @@ export function SidebarItem({
 						)}
 					</ContextMenuItem>
 					<ContextMenuItem onClick={onEdit}>
-						<Pencil className='mr-2 h-4 w-4' /> Rename
+						<Pencil className='mr-2 h-4 w-4' /> Edit Chat
 					</ContextMenuItem>
 					<ContextMenuSeparator />
 					<ContextMenuItem
