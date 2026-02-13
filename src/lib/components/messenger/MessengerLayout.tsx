@@ -10,7 +10,7 @@ export default function MessengerLayout() {
 		<div className='flex h-screen w-full overflow-hidden bg-background text-foreground'>
 			<Sidebar activeChatId={activeChatId} onChatSelect={setActiveChatId} />
 
-			<main className='flex-1 flex flex-col h-full relative'>
+			<main className='flex-1 flex flex-col h-full relative min-w-0'>
 				{activeChatId !== null ? (
 					<ChatWindow key={activeChatId} activeChatId={activeChatId} />
 				) : (

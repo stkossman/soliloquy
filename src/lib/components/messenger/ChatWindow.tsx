@@ -36,7 +36,7 @@ export function ChatWindow({ activeChatId }: ChatWindowProps) {
 		: logic.allMessages
 
 	return (
-		<div className='flex h-full flex-col'>
+		<div className='flex h-full flex-col w-full'>
 			<ChatHeader
 				chat={logic.chat}
 				isPinnedView={logic.isPinnedView}
@@ -75,10 +75,7 @@ export function ChatWindow({ activeChatId }: ChatWindowProps) {
 			)}
 
 			<div className='relative flex-1 min-h-0 flex flex-col'>
-				<div
-					style={{ zoom: logic.zoomLevel }}
-					className='flex-1 flex flex-col min-h-0'
-				>
+				<div className='flex-1 flex flex-col min-h-0'>
 					<MessageList
 						messages={messagesToRender}
 						messageRefs={logic.messageRefs}
@@ -92,6 +89,7 @@ export function ChatWindow({ activeChatId }: ChatWindowProps) {
 								? logic.searchResults[logic.currentMatchIndex]
 								: null
 						}
+						zoomLevel={logic.zoomLevel}
 					/>
 				</div>
 
