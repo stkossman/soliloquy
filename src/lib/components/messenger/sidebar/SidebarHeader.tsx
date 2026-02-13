@@ -1,4 +1,4 @@
-import { Plus, Search, Upload, CheckSquare, X } from 'lucide-react'
+import { Plus, Search, Download } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '$lib/components/ui/avatar'
 import { Button } from '$lib/components/ui/button'
 import { Input } from '$lib/components/ui/input'
@@ -59,7 +59,7 @@ export function SidebarHeader({
 								onClick={() => fileInputRef.current?.click()}
 								title='Import Chat'
 							>
-								<Upload className='h-5 w-5' />
+								<Download className='h-5 w-5' />
 							</Button>
 
 							<Button

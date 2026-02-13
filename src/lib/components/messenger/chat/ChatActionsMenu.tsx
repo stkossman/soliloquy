@@ -1,5 +1,5 @@
 import {
-	Download,
+	Upload,
 	FileJson,
 	FileText,
 	MoreVertical,
@@ -93,7 +93,7 @@ export function ChatActionsMenu({
 
 					<DropdownMenuSub>
 						<DropdownMenuSubTrigger>
-							<Download className='mr-2 h-4 w-4' /> Export Chat
+							<Upload className='mr-2 h-4 w-4' /> Export Chat
 						</DropdownMenuSubTrigger>
 						<DropdownMenuSubContent>
 							<DropdownMenuItem onClick={() => onExport('md')}>
