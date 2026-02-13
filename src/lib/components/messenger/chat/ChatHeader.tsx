@@ -3,6 +3,7 @@ import { Avatar, AvatarFallback } from '$lib/components/ui/avatar'
 import { Button } from '$lib/components/ui/button'
 import type { Chat } from '$lib/types'
 import { ChatActionsMenu } from './ChatActionsMenu'
+import { ICON_MAP, type IconKey } from '@/lib/constants'
 
 interface ChatHeaderProps {
 	chat: Chat
@@ -29,6 +30,15 @@ export function ChatHeader({
 }: ChatHeaderProps) {
 	const isSystemChat = chat.isSystem
 
+	const IconComponent =
+		chat.icon && ICON_MAP[chat.icon as IconKey]
+			? ICON_MAP[chat.icon as IconKey]
+			: null
+
+	const iconBgStyle = chat.color
+		? { backgroundColor: `${chat.color}20`, color: chat.color }
+		: {}
+
 	if (isPinnedView) {
 		return (
 			<div className='flex h-16 items-center justify-between border-b px-6 py-4 bg-background/95 backdrop-blur z-10 animate-in slide-in-from-left-2'>
@@ -50,13 +60,19 @@ export function ChatHeader({
 		<div className='flex h-16 items-center justify-between border-b px-6 py-4 bg-background/95 backdrop-blur z-10 animate-in fade-in'>
 			<div className='flex items-center gap-3'>
 				<Avatar className='h-9 w-9'>
-					<AvatarFallback className='bg-muted text-muted-foreground'>
-						{isSystemChat ? (
+					{isSystemChat ? (
+						<AvatarFallback className='bg-blue-500/10 text-blue-500'>
 							<Info className='h-5 w-5' />
-						) : (
-							chat.title.slice(0, 2).toUpperCase()
-						)}
-					</AvatarFallback>
+						</AvatarFallback>
+					) : IconComponent ? (
+						<AvatarFallback style={iconBgStyle} className='transition-colors'>
+							<IconComponent className='h-5 w-5' />
+						</AvatarFallback>
+					) : (
+						<AvatarFallback className='bg-muted text-muted-foreground'>
+							{chat.title.slice(0, 2).toUpperCase()}
+						</AvatarFallback>
+					)}
 				</Avatar>
 				<div>
 					<h2 className='text-sm font-semibold flex items-center gap-2'>
