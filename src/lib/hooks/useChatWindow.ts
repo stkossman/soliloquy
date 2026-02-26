@@ -1,9 +1,10 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { saveAs } from 'file-saver'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { db } from '$lib/db'
 import type { Message } from '$lib/types'
-import { set } from 'astro:schema'
+import { messageService } from '$lib/services/messageService'
+import { chatService } from '$lib/services/chatService'
+import { importExportService } from '$lib/services/importExportService'
 
 export function useChatWindow(activeChatId: number) {
 	const [inputValue, setInputValue] = useState('')
@@ -56,10 +57,9 @@ export function useChatWindow(activeChatId: number) {
 	useEffect(() => {
 		const timer = setTimeout(() => {
 			if (activeChatId && !editingMessage) {
-				db.chats.update(activeChatId, { draft: inputValue })
+				chatService.updateChat(activeChatId, { draft: inputValue })
 			}
 		}, 500)
-
 		return () => clearTimeout(timer)
 	}, [inputValue, activeChatId, editingMessage])
 
@@ -94,8 +94,7 @@ export function useChatWindow(activeChatId: number) {
 
 	useEffect(() => {
 		if (scrollViewportRef.current && !editingMessage && !isPinnedView) {
-			scrollViewportRef.current.scrollTop =
-				scrollViewportRef.current.scrollHeight
+			scrollViewportRef.current.scrollTop = scrollViewportRef.current.scrollHeight
 		}
 	}, [allMessages, editingMessage, isPinnedView, activeChatId])
 
@@ -203,68 +202,31 @@ export function useChatWindow(activeChatId: number) {
 	const handleSendOrUpdate = useCallback(async () => {
 		if (!inputValue.trim()) return
 		const text = inputValue.trim()
-
 		if (editingMessage) {
-			await db.messages.update(editingMessage.id!, {
-				content: text,
-				isEdited: true,
-			})
-			const lastMsg = await db.messages
-				.where('chatId')
-				.equals(activeChatId)
-				.last()
-			if (lastMsg && lastMsg.id === editingMessage.id) {
-				await db.chats.update(activeChatId, { previewText: text })
-			}
+			await messageService.updateMessage(editingMessage, text)
 			setEditingMessage(null)
 			setInputValue('')
 		} else {
-			await db.transaction('rw', db.chats, db.messages, async () => {
-				await db.messages.add({
-					chatId: activeChatId,
-					content: text,
-					createdAt: new Date(),
-					isEdited: false,
-					isPinned: false,
-				})
-				await db.chats.update(activeChatId, {
-					lastModified: new Date(),
-					previewText: text,
-					draft: '',
-				})
-			})
+			await messageService.sendMessage(activeChatId, text)
 			setInputValue('')
 		}
 	}, [inputValue, editingMessage, activeChatId])
 
 	const deleteMessage = useCallback(
 		async (id: number) => {
-			await db.messages.delete(id)
-
-			const lastMsg = await db.messages
-				.where('chatId')
-				.equals(activeChatId)
-				.last()
-			await db.chats.update(activeChatId, {
-				previewText: lastMsg ? lastMsg.content : '',
-			})
+			await messageService.deleteMessage(id, activeChatId)
 		},
 		[activeChatId],
 	)
 
 	const pinMessage = useCallback(async (msg: Message) => {
-		await db.messages.update(msg.id!, { isPinned: !msg.isPinned })
+		await messageService.togglePin(msg.id!, !msg.isPinned)
 	}, [])
 
 	const unpinAllMessages = useCallback(async () => {
-		if (!pinnedMessages) return
-		await db.transaction('rw', db.messages, async () => {
-			for (const msg of pinnedMessages) {
-				await db.messages.update(msg.id!, { isPinned: false })
-			}
-		})
+		await messageService.unpinAll(activeChatId)
 		setIsPinnedView(false)
-	}, [pinnedMessages])
+	}, [activeChatId])
 
 	const startEditing = useCallback((msg: Message) => {
 		setIsPinnedView(false)
@@ -286,59 +248,13 @@ export function useChatWindow(activeChatId: number) {
 	)
 
 	const clearHistory = useCallback(async () => {
-		await db.transaction('rw', db.messages, db.chats, async () => {
-			await db.messages.where({ chatId: activeChatId }).delete()
-			await db.chats.update(activeChatId, {
-				previewText: '',
-				lastModified: new Date(),
-				draft: '',
-			})
-		})
-
+		await messageService.clearHistory(activeChatId)
 		setIsPinnedView(false)
 	}, [activeChatId])
 
 	const exportChat = useCallback(
 		async (format: 'json' | 'md') => {
-			const messages = await db.messages
-				.where('chatId')
-				.equals(activeChatId)
-				.sortBy('createdAt')
-
-			const chatInfo = await db.chats.get(activeChatId)
-			const title = chatInfo?.title || 'Unknown Chat'
-			const dateStr = new Date().toISOString().split('T')[0]
-			const fileName = `soliloquy_export_${title.replace(/\s+/g, '_')}_${dateStr}`
-
-			if (format === 'json') {
-				const data = JSON.stringify({ chat: chatInfo, messages }, null, 2)
-				const blob = new Blob([data], { type: 'application/json' })
-
-				const url = URL.createObjectURL(blob)
-				const a = document.createElement('a')
-				a.href = url
-				a.download = `${fileName}.json`
-				a.click()
-				URL.revokeObjectURL(url)
-			} else if (format === 'md') {
-				let mdContent = `# ${title}\n\n`
-				mdContent += `*Exported on ${new Date().toLocaleString()}*\n\n---\n\n`
-
-				messages.forEach(msg => {
-					const time = msg.createdAt.toLocaleString()
-					mdContent += `### [${time}]\n${msg.content}\n\n`
-					if (msg.isPinned) mdContent += `> 📌 Pinned\n\n`
-					mdContent += `---\n\n`
-				})
-
-				const blob = new Blob([mdContent], { type: 'text/markdown' })
-				const url = URL.createObjectURL(blob)
-				const a = document.createElement('a')
-				a.href = url
-				a.download = `${fileName}.md`
-				a.click()
-				URL.revokeObjectURL(url)
-			}
+			await importExportService.exportChat(activeChatId, format)
 		},
 		[activeChatId],
 	)
