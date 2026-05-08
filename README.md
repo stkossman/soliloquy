@@ -8,7 +8,7 @@
   </p>
 
   <p>
-    <img src="https://img.shields.io/badge/Status-Active_Development-success?style=flat-square" alt="Status" />
+    <img src="https://img.shields.io/badge/Status-On_Hold-orange?style=flat-square" alt="Status" />
     <img src="https://img.shields.io/badge/Stack-Astro_•_React_•_Dexie-blue?style=flat-square" alt="Tech Stack" />
     <img src="https://img.shields.io/badge/Privacy-100%25_Local-gray?style=flat-square" alt="Privacy" />
     <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="License" /></a>
