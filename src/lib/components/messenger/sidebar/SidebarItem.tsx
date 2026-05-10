@@ -1,5 +1,8 @@
-import { Info, Pencil, Pin, PinOff, Trash2, CheckSquare } from 'lucide-react'
+import { CheckSquare, Info, Pencil, Pin, PinOff, Trash2 } from 'lucide-react'
+import { ICON_MAP, type IconKey } from '@/lib/constants'
 import { cn, formatChatDate, stripMarkdown } from '@/lib/utils'
+import { Avatar, AvatarFallback } from '$lib/components/ui/avatar'
+import { Checkbox } from '$lib/components/ui/checkbox'
 import {
 	ContextMenu,
 	ContextMenuContent,
@@ -8,9 +11,6 @@ import {
 	ContextMenuTrigger,
 } from '$lib/components/ui/context-menu'
 import type { Chat } from '$lib/types'
-import { Checkbox } from '$lib/components/ui/checkbox'
-import { Avatar, AvatarFallback } from '$lib/components/ui/avatar'
-import { ICON_MAP, type IconKey } from '@/lib/constants'
 
 interface SidebarItemProps {
 	chat: Chat

@@ -86,7 +86,7 @@ export const importExportService = {
 				const dateMatch = chunk.match(/^### \[(.*?)\]/)
 				const createdAt = dateMatch ? new Date(dateMatch[1]) : new Date()
 				const isPinned = chunk.includes('> 📌 Pinned')
-				let content = chunk
+				const content = chunk
 					.replace(/^### \[.*?\]\n/, '')
 					.replace(/> 📌 Pinned\n\n?/, '')
 					.trim()

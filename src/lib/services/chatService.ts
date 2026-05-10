@@ -3,6 +3,10 @@ import type { Chat } from '$lib/types'
 import { arrayMove } from '@dnd-kit/sortable'
 
 export const chatService = {
+	async getChat(id: number) {
+		return db.chats.get(id)
+	},
+
 	async createChat() {
 		const regularChats = await db.chats
 			.filter(c => !c.isPinned && !c.isSystem)

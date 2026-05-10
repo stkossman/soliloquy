@@ -1,9 +1,9 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useCallback, useState, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { db } from '$lib/db'
-import type { Chat } from '$lib/types'
 import { chatService } from '$lib/services/chatService'
 import { importExportService } from '$lib/services/importExportService'
+import type { Chat } from '$lib/types'
 //import { arrayMove } from '@dnd-kit/sortable'
 
 export function useSidebar() {

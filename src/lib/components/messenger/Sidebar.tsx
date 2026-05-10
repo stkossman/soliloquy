@@ -1,11 +1,11 @@
 import {
-	DndContext,
 	closestCenter,
+	DndContext,
+	type DragEndEvent,
 	KeyboardSensor,
 	PointerSensor,
 	useSensor,
 	useSensors,
-	type DragEndEvent,
 } from '@dnd-kit/core'
 import {
 	SortableContext,
@@ -13,22 +13,14 @@ import {
 	verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import {
-	MessageSquare,
 	CheckCircle2,
-	XCircle,
-	Trash2,
+	MessageSquare,
 	Pin,
 	PinOff,
+	Trash2,
+	XCircle,
 } from 'lucide-react'
-import { Separator } from '$lib/components/ui/separator'
-import { useSidebar } from '$lib/hooks/useSidebar'
-import { SidebarDialogs } from './sidebar/SidebarDialogs'
-import { SidebarHeader } from './sidebar/SidebarHeader'
-import { SidebarItem } from './sidebar/SidebarItem'
-import { SortableSidebarItem } from './sidebar/SortableSidebarItem'
-import { useState, useEffect } from 'react'
-import { cn } from '$lib/utils'
-import { Button } from '$lib/components/ui/button'
+import { useEffect, useState } from 'react'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -39,6 +31,14 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from '$lib/components/ui/alert-dialog'
+import { Button } from '$lib/components/ui/button'
+import { Separator } from '$lib/components/ui/separator'
+import { useSidebar } from '$lib/hooks/useSidebar'
+import { cn } from '$lib/utils'
+import { SidebarDialogs } from './sidebar/SidebarDialogs'
+import { SidebarHeader } from './sidebar/SidebarHeader'
+import { SidebarItem } from './sidebar/SidebarItem'
+import { SortableSidebarItem } from './sidebar/SortableSidebarItem'
 
 interface SidebarProps {
 	activeChatId: number | null

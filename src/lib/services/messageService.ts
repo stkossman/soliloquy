@@ -2,6 +2,18 @@ import { db } from '$lib/db'
 import type { Message } from '$lib/types'
 
 export const messageService = {
+	async getMessagesForChat(chatId: number) {
+		return db.messages.where('chatId').equals(chatId).sortBy('createdAt')
+	},
+
+	async getPinnedMessagesForChat(chatId: number) {
+		return db.messages
+			.where('chatId')
+			.equals(chatId)
+			.filter(msg => !!msg.isPinned)
+			.toArray()
+	},
+
 	async sendMessage(chatId: number, content: string) {
 		return db.transaction('rw', db.chats, db.messages, async () => {
 			await db.messages.add({

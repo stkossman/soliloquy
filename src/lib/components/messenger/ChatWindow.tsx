@@ -1,12 +1,12 @@
+import { ArrowDown } from 'lucide-react'
+import { useEffect } from 'react'
+import { Button } from '$lib/components/ui/button'
 import { useChatWindow } from '$lib/hooks/useChatWindow'
 import { ChatHeader } from './chat/ChatHeader'
 import { ChatInput } from './chat/ChatInput'
+import { ChatSearchToolbar } from './chat/ChatSearchToolbar'
 import { MessageList } from './chat/MessageList'
 import { PinnedBar } from './chat/PinnedBar'
-import { Button } from '$lib/components/ui/button'
-import { ArrowDown } from 'lucide-react'
-import { ChatSearchToolbar } from './chat/ChatSearchToolbar'
-import { useEffect } from 'react'
 
 interface ChatWindowProps {
 	activeChatId: number

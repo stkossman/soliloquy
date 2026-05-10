@@ -1,10 +1,10 @@
 import {
 	Bold,
-	Italic,
-	Strikethrough,
 	Code,
 	EyeOff,
+	Italic,
 	Link as LinkIcon,
+	Strikethrough,
 } from 'lucide-react'
 import { Button } from '$lib/components/ui/button'
 

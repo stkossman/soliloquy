@@ -11,11 +11,13 @@
 - Only extract logic FROM legacy hooks into focused hooks, then re-wire callers to the new hooks.
 
 - useChatWindow → decompose into:
-  - `useChatState` – input value, editing state
-  - `usePinnedMessages` – pin logic
-  - `useMessageSearch` – search toolbar, highlighting
-  - `useScrollBehavior` – auto-scroll, scroll-to-bottom
-  - `useZoomControl` – zoom state & persistence
+  ✅ **[DONE]** now split into focused hooks:
+  - `src/hooks/chat/useChatState.ts` – input value, editing state
+  - `src/hooks/chat/usePinnedMessages.ts` – pin logic
+  - `src/hooks/chat/useMessageSearch.ts` – search toolbar, highlighting
+  - `src/hooks/chat/useScrollBehavior.ts` – auto-scroll, scroll-to-bottom
+  - `src/hooks/chat/useZoomControl.ts` – zoom state & persistence
+  - `src/lib/hooks/useChatWindow.ts` – now a thin <80-line orchestrator that composes all five
 
 - useSidebar → decompose into:
   - `useChatList` – fetch & sort chats

@@ -1,9 +1,9 @@
 import { ArrowLeft, Info, Search } from 'lucide-react'
+import { ICON_MAP, type IconKey } from '@/lib/constants'
 import { Avatar, AvatarFallback } from '$lib/components/ui/avatar'
 import { Button } from '$lib/components/ui/button'
 import type { Chat } from '$lib/types'
 import { ChatActionsMenu } from './ChatActionsMenu'
-import { ICON_MAP, type IconKey } from '@/lib/constants'
 
 interface ChatHeaderProps {
 	chat: Chat
