@@ -5,6 +5,10 @@ import {
 	WORKSPACE_BACKUP_FORMAT,
 	WORKSPACE_BACKUP_VERSION,
 	createWorkspaceBackup,
+	parseWorkspaceBackupImport,
+	prepareMergeWorkspaceChats,
+	prepareMergeWorkspaceMessages,
+	prepareReplaceWorkspaceData,
 	serializeWorkspaceBackup,
 } from './workspaceBackup.ts'
 
@@ -86,5 +90,85 @@ describe('workspace backup export', () => {
 
 		assert.equal(parsed.data.chats.length, 0)
 		assert.equal(parsed.data.messages.length, 0)
+	})
+})
+
+describe('workspace backup import', () => {
+	it('parses a valid backup and restores chat-message relationships', () => {
+		const parsed = parseWorkspaceBackupImport(
+			serializeWorkspaceBackup({
+				chats: [chat({ id: 1 })],
+				messages: [message({ id: 10, chatId: 1 })],
+				exportedAt: new Date('2026-06-20T10:00:00.000Z'),
+			}),
+		)
+
+		assert.equal(parsed.chats.length, 1)
+		assert.equal(parsed.messages.length, 1)
+		assert.equal(parsed.messages[0].chatId, parsed.chats[0].id)
+	})
+
+	it('rejects invalid backups before restore data is prepared', () => {
+		assert.throws(
+			() =>
+				parseWorkspaceBackupImport(
+					JSON.stringify({
+						format: WORKSPACE_BACKUP_FORMAT,
+						version: WORKSPACE_BACKUP_VERSION,
+						exportedAt: '2026-06-20T10:00:00.000Z',
+						data: {
+							chats: [chat({ id: 1 })],
+							messages: [message({ id: 10, chatId: 999 })],
+						},
+					}),
+				),
+			/missing chat 999/,
+		)
+	})
+
+	it('prepares replace data without changing ids', () => {
+		const parsed = parseWorkspaceBackupImport(
+			serializeWorkspaceBackup({
+				chats: [chat({ id: 7 })],
+				messages: [message({ id: 70, chatId: 7 })],
+				exportedAt: new Date('2026-06-20T10:00:00.000Z'),
+			}),
+		)
+		const replaceData = prepareReplaceWorkspaceData(parsed)
+
+		assert.equal(replaceData.chats[0].id, 7)
+		assert.equal(replaceData.messages[0].id, 70)
+		assert.equal(replaceData.messages[0].chatId, 7)
+	})
+
+	it('prepares merge chats without source ids', () => {
+		const chats = prepareMergeWorkspaceChats([chat({ id: 7 })])
+
+		assert.equal('id' in chats[0], false)
+		assert.equal(chats[0].title, 'Personal Notes')
+	})
+
+	it('remaps message chat ids for merge restore', () => {
+		const messages = prepareMergeWorkspaceMessages(
+			[message({ id: 70, chatId: 7 })],
+			new Map([[7, 107]]),
+		)
+
+		assert.equal('id' in messages[0], false)
+		assert.equal(messages[0].chatId, 107)
+		assert.equal(messages[0].content, 'Hello')
+	})
+
+	it('preserves personalization fields during validation', () => {
+		const parsed = parseWorkspaceBackupImport(
+			serializeWorkspaceBackup({
+				chats: [chat({ icon: 'book', color: '#3b82f6' })],
+				messages: [message()],
+				exportedAt: new Date('2026-06-20T10:00:00.000Z'),
+			}),
+		)
+
+		assert.equal(parsed.chats[0].icon, 'book')
+		assert.equal(parsed.chats[0].color, '#3b82f6')
 	})
 })

@@ -7,7 +7,14 @@ import {
 	parseSingleChatMarkdownImport,
 	serializeSingleChatMarkdownExport,
 } from './import-export/singleChatMarkdown'
-import { serializeWorkspaceBackup } from './import-export/workspaceBackup'
+import {
+	parseWorkspaceBackupImport,
+	prepareMergeWorkspaceChats,
+	prepareMergeWorkspaceMessages,
+	prepareReplaceWorkspaceData,
+	serializeWorkspaceBackup,
+	type WorkspaceRestoreMode,
+} from './import-export/workspaceBackup'
 
 function downloadTextFile(content: string, fileName: string, type: string) {
 	const blob = new Blob([content], { type })
@@ -17,6 +24,12 @@ function downloadTextFile(content: string, fileName: string, type: string) {
 	a.download = fileName
 	a.click()
 	URL.revokeObjectURL(url)
+}
+
+export interface WorkspaceImportResult {
+	chatsImported: number
+	messagesImported: number
+	mode: WorkspaceRestoreMode
 }
 
 export const importExportService = {
@@ -54,6 +67,66 @@ export const importExportService = {
 			`soliloquy_workspace_backup_${dateStr}.json`,
 			'application/json',
 		)
+	},
+
+	async importWorkspaceBackup(
+		file: File,
+		mode: WorkspaceRestoreMode = 'replace',
+	): Promise<WorkspaceImportResult> {
+		const text = await file.text()
+		const backup = parseWorkspaceBackupImport(text)
+
+		if (mode === 'replace') {
+			const data = prepareReplaceWorkspaceData(backup)
+
+			await db.transaction('rw', db.chats, db.messages, async () => {
+				await db.messages.clear()
+				await db.chats.clear()
+
+				if (data.chats.length > 0) {
+					await db.chats.bulkAdd(data.chats)
+				}
+
+				if (data.messages.length > 0) {
+					await db.messages.bulkAdd(data.messages)
+				}
+			})
+
+			return {
+				chatsImported: data.chats.length,
+				messagesImported: data.messages.length,
+				mode,
+			}
+		}
+
+		const chatIdMap = new Map<number, number>()
+		const chatsToAdd = prepareMergeWorkspaceChats(backup.chats)
+
+		await db.transaction('rw', db.chats, db.messages, async () => {
+			for (let index = 0; index < chatsToAdd.length; index++) {
+				const sourceId = backup.chats[index].id
+				const newId = await db.chats.add(chatsToAdd[index])
+
+				if (typeof sourceId === 'number') {
+					chatIdMap.set(sourceId, newId as number)
+				}
+			}
+
+			const messagesToAdd = prepareMergeWorkspaceMessages(
+				backup.messages,
+				chatIdMap,
+			)
+
+			if (messagesToAdd.length > 0) {
+				await db.messages.bulkAdd(messagesToAdd)
+			}
+		})
+
+		return {
+			chatsImported: backup.chats.length,
+			messagesImported: backup.messages.length,
+			mode,
+		}
 	},
 
 	async importChat(file: File): Promise<number> {
