@@ -1,5 +1,8 @@
 import { useCallback, useState } from 'react'
-import { createSelectedChatIds, toggleSelectedChatId } from './selectionState'
+import {
+	createSelectedChatIds,
+	toggleSelectedChatId,
+} from './selectionState/selectionState'
 
 export function useChatSelection() {
 	const [isSelectionMode, setIsSelectionMode] = useState(false)

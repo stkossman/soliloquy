@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { isSearchShortcut } from './keyboardShortcuts'
+import { isSearchShortcut } from './keyboardShortcuts/keyboardShortcuts'
 
 interface UseKeyboardShortcutsParams {
 	onOpenSearch: () => void

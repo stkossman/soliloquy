@@ -135,9 +135,9 @@ Rules:
 
 - Live IndexedDB reads use `useLiveQuery` from `dexie-react-hooks` inside hooks/facades, with service methods as the query source.
 - Sidebar chat sorting is handled by `getVisibleSidebarChats` in `src/lib/utils/sidebarChats.ts`.
-- Sidebar grouping is handled by `getSidebarChatGroups` in `src/lib/components/messenger/sidebar/sidebarChatGroups.ts`.
-- Keyboard shortcut detection is separated into pure logic in `src/lib/hooks/chat/keyboardShortcuts.ts` and the React hook `useKeyboardShortcuts`.
-- Component-specific conditional state helpers may live next to the component, for example `src/lib/components/messenger/chat/chatWindowState.ts`.
+- Sidebar grouping is handled by `getSidebarChatGroups` in `src/lib/components/messenger/sidebar/sidebar-chat-groups/sidebarChatGroups.ts`.
+- Keyboard shortcut detection is separated into pure logic in `src/lib/hooks/chat/keyboardShortcuts/keyboardShortcuts.ts` and the React hook `useKeyboardShortcuts`.
+- Component-specific conditional state helpers may live in a small dedicated folder under the component area, for example `src/lib/components/messenger/chat/chat-window-state/chatWindowState.ts`.
 - Chat icons and preset colors are defined in `src/lib/constants.ts`.
 - Dates in chat UI currently use Ukrainian locale formatting (`uk-UA`) in `formatChatDate`.
 
@@ -174,12 +174,16 @@ Notes:
 ## Testing Requirements
 
 - Add focused tests for new pure helpers and boundary logic when practical.
+- For React components or component-boundary helpers with tests, colocate the module and its test in a dedicated folder; do not put those tests loose among unrelated component files.
+- Do not create global `tests` or `__tests__` folders for this project.
+- For hook-adjacent helpers with tests, colocate the helper and test in a small folder named after the helper, for example `src/lib/hooks/chat/keyboardShortcuts/`.
+- Keep utility and service tests next to their own modules unless the module already has a more specific local folder.
 - Keep tests close to the logic they cover, following current examples:
   - `src/lib/utils/sidebarChats.test.ts`
-  - `src/lib/hooks/sidebar/selectionState.test.ts`
-  - `src/lib/hooks/chat/keyboardShortcuts.test.ts`
-  - `src/lib/components/messenger/chat/chatWindowState.test.ts`
-  - `src/lib/components/messenger/sidebar/sidebarChatGroups.test.ts`
+  - `src/lib/hooks/sidebar/selectionState/selectionState.test.ts`
+  - `src/lib/hooks/chat/keyboardShortcuts/keyboardShortcuts.test.ts`
+  - `src/lib/components/messenger/chat/chat-window-state/chatWindowState.test.ts`
+  - `src/lib/components/messenger/sidebar/sidebar-chat-groups/sidebarChatGroups.test.ts`
 - There is no configured coverage threshold.
 - There is no React Testing Library setup in `package.json`; prefer pure helpers for logic that should be testable without DOM.
 - When tests cannot be run cleanly in the current environment, state that clearly and still run `bun run lint` and `bun run build` when relevant.

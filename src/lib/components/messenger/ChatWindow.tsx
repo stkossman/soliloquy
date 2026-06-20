@@ -9,7 +9,7 @@ import { ChatSearchToolbar } from './chat/ChatSearchToolbar'
 import {
 	getActiveSearchId,
 	getMessagesForChatView,
-} from './chat/chatWindowState'
+} from './chat/chat-window-state/chatWindowState'
 import { MessageList } from './chat/MessageList'
 import { PinnedBar } from './chat/PinnedBar'
 

@@ -1,5 +1,5 @@
-import type { Message } from '$lib/types'
 import { useCallback, useEffect, useState } from 'react'
+import type { Message } from '$lib/types'
 
 export interface UseMessageSearchResult {
 	isSearchOpen: boolean

@@ -11,7 +11,7 @@ import { memo, useCallback, useMemo } from 'react'
 import type { Chat } from '$lib/types'
 import { SidebarItem } from './SidebarItem'
 import { SortableSidebarItem } from './SortableSidebarItem'
-import { getSidebarChatGroups } from './sidebarChatGroups'
+import { getSidebarChatGroups } from './sidebar-chat-groups/sidebarChatGroups'
 
 interface SidebarChatListProps {
 	chats: Chat[] | undefined

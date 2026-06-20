@@ -1,6 +1,6 @@
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { chatService } from '$lib/services/chatService'
 import type { Message } from '$lib/types'
-import { useCallback, useEffect, useMemo, useState } from 'react'
 
 export interface UseChatStateResult {
 	inputValue: string
