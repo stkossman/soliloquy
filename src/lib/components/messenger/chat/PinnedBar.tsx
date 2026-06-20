@@ -17,6 +17,7 @@ export function PinnedBar({
 	if (!message) return null
 
 	return (
+		// biome-ignore lint/a11y/useSemanticElements: Preserves the existing pinned bar element and keyboard behavior.
 		<div
 			onClick={onClick}
 			role='button'

@@ -1,10 +1,10 @@
 import { Check, Pencil, Send, X } from 'lucide-react'
+import { useRef, useState } from 'react'
 import { cn } from '@/lib/utils'
 import { Button } from '$lib/components/ui/button'
 import { Textarea } from '$lib/components/ui/textarea'
 import type { Message } from '$lib/types'
 import { ChatFormattingToolbar } from './ChatFormattingToolbar'
-import { useRef, useState } from 'react'
 
 interface ChatInputProps {
 	value: string

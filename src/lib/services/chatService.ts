@@ -1,8 +1,16 @@
+import { arrayMove } from '@dnd-kit/sortable'
 import { db } from '$lib/db'
 import type { Chat } from '$lib/types'
-import { arrayMove } from '@dnd-kit/sortable'
 
 export const chatService = {
+	async getChat(id: number) {
+		return db.chats.get(id)
+	},
+
+	async getChats() {
+		return db.chats.toArray()
+	},
+
 	async createChat() {
 		const regularChats = await db.chats
 			.filter(c => !c.isPinned && !c.isSystem)
@@ -32,21 +40,25 @@ export const chatService = {
 	},
 
 	async togglePin(chat: Chat) {
+		if (typeof chat.id !== 'number') return
+
 		if (!chat.isPinned) {
 			const allPinned = await db.chats.filter(c => !!c.isPinned).toArray()
 			const maxOrder = allPinned.reduce(
 				(max, c) => Math.max(max, c.order || 0),
 				-1,
 			)
-			return db.chats.update(chat.id!, { isPinned: true, order: maxOrder + 1 })
+			return db.chats.update(chat.id, { isPinned: true, order: maxOrder + 1 })
 		} else {
-			return db.chats.update(chat.id!, { isPinned: false })
+			return db.chats.update(chat.id, { isPinned: false })
 		}
 	},
 
 	async getSafeSelectedIds(ids: number[]) {
 		const chatsToCheck = await db.chats.where('id').anyOf(ids).toArray()
-		return chatsToCheck.filter(c => !c.isSystem).map(c => c.id!)
+		return chatsToCheck
+			.filter(c => !c.isSystem && typeof c.id === 'number')
+			.map(c => c.id as number)
 	},
 
 	async batchPin(ids: number[], pin: boolean) {
@@ -88,7 +100,10 @@ export const chatService = {
 			const newOrder = arrayMove(groupChats, oldIndex, newIndex)
 			await db.transaction('rw', db.chats, async () => {
 				for (let i = 0; i < newOrder.length; i++) {
-					await db.chats.update(newOrder[i].id!, { order: i })
+					const chatId = newOrder[i].id
+					if (typeof chatId === 'number') {
+						await db.chats.update(chatId, { order: i })
+					}
 				}
 			})
 		}
@@ -106,13 +121,21 @@ export const chatService = {
 
 			await db.transaction('rw', db.chats, async () => {
 				for (let i = 0; i < pinned.length; i++) {
-					if (typeof pinned[i].order !== 'number') {
-						await db.chats.update(pinned[i].id!, { order: i })
+					const chatId = pinned[i].id
+					if (
+						typeof pinned[i].order !== 'number' &&
+						typeof chatId === 'number'
+					) {
+						await db.chats.update(chatId, { order: i })
 					}
 				}
 				for (let i = 0; i < regular.length; i++) {
-					if (typeof regular[i].order !== 'number') {
-						await db.chats.update(regular[i].id!, { order: i })
+					const chatId = regular[i].id
+					if (
+						typeof regular[i].order !== 'number' &&
+						typeof chatId === 'number'
+					) {
+						await db.chats.update(chatId, { order: i })
 					}
 				}
 			})

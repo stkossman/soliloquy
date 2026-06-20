@@ -1,11 +1,11 @@
 import {
-	Upload,
+	Check,
 	FileJson,
 	FileText,
 	MoreVertical,
 	Trash2,
+	Upload,
 	ZoomIn,
-	Check,
 } from 'lucide-react'
 import { useState } from 'react'
 import {

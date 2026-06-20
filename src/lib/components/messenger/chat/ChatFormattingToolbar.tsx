@@ -1,10 +1,10 @@
 import {
 	Bold,
-	Italic,
-	Strikethrough,
 	Code,
 	EyeOff,
+	Italic,
 	Link as LinkIcon,
+	Strikethrough,
 } from 'lucide-react'
 import { Button } from '$lib/components/ui/button'
 
@@ -22,6 +22,7 @@ export function ChatFormattingToolbar({
 	}
 
 	return (
+		// biome-ignore lint/a11y/noStaticElementInteractions: Preserves the toolbar's existing mouse-only selection handling.
 		<div
 			className='absolute -top-12 left-0 right-0 mx-auto w-fit flex items-center gap-1 p-1 rounded-lg bg-popover border shadow-md animate-in slide-in-from-bottom-2 fade-in zoom-in-95 z-50'
 			onMouseDown={handleMouseDown}

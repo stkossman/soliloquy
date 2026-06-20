@@ -1,8 +1,8 @@
-import { Plus, Search, Download } from 'lucide-react'
+import { Download, Plus, Search } from 'lucide-react'
+import { useRef } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '$lib/components/ui/avatar'
 import { Button } from '$lib/components/ui/button'
 import { Input } from '$lib/components/ui/input'
-import { useRef } from 'react'
 
 interface SidebarHeaderProps {
 	searchQuery: string

@@ -1,7 +1,7 @@
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { SidebarItem } from './SidebarItem'
 import type { Chat } from '$lib/types'
+import { SidebarItem } from './SidebarItem'
 
 interface SortableSidebarItemProps {
 	chat: Chat

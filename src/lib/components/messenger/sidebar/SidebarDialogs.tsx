@@ -1,4 +1,6 @@
 import { useRef } from 'react'
+import { ICON_MAP, type IconKey, PRESET_COLORS } from '@/lib/constants'
+import { cn } from '@/lib/utils'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -19,10 +21,8 @@ import {
 } from '$lib/components/ui/dialog'
 import { Input } from '$lib/components/ui/input'
 import { Label } from '$lib/components/ui/label'
-import type { Chat } from '$lib/types'
-import { ICON_MAP, PRESET_COLORS, type IconKey } from '@/lib/constants'
-import { cn } from '@/lib/utils'
 import { ScrollArea } from '$lib/components/ui/scroll-area'
+import type { Chat } from '$lib/types'
 
 interface SidebarDialogsProps {
 	chatToEdit: Chat | null
