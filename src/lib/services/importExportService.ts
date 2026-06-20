@@ -1,9 +1,12 @@
 import { db } from '$lib/db'
-import type { Message } from '$lib/types'
 import {
 	parseSingleChatJsonImport,
 	serializeSingleChatJsonExport,
 } from './import-export/singleChatJson'
+import {
+	parseSingleChatMarkdownImport,
+	serializeSingleChatMarkdownExport,
+} from './import-export/singleChatMarkdown'
 
 export const importExportService = {
 	async exportChat(chatId: number, format: 'json' | 'md') {
@@ -27,12 +30,9 @@ export const importExportService = {
 			a.click()
 			URL.revokeObjectURL(url)
 		} else if (format === 'md') {
-			let mdContent = `# ${title}\n\n*Exported on ${new Date().toLocaleString()}*\n\n---\n\n`
-			messages.forEach(msg => {
-				const time = msg.createdAt.toLocaleString()
-				mdContent += `### [${time}]\n${msg.content}\n\n`
-				if (msg.isPinned) mdContent += `> 📌 Pinned\n\n`
-				mdContent += `---\n\n`
+			const mdContent = serializeSingleChatMarkdownExport({
+				chat: chatInfo,
+				messages,
 			})
 			const blob = new Blob([mdContent], { type: 'text/markdown' })
 			const url = URL.createObjectURL(blob)
@@ -63,41 +63,20 @@ export const importExportService = {
 			await db.messages.bulkAdd(messagesToAdd)
 			return chatId as number
 		} else if (extension === 'md') {
-			const lines = text.split('\n')
-			const titleMatch = lines[0].match(/^# (.*)/)
-			const title = titleMatch ? titleMatch[1] : file.name.replace('.md', '')
+			const data = parseSingleChatMarkdownImport(
+				text,
+				file.name.replace(/\.md$/i, ''),
+			)
 
-			const chatId = await db.chats.add({
-				title: title + ' (Imported)',
-				isPinned: false,
-				createdAt: new Date(),
-				lastModified: new Date(),
-			})
+			const chatId = await db.chats.add(data.chat)
 
-			const rawMessages = text.split('\n---\n\n')
-			const messagesToAdd: Message[] = []
-			const contentChunks = rawMessages.slice(1)
-
-			for (const chunk of contentChunks) {
-				if (!chunk.trim()) continue
-				const dateMatch = chunk.match(/^### \[(.*?)\]/)
-				const createdAt = dateMatch ? new Date(dateMatch[1]) : new Date()
-				const isPinned = chunk.includes('> 📌 Pinned')
-				const content = chunk
-					.replace(/^### \[.*?\]\n/, '')
-					.replace(/> 📌 Pinned\n\n?/, '')
-					.trim()
-
-				if (content) {
-					messagesToAdd.push({
-						chatId: chatId as number,
-						content,
-						createdAt,
-						isEdited: false,
-						isPinned,
-					})
-				}
-			}
+			const messagesToAdd = data.messages.map(msg => ({
+				chatId,
+				content: msg.content,
+				createdAt: msg.createdAt,
+				isEdited: msg.isEdited,
+				isPinned: msg.isPinned,
+			}))
 
 			if (messagesToAdd.length > 0) {
 				await db.messages.bulkAdd(messagesToAdd)
