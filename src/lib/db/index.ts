@@ -1,5 +1,10 @@
 import Dexie, { type Table } from 'dexie'
 import type { Chat, Message } from '$lib/types'
+import { getChatPersonalizationMigrationPatch } from './chat-personalization/chatPersonalization'
+
+const CHAT_SCHEMA =
+	'++id, title, isPinned, order, draft, lastModified, icon, color'
+const MESSAGE_SCHEMA = '++id, chatId, createdAt'
 
 export class SoliloquyDB extends Dexie {
 	chats!: Table<Chat>
@@ -9,9 +14,31 @@ export class SoliloquyDB extends Dexie {
 		super('SoliloquyDB')
 
 		this.version(5).stores({
-			chats: '++id, title, isPinned, order, draft, lastModified, icon, color',
-			messages: '++id, chatId, createdAt',
+			chats: CHAT_SCHEMA,
+			messages: MESSAGE_SCHEMA,
 		})
+
+		this.version(6)
+			.stores({
+				chats: CHAT_SCHEMA,
+				messages: MESSAGE_SCHEMA,
+			})
+			.upgrade(tx => {
+				return tx
+					.table<Chat>('chats')
+					.toCollection()
+					.modify(chat => {
+						const patch = getChatPersonalizationMigrationPatch(chat)
+
+						if (patch.icon) {
+							chat.icon = patch.icon
+						}
+
+						if (patch.color) {
+							chat.color = patch.color
+						}
+					})
+			})
 
 		this.on('populate', () => {
 			// system chat
