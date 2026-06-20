@@ -1,5 +1,9 @@
 import { db } from '$lib/db'
 import type { Message } from '$lib/types'
+import {
+	parseSingleChatJsonImport,
+	serializeSingleChatJsonExport,
+} from './import-export/singleChatJson'
 
 export const importExportService = {
 	async exportChat(chatId: number, format: 'json' | 'md') {
@@ -14,7 +18,7 @@ export const importExportService = {
 		const fileName = `soliloquy_export_${title.replace(/\s+/g, '_')}_${dateStr}`
 
 		if (format === 'json') {
-			const data = JSON.stringify({ chat: chatInfo, messages }, null, 2)
+			const data = serializeSingleChatJsonExport({ chat: chatInfo, messages })
 			const blob = new Blob([data], { type: 'application/json' })
 			const url = URL.createObjectURL(blob)
 			const a = document.createElement('a')
@@ -45,21 +49,14 @@ export const importExportService = {
 		const extension = file.name.split('.').pop()?.toLowerCase()
 
 		if (extension === 'json') {
-			const data = JSON.parse(text)
-			if (!data.chat || !data.messages) throw new Error('Invalid JSON format')
+			const data = parseSingleChatJsonImport(text)
 
-			const chatId = await db.chats.add({
-				title: data.chat.title + ' (Imported)',
-				isPinned: false,
-				createdAt: new Date(data.chat.createdAt),
-				lastModified: new Date(),
-				previewText: data.chat.previewText,
-			})
+			const chatId = await db.chats.add(data.chat)
 
-			const messagesToAdd = data.messages.map((msg: any) => ({
-				chatId: chatId,
+			const messagesToAdd = data.messages.map(msg => ({
+				chatId,
 				content: msg.content,
-				createdAt: new Date(msg.createdAt),
+				createdAt: msg.createdAt,
 				isEdited: msg.isEdited,
 				isPinned: msg.isPinned,
 			}))
