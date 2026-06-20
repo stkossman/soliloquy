@@ -1,5 +1,5 @@
 import { Check, Copy, Pencil, Pin, Trash2 } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { cn } from '@/lib/utils'
 
 import {
@@ -20,7 +20,7 @@ interface MessageBubbleProps {
 	isHighlighted?: boolean
 }
 
-export function MessageBubble({
+export const MessageBubble = memo(function MessageBubble({
 	message,
 	onEdit,
 	onDelete,
@@ -38,16 +38,26 @@ export function MessageBubble({
 		}
 	}, [isHighlighted])
 
-	const timeStr = message.createdAt.toLocaleTimeString('uk-UA', {
-		hour: '2-digit',
-		minute: '2-digit',
-	})
+	const timeStr = useMemo(
+		() =>
+			message.createdAt.toLocaleTimeString('uk-UA', {
+				hour: '2-digit',
+				minute: '2-digit',
+			}),
+		[message.createdAt],
+	)
 
-	const handleCopy = async () => {
+	const handleCopy = useCallback(async () => {
 		await navigator.clipboard.writeText(message.content)
 		setCopied(true)
 		setTimeout(() => setCopied(false), 2000)
-	}
+	}, [message.content])
+
+	const handlePin = useCallback(() => onPin(message), [message, onPin])
+	const handleEdit = useCallback(() => onEdit(message), [message, onEdit])
+	const handleDelete = useCallback(() => {
+		if (typeof message.id === 'number') onDelete(message.id)
+	}, [message.id, onDelete])
 
 	return (
 		<ContextMenu>
@@ -93,20 +103,20 @@ export function MessageBubble({
 				<ContextMenuItem onClick={handleCopy}>
 					<Copy className='mr-2 h-4 w-4' /> Copy
 				</ContextMenuItem>
-				<ContextMenuItem onClick={() => onPin(message)}>
+				<ContextMenuItem onClick={handlePin}>
 					<Pin className='mr-2 h-4 w-4' /> {message.isPinned ? 'Unpin' : 'Pin'}
 				</ContextMenuItem>
-				<ContextMenuItem onClick={() => onEdit(message)}>
+				<ContextMenuItem onClick={handleEdit}>
 					<Pencil className='mr-2 h-4 w-4' /> Edit
 				</ContextMenuItem>
 				<ContextMenuSeparator />
 				<ContextMenuItem
 					className='text-destructive focus:text-destructive'
-					onClick={() => onDelete(message.id!)}
+					onClick={handleDelete}
 				>
 					<Trash2 className='mr-2 h-4 w-4' /> Delete
 				</ContextMenuItem>
 			</ContextMenuContent>
 		</ContextMenu>
 	)
-}
+})

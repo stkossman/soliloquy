@@ -1,5 +1,5 @@
-import type { Message } from '$lib/types'
 import { useCallback, useEffect, useState } from 'react'
+import type { Message } from '$lib/types'
 
 export interface UseScrollBehaviorResult {
 	showScrollToBottom: boolean
@@ -24,10 +24,12 @@ export function useScrollBehavior({
 }: UseScrollBehaviorParams): UseScrollBehaviorResult {
 	const [showScrollToBottom, setShowScrollToBottom] = useState(false)
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: Reset scroll affordance when the active chat changes.
 	useEffect(() => {
 		setShowScrollToBottom(false)
 	}, [activeChatId])
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: Preserve legacy auto-scroll timing keyed to message/chat changes.
 	useEffect(() => {
 		const viewport = scrollViewportRef.current
 		if (!viewport || isEditing || isPinnedView) return

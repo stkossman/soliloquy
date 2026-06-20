@@ -1,7 +1,7 @@
-import { messageService } from '$lib/services/messageService'
-import type { Message } from '$lib/types'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { messageService } from '$lib/services/messageService'
+import type { Message } from '$lib/types'
 
 export interface UsePinnedMessagesResult {
 	pinnedMessages: Message[] | undefined
@@ -31,11 +31,13 @@ export function usePinnedMessages({
 		[activeChatId],
 	)
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: Reset pinned view when the active chat changes.
 	useEffect(() => {
 		setIsPinnedView(false)
 		setActivePinIndex(-1)
 	}, [activeChatId])
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: Preserve legacy pin index behavior keyed to pinned count and chat changes.
 	useEffect(() => {
 		if (pinnedMessages && pinnedMessages.length > 0) {
 			if (activePinIndex === -1 || activePinIndex >= pinnedMessages.length) {
@@ -57,7 +59,8 @@ export function usePinnedMessages({
 	const handlePinClick = useCallback(() => {
 		if (!pinnedMessages || activePinIndex === -1) return
 		const targetMsg = pinnedMessages[activePinIndex]
-		const el = messageRefs.current.get(targetMsg.id!)
+		if (typeof targetMsg.id !== 'number') return
+		const el = messageRefs.current.get(targetMsg.id)
 
 		if (el) {
 			el.scrollIntoView({ behavior: 'smooth', block: 'center' })
@@ -75,7 +78,8 @@ export function usePinnedMessages({
 	}, [pinnedMessages, activePinIndex, messageRefs])
 
 	const pinMessage = useCallback(async (msg: Message) => {
-		await messageService.togglePin(msg.id!, !msg.isPinned)
+		if (typeof msg.id !== 'number') return
+		await messageService.togglePin(msg.id, !msg.isPinned)
 	}, [])
 
 	const unpinAllMessages = useCallback(async () => {

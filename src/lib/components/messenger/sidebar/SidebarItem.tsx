@@ -1,4 +1,5 @@
 import { CheckSquare, Info, Pencil, Pin, PinOff, Trash2 } from 'lucide-react'
+import { memo, useCallback, useMemo } from 'react'
 import { ICON_MAP, type IconKey } from '@/lib/constants'
 import { cn, formatChatDate, stripMarkdown } from '@/lib/utils'
 import { Avatar, AvatarFallback } from '$lib/components/ui/avatar'
@@ -25,7 +26,7 @@ interface SidebarItemProps {
 	onStartSelection: () => void
 }
 
-export function SidebarItem({
+export const SidebarItem = memo(function SidebarItem({
 	chat,
 	isActive,
 	onSelect,
@@ -39,30 +40,41 @@ export function SidebarItem({
 }: SidebarItemProps) {
 	const isSystemChat = chat.isSystem
 
-	const handleClick = (e: React.MouseEvent) => {
-		if (isSelectionMode) {
-			e.preventDefault()
-			if (!chat.isSystem) {
-				onToggleSelection()
+	const handleClick = useCallback(
+		(e: React.MouseEvent) => {
+			if (isSelectionMode) {
+				e.preventDefault()
+				if (!chat.isSystem) {
+					onToggleSelection()
+				}
+			} else {
+				onSelect()
 			}
-		} else {
-			onSelect()
-		}
-	}
+		},
+		[chat.isSystem, isSelectionMode, onSelect, onToggleSelection],
+	)
 
 	const hasDraft = chat.draft && chat.draft.trim().length > 0
 
-	const IconComponent =
-		chat.icon && ICON_MAP[chat.icon as IconKey]
-			? ICON_MAP[chat.icon as IconKey]
-			: null
+	const IconComponent = useMemo(
+		() =>
+			chat.icon && ICON_MAP[chat.icon as IconKey]
+				? ICON_MAP[chat.icon as IconKey]
+				: null,
+		[chat.icon],
+	)
 
-	const iconColor = chat.color || 'currentColor'
-	const iconBgStyle = chat.color
-		? { backgroundColor: `${chat.color}20`, color: chat.color }
-		: {}
+	const iconBgStyle = useMemo(
+		() =>
+			chat.color
+				? { backgroundColor: `${chat.color}20`, color: chat.color }
+				: {},
+		[chat.color],
+	)
 
 	const Content = (
+		// biome-ignore lint/a11y/noStaticElementInteractions: Preserves the existing clickable row semantics and keyboard behavior.
+		// biome-ignore lint/a11y/useKeyWithClickEvents: Preserves the existing clickable row semantics and keyboard behavior.
 		<div
 			onClick={handleClick}
 			className={cn(
@@ -188,4 +200,4 @@ export function SidebarItem({
 			)}
 		</ContextMenu>
 	)
-}
+})

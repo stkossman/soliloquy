@@ -1,13 +1,13 @@
-import { chatService } from '$lib/services/chatService'
-import { importExportService } from '$lib/services/importExportService'
-import { messageService } from '$lib/services/messageService'
+import { useLiveQuery } from 'dexie-react-hooks'
+import { useCallback, useRef } from 'react'
 import { useChatState } from '$lib/hooks/chat/useChatState'
 import { useMessageSearch } from '$lib/hooks/chat/useMessageSearch'
 import { usePinnedMessages } from '$lib/hooks/chat/usePinnedMessages'
 import { useScrollBehavior } from '$lib/hooks/chat/useScrollBehavior'
 import { useZoomControl } from '$lib/hooks/chat/useZoomControl'
-import { useLiveQuery } from 'dexie-react-hooks'
-import { useCallback, useRef } from 'react'
+import { chatService } from '$lib/services/chatService'
+import { importExportService } from '$lib/services/importExportService'
+import { messageService } from '$lib/services/messageService'
 
 export function useChatWindow(activeChatId: number) {
 	const scrollViewportRef = useRef<HTMLDivElement>(null)
@@ -46,7 +46,28 @@ export function useChatWindow(activeChatId: number) {
 			await messageService.sendMessage(activeChatId, s.inputValue.trim())
 			s.setInputValue('')
 		}
-	}, [s.inputValue, s.editingMessage, s.setEditingMessage, activeChatId])
+	}, [
+		s.inputValue,
+		s.editingMessage,
+		s.setEditingMessage,
+		s.setInputValue,
+		activeChatId,
+	])
+
+	const deleteMessage = useCallback(
+		(id: number) => messageService.deleteMessage(id, activeChatId),
+		[activeChatId],
+	)
+
+	const clearHistory = useCallback(() => {
+		messageService.clearHistory(activeChatId)
+		p.setIsPinnedView(false)
+	}, [activeChatId, p.setIsPinnedView])
+
+	const exportChat = useCallback(
+		(fmt: 'json' | 'md') => importExportService.exportChat(activeChatId, fmt),
+		[activeChatId],
+	)
 
 	return {
 		inputValue: s.inputValue,
@@ -63,18 +84,13 @@ export function useChatWindow(activeChatId: number) {
 		messageRefs,
 		handlePinClick: p.handlePinClick,
 		handleSendOrUpdate,
-		deleteMessage: (id: number) =>
-			messageService.deleteMessage(id, activeChatId),
+		deleteMessage,
 		pinMessage: p.pinMessage,
 		unpinAllMessages: p.unpinAllMessages,
 		startEditing: s.startEditing,
 		cancelEdit: s.cancelEdit,
-		clearHistory: () => {
-			messageService.clearHistory(activeChatId)
-			p.setIsPinnedView(false)
-		},
-		exportChat: (fmt: 'json' | 'md') =>
-			importExportService.exportChat(activeChatId, fmt),
+		clearHistory,
+		exportChat,
 		handleScroll: sc.handleScroll,
 		scrollToBottom: sc.scrollToBottom,
 		showScrollToBottom: sc.showScrollToBottom,
