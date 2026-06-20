@@ -7,6 +7,17 @@ import {
 	parseSingleChatMarkdownImport,
 	serializeSingleChatMarkdownExport,
 } from './import-export/singleChatMarkdown'
+import { serializeWorkspaceBackup } from './import-export/workspaceBackup'
+
+function downloadTextFile(content: string, fileName: string, type: string) {
+	const blob = new Blob([content], { type })
+	const url = URL.createObjectURL(blob)
+	const a = document.createElement('a')
+	a.href = url
+	a.download = fileName
+	a.click()
+	URL.revokeObjectURL(url)
+}
 
 export const importExportService = {
 	async exportChat(chatId: number, format: 'json' | 'md') {
@@ -22,26 +33,27 @@ export const importExportService = {
 
 		if (format === 'json') {
 			const data = serializeSingleChatJsonExport({ chat: chatInfo, messages })
-			const blob = new Blob([data], { type: 'application/json' })
-			const url = URL.createObjectURL(blob)
-			const a = document.createElement('a')
-			a.href = url
-			a.download = `${fileName}.json`
-			a.click()
-			URL.revokeObjectURL(url)
+			downloadTextFile(data, `${fileName}.json`, 'application/json')
 		} else if (format === 'md') {
 			const mdContent = serializeSingleChatMarkdownExport({
 				chat: chatInfo,
 				messages,
 			})
-			const blob = new Blob([mdContent], { type: 'text/markdown' })
-			const url = URL.createObjectURL(blob)
-			const a = document.createElement('a')
-			a.href = url
-			a.download = `${fileName}.md`
-			a.click()
-			URL.revokeObjectURL(url)
+			downloadTextFile(mdContent, `${fileName}.md`, 'text/markdown')
 		}
+	},
+
+	async exportWorkspaceBackup() {
+		const chats = await db.chats.toArray()
+		const messages = await db.messages.toArray()
+		const dateStr = new Date().toISOString().split('T')[0]
+		const data = serializeWorkspaceBackup({ chats, messages })
+
+		downloadTextFile(
+			data,
+			`soliloquy_workspace_backup_${dateStr}.json`,
+			'application/json',
+		)
 	},
 
 	async importChat(file: File): Promise<number> {
