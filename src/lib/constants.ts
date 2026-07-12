@@ -46,8 +46,11 @@ export const ICON_MAP = {
 
 export type IconKey = keyof typeof ICON_MAP
 
+export const DEFAULT_CHAT_ICON: IconKey = 'message'
+export const DEFAULT_CHAT_COLOR = '#71717a'
+
 export const PRESET_COLORS = [
-	'#71717a',
+	DEFAULT_CHAT_COLOR,
 	'#ef4444',
 	'#f97316',
 	'#eab308',

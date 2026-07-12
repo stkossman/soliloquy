@@ -25,6 +25,8 @@ export function useSidebar() {
 		setNewTitle: operations.setNewTitle,
 		createNewChat: operations.createNewChat,
 		importChat: operations.importChat,
+		exportWorkspaceBackup: operations.exportWorkspaceBackup,
+		importWorkspaceBackup: operations.importWorkspaceBackup,
 		togglePin: operations.togglePin,
 		saveChatTitle: operations.saveChatTitle,
 		deleteChat: operations.deleteChat,

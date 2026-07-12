@@ -1,5 +1,36 @@
 import { db } from '$lib/db'
-import type { Message } from '$lib/types'
+import {
+	parseSingleChatJsonImport,
+	serializeSingleChatJsonExport,
+} from './import-export/singleChatJson'
+import {
+	parseSingleChatMarkdownImport,
+	serializeSingleChatMarkdownExport,
+} from './import-export/singleChatMarkdown'
+import {
+	parseWorkspaceBackupImport,
+	prepareMergeWorkspaceChats,
+	prepareMergeWorkspaceMessages,
+	prepareReplaceWorkspaceData,
+	serializeWorkspaceBackup,
+	type WorkspaceRestoreMode,
+} from './import-export/workspaceBackup'
+
+function downloadTextFile(content: string, fileName: string, type: string) {
+	const blob = new Blob([content], { type })
+	const url = URL.createObjectURL(blob)
+	const a = document.createElement('a')
+	a.href = url
+	a.download = fileName
+	a.click()
+	URL.revokeObjectURL(url)
+}
+
+export interface WorkspaceImportResult {
+	chatsImported: number
+	messagesImported: number
+	mode: WorkspaceRestoreMode
+}
 
 export const importExportService = {
 	async exportChat(chatId: number, format: 'json' | 'md') {
@@ -14,29 +45,102 @@ export const importExportService = {
 		const fileName = `soliloquy_export_${title.replace(/\s+/g, '_')}_${dateStr}`
 
 		if (format === 'json') {
-			const data = JSON.stringify({ chat: chatInfo, messages }, null, 2)
-			const blob = new Blob([data], { type: 'application/json' })
-			const url = URL.createObjectURL(blob)
-			const a = document.createElement('a')
-			a.href = url
-			a.download = `${fileName}.json`
-			a.click()
-			URL.revokeObjectURL(url)
+			const data = serializeSingleChatJsonExport({ chat: chatInfo, messages })
+			downloadTextFile(data, `${fileName}.json`, 'application/json')
 		} else if (format === 'md') {
-			let mdContent = `# ${title}\n\n*Exported on ${new Date().toLocaleString()}*\n\n---\n\n`
-			messages.forEach(msg => {
-				const time = msg.createdAt.toLocaleString()
-				mdContent += `### [${time}]\n${msg.content}\n\n`
-				if (msg.isPinned) mdContent += `> 📌 Pinned\n\n`
-				mdContent += `---\n\n`
+			const mdContent = serializeSingleChatMarkdownExport({
+				chat: chatInfo,
+				messages,
 			})
-			const blob = new Blob([mdContent], { type: 'text/markdown' })
-			const url = URL.createObjectURL(blob)
-			const a = document.createElement('a')
-			a.href = url
-			a.download = `${fileName}.md`
-			a.click()
-			URL.revokeObjectURL(url)
+			downloadTextFile(mdContent, `${fileName}.md`, 'text/markdown')
+		}
+	},
+
+	async exportWorkspaceBackup() {
+		const chats = await db.chats.toArray()
+		const messages = await db.messages.toArray()
+		const dateStr = new Date().toISOString().split('T')[0]
+		const data = serializeWorkspaceBackup({ chats, messages })
+
+		downloadTextFile(
+			data,
+			`soliloquy_workspace_backup_${dateStr}.json`,
+			'application/json',
+		)
+	},
+
+	async importWorkspaceBackup(
+		file: File,
+		mode: WorkspaceRestoreMode = 'replace',
+	): Promise<WorkspaceImportResult> {
+		const text = await file.text()
+		const backup = parseWorkspaceBackupImport(text)
+
+		if (mode === 'replace') {
+			const data = prepareReplaceWorkspaceData(backup)
+
+			await db.transaction('rw', db.chats, db.messages, async () => {
+				await db.messages.clear()
+				await db.chats.clear()
+
+				if (data.chats.length > 0) {
+					await db.chats.bulkAdd(data.chats)
+				}
+
+				if (data.messages.length > 0) {
+					await db.messages.bulkAdd(data.messages)
+				}
+			})
+
+			return {
+				chatsImported: data.chats.length,
+				messagesImported: data.messages.length,
+				mode,
+			}
+		}
+
+		const chatIdMap = new Map<number, number>()
+		const chatsToMerge = backup.chats.filter(chat => !chat.isSystem)
+		const chatsToAdd = prepareMergeWorkspaceChats(chatsToMerge)
+
+		await db.transaction('rw', db.chats, db.messages, async () => {
+			const systemChats = await db.chats
+				.filter(chat => chat.isSystem === true)
+				.sortBy('createdAt')
+			const duplicateSystemChatIds = systemChats
+				.slice(1)
+				.flatMap(chat => (typeof chat.id === 'number' ? [chat.id] : []))
+
+			if (duplicateSystemChatIds.length > 0) {
+				await db.messages.where('chatId').anyOf(duplicateSystemChatIds).delete()
+				await db.chats.bulkDelete(duplicateSystemChatIds)
+			}
+
+			for (let index = 0; index < chatsToAdd.length; index++) {
+				const sourceId = chatsToMerge[index].id
+				const newId = await db.chats.add(chatsToAdd[index])
+
+				if (typeof sourceId === 'number') {
+					chatIdMap.set(sourceId, newId as number)
+				}
+			}
+
+			const messagesToAdd = prepareMergeWorkspaceMessages(
+				backup.messages.filter(message => chatIdMap.has(message.chatId)),
+				chatIdMap,
+			)
+
+			if (messagesToAdd.length > 0) {
+				await db.messages.bulkAdd(messagesToAdd)
+			}
+		})
+
+		return {
+			chatsImported: chatsToAdd.length,
+			messagesImported: backup.messages.filter(message =>
+				chatIdMap.has(message.chatId),
+			).length,
+			mode,
 		}
 	},
 
@@ -45,62 +149,34 @@ export const importExportService = {
 		const extension = file.name.split('.').pop()?.toLowerCase()
 
 		if (extension === 'json') {
-			const data = JSON.parse(text)
-			if (!data.chat || !data.messages) throw new Error('Invalid JSON format')
+			const data = parseSingleChatJsonImport(text)
 
-			const chatId = await db.chats.add({
-				title: data.chat.title + ' (Imported)',
-				isPinned: false,
-				createdAt: new Date(data.chat.createdAt),
-				lastModified: new Date(),
-				previewText: data.chat.previewText,
-			})
+			const chatId = await db.chats.add(data.chat)
 
-			const messagesToAdd = data.messages.map((msg: any) => ({
-				chatId: chatId,
+			const messagesToAdd = data.messages.map(msg => ({
+				chatId,
 				content: msg.content,
-				createdAt: new Date(msg.createdAt),
+				createdAt: msg.createdAt,
 				isEdited: msg.isEdited,
 				isPinned: msg.isPinned,
 			}))
 			await db.messages.bulkAdd(messagesToAdd)
 			return chatId as number
 		} else if (extension === 'md') {
-			const lines = text.split('\n')
-			const titleMatch = lines[0].match(/^# (.*)/)
-			const title = titleMatch ? titleMatch[1] : file.name.replace('.md', '')
+			const data = parseSingleChatMarkdownImport(
+				text,
+				file.name.replace(/\.md$/i, ''),
+			)
 
-			const chatId = await db.chats.add({
-				title: title + ' (Imported)',
-				isPinned: false,
-				createdAt: new Date(),
-				lastModified: new Date(),
-			})
+			const chatId = await db.chats.add(data.chat)
 
-			const rawMessages = text.split('\n---\n\n')
-			const messagesToAdd: Message[] = []
-			const contentChunks = rawMessages.slice(1)
-
-			for (const chunk of contentChunks) {
-				if (!chunk.trim()) continue
-				const dateMatch = chunk.match(/^### \[(.*?)\]/)
-				const createdAt = dateMatch ? new Date(dateMatch[1]) : new Date()
-				const isPinned = chunk.includes('> 📌 Pinned')
-				const content = chunk
-					.replace(/^### \[.*?\]\n/, '')
-					.replace(/> 📌 Pinned\n\n?/, '')
-					.trim()
-
-				if (content) {
-					messagesToAdd.push({
-						chatId: chatId as number,
-						content,
-						createdAt,
-						isEdited: false,
-						isPinned,
-					})
-				}
-			}
+			const messagesToAdd = data.messages.map(msg => ({
+				chatId,
+				content: msg.content,
+				createdAt: msg.createdAt,
+				isEdited: msg.isEdited,
+				isPinned: msg.isPinned,
+			}))
 
 			if (messagesToAdd.length > 0) {
 				await db.messages.bulkAdd(messagesToAdd)

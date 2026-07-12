@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react'
 import { chatService } from '$lib/services/chatService'
 import { importExportService } from '$lib/services/importExportService'
 import type { Chat } from '$lib/types'
+import type { WorkspaceRestoreMode } from '$lib/services/import-export/workspaceBackup'
 
 interface UseChatOperationsParams {
 	selectedChatIds: Set<number>
@@ -29,6 +30,17 @@ export function useChatOperations({
 		async (file: File, onSelect: (id: number) => void) => {
 			const id = await importExportService.importChat(file)
 			onSelect(id)
+		},
+		[],
+	)
+
+	const exportWorkspaceBackup = useCallback(async () => {
+		await importExportService.exportWorkspaceBackup()
+	}, [])
+
+	const importWorkspaceBackup = useCallback(
+		async (file: File, mode: WorkspaceRestoreMode) => {
+			return importExportService.importWorkspaceBackup(file, mode)
 		},
 		[],
 	)
@@ -115,6 +127,8 @@ export function useChatOperations({
 		setNewTitle,
 		createNewChat,
 		importChat,
+		exportWorkspaceBackup,
+		importWorkspaceBackup,
 		togglePin,
 		saveChatTitle,
 		deleteChat,

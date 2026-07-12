@@ -1,7 +1,21 @@
-import { Download, Plus, Search } from 'lucide-react'
+import {
+	ArchiveRestore,
+	Download,
+	FileUp,
+	LoaderCircle,
+	Plus,
+	Search,
+	Upload,
+} from 'lucide-react'
 import { useRef } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '$lib/components/ui/avatar'
 import { Button } from '$lib/components/ui/button'
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from '$lib/components/ui/dropdown-menu'
 import { Input } from '$lib/components/ui/input'
 
 interface SidebarHeaderProps {
@@ -9,6 +23,9 @@ interface SidebarHeaderProps {
 	onSearchChange: (val: string) => void
 	onCreateChat: () => void
 	onImportChat: (file: File) => void
+	onExportWorkspace: () => void
+	onImportWorkspace: (file: File) => void
+	workspaceOperation: 'exporting' | 'importing' | null
 	isSelectionMode: boolean
 }
 
@@ -17,9 +34,18 @@ export function SidebarHeader({
 	onSearchChange,
 	onCreateChat,
 	onImportChat,
+	onExportWorkspace,
+	onImportWorkspace,
+	workspaceOperation,
 	isSelectionMode,
 }: SidebarHeaderProps) {
 	const fileInputRef = useRef<HTMLInputElement>(null)
+	const workspaceFileInputRef = useRef<HTMLInputElement>(null)
+	const isWorkspaceOperationInProgress = workspaceOperation !== null
+	const workspaceOperationMessage =
+		workspaceOperation === 'exporting'
+			? 'Exporting workspace backup...'
+			: 'Restoring workspace backup...'
 
 	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0]
@@ -27,6 +53,18 @@ export function SidebarHeader({
 			onImportChat(file)
 		}
 		if (fileInputRef.current) fileInputRef.current.value = ''
+	}
+
+	const handleWorkspaceFileChange = (
+		e: React.ChangeEvent<HTMLInputElement>,
+	) => {
+		const file = e.target.files?.[0]
+		if (file) {
+			onImportWorkspace(file)
+		}
+		if (workspaceFileInputRef.current) {
+			workspaceFileInputRef.current.value = ''
+		}
 	}
 
 	return (
@@ -48,6 +86,13 @@ export function SidebarHeader({
 						<>
 							<input
 								type='file'
+								ref={workspaceFileInputRef}
+								onChange={handleWorkspaceFileChange}
+								className='hidden'
+								accept='.json,application/json'
+							/>
+							<input
+								type='file'
 								ref={fileInputRef}
 								onChange={handleFileChange}
 								className='hidden'
@@ -56,11 +101,47 @@ export function SidebarHeader({
 							<Button
 								variant='ghost'
 								size='icon'
-								onClick={() => fileInputRef.current?.click()}
-								title='Import Chat'
+								onClick={onExportWorkspace}
+								title={
+									isWorkspaceOperationInProgress
+										? workspaceOperationMessage
+										: 'Export Workspace Backup'
+								}
+								disabled={isWorkspaceOperationInProgress}
 							>
-								<Download className='h-5 w-5' />
+								{isWorkspaceOperationInProgress ? (
+									<LoaderCircle className='h-5 w-5 animate-spin' />
+								) : (
+									<Download className='h-5 w-5' />
+								)}
 							</Button>
+
+							<DropdownMenu>
+								<DropdownMenuTrigger asChild>
+									<Button
+										variant='ghost'
+										size='icon'
+										title='Import'
+										disabled={isWorkspaceOperationInProgress}
+									>
+										<Upload className='h-5 w-5' />
+									</Button>
+								</DropdownMenuTrigger>
+								<DropdownMenuContent align='end'>
+									<DropdownMenuItem
+										onClick={() => fileInputRef.current?.click()}
+										disabled={isWorkspaceOperationInProgress}
+									>
+										<FileUp className='h-4 w-4' /> Import One Chat (.json or .md)
+									</DropdownMenuItem>
+									<DropdownMenuItem
+										onClick={() => workspaceFileInputRef.current?.click()}
+										disabled={isWorkspaceOperationInProgress}
+									>
+										<ArchiveRestore className='h-4 w-4' /> Restore Workspace Backup (.json)
+									</DropdownMenuItem>
+								</DropdownMenuContent>
+							</DropdownMenu>
 
 							<Button
 								variant='ghost'
@@ -74,6 +155,13 @@ export function SidebarHeader({
 					)}
 				</div>
 			</div>
+
+			{isWorkspaceOperationInProgress && (
+				<output className='flex items-center gap-2 text-xs text-muted-foreground'>
+					<LoaderCircle className='h-3.5 w-3.5 animate-spin' />
+					{workspaceOperationMessage}
+				</output>
+			)}
 
 			<div className='relative'>
 				<Search className='absolute left-2 top-2.5 h-4 w-4 text-muted-foreground' />
