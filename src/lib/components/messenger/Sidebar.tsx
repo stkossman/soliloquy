@@ -7,7 +7,7 @@ import {
 } from '@dnd-kit/core'
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable'
 import { CheckCircle2, XCircle } from 'lucide-react'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -41,6 +41,8 @@ interface SidebarProps {
 	activeChatId: number | null
 	onChatSelect: (id: number | null) => void
 }
+
+type WorkspaceOperation = 'exporting' | 'importing'
 
 export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 	const logic = useSidebar()
@@ -79,6 +81,22 @@ export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 		useState(false)
 	const [showReplaceWorkspaceConfirm, setShowReplaceWorkspaceConfirm] =
 		useState(false)
+	const [workspaceOperation, setWorkspaceOperation] =
+		useState<WorkspaceOperation | null>(null)
+	const workspaceOperationRef = useRef<WorkspaceOperation | null>(null)
+
+	const startWorkspaceOperation = useCallback((operation: WorkspaceOperation) => {
+		if (workspaceOperationRef.current) return false
+
+		workspaceOperationRef.current = operation
+		setWorkspaceOperation(operation)
+		return true
+	}, [])
+
+	const finishWorkspaceOperation = useCallback(() => {
+		workspaceOperationRef.current = null
+		setWorkspaceOperation(null)
+	}, [])
 
 	useEffect(() => {
 		if (toast) {
@@ -100,16 +118,22 @@ export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 	)
 
 	const handleExportWorkspaceBackup = useCallback(async () => {
+		if (!startWorkspaceOperation('exporting')) return
+
 		try {
 			await logic.exportWorkspaceBackup()
 			setToast({ type: 'success', message: 'Workspace backup exported.' })
 		} catch {
 			setToast({ type: 'error', message: 'Failed to export workspace backup.' })
+		} finally {
+			finishWorkspaceOperation()
 		}
-	}, [logic.exportWorkspaceBackup])
+	}, [finishWorkspaceOperation, logic.exportWorkspaceBackup, startWorkspaceOperation])
 
 	const restoreWorkspaceBackup = useCallback(
 		async (file: File, mode: WorkspaceRestoreMode) => {
+			if (!startWorkspaceOperation('importing')) return
+
 			try {
 				const result = await logic.importWorkspaceBackup(file, mode)
 				onChatSelect(null)
@@ -119,12 +143,21 @@ export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 				})
 			} catch {
 				setToast({ type: 'error', message: 'Failed to restore workspace backup.' })
+			} finally {
+				finishWorkspaceOperation()
 			}
 		},
-		[logic.importWorkspaceBackup, onChatSelect],
+		[
+			finishWorkspaceOperation,
+			logic.importWorkspaceBackup,
+			onChatSelect,
+			startWorkspaceOperation,
+		],
 	)
 
 	const handleWorkspaceRestoreRequest = useCallback((file: File) => {
+		if (workspaceOperationRef.current) return
+
 		setWorkspaceBackupFile(file)
 		setWorkspaceRestoreMode('merge')
 		setShowWorkspaceRestoreDialog(true)
@@ -190,6 +223,7 @@ export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 					onImportChat={handleImportWrapper}
 					onExportWorkspace={handleExportWorkspaceBackup}
 					onImportWorkspace={handleWorkspaceRestoreRequest}
+					workspaceOperation={workspaceOperation}
 					isSelectionMode={logic.isSelectionMode}
 				/>
 

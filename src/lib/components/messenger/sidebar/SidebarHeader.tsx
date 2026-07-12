@@ -1,4 +1,11 @@
-import { ArchiveRestore, Download, Plus, Search, Upload } from 'lucide-react'
+import {
+	ArchiveRestore,
+	Download,
+	LoaderCircle,
+	Plus,
+	Search,
+	Upload,
+} from 'lucide-react'
 import { useRef } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '$lib/components/ui/avatar'
 import { Button } from '$lib/components/ui/button'
@@ -17,6 +24,7 @@ interface SidebarHeaderProps {
 	onImportChat: (file: File) => void
 	onExportWorkspace: () => void
 	onImportWorkspace: (file: File) => void
+	workspaceOperation: 'exporting' | 'importing' | null
 	isSelectionMode: boolean
 }
 
@@ -27,10 +35,16 @@ export function SidebarHeader({
 	onImportChat,
 	onExportWorkspace,
 	onImportWorkspace,
+	workspaceOperation,
 	isSelectionMode,
 }: SidebarHeaderProps) {
 	const fileInputRef = useRef<HTMLInputElement>(null)
 	const workspaceFileInputRef = useRef<HTMLInputElement>(null)
+	const isWorkspaceOperationInProgress = workspaceOperation !== null
+	const workspaceOperationMessage =
+		workspaceOperation === 'exporting'
+			? 'Exporting workspace backup...'
+			: 'Restoring workspace backup...'
 
 	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0]
@@ -81,17 +95,30 @@ export function SidebarHeader({
 									<Button
 										variant='ghost'
 										size='icon'
-										title='Workspace Backup'
+										title={
+											isWorkspaceOperationInProgress
+												? workspaceOperationMessage
+												: 'Workspace Backup'
+										}
+										disabled={isWorkspaceOperationInProgress}
 									>
-										<ArchiveRestore className='h-5 w-5' />
+										{isWorkspaceOperationInProgress ? (
+											<LoaderCircle className='h-5 w-5 animate-spin' />
+										) : (
+											<ArchiveRestore className='h-5 w-5' />
+										)}
 									</Button>
 								</DropdownMenuTrigger>
 								<DropdownMenuContent align='end'>
-									<DropdownMenuItem onClick={onExportWorkspace}>
+									<DropdownMenuItem
+										onClick={onExportWorkspace}
+										disabled={isWorkspaceOperationInProgress}
+									>
 										<Download className='h-4 w-4' /> Export Workspace Backup
 									</DropdownMenuItem>
 									<DropdownMenuItem
 										onClick={() => workspaceFileInputRef.current?.click()}
+										disabled={isWorkspaceOperationInProgress}
 									>
 										<Upload className='h-4 w-4' /> Restore Workspace Backup
 									</DropdownMenuItem>
@@ -126,6 +153,13 @@ export function SidebarHeader({
 					)}
 				</div>
 			</div>
+
+			{isWorkspaceOperationInProgress && (
+				<output className='flex items-center gap-2 text-xs text-muted-foreground'>
+					<LoaderCircle className='h-3.5 w-3.5 animate-spin' />
+					{workspaceOperationMessage}
+				</output>
+			)}
 
 			<div className='relative'>
 				<Search className='absolute left-2 top-2.5 h-4 w-4 text-muted-foreground' />
