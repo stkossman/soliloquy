@@ -1,6 +1,7 @@
 import {
 	ArchiveRestore,
 	Download,
+	FileUp,
 	LoaderCircle,
 	Plus,
 	Search,
@@ -90,41 +91,6 @@ export function SidebarHeader({
 								className='hidden'
 								accept='.json,application/json'
 							/>
-							<DropdownMenu>
-								<DropdownMenuTrigger asChild>
-									<Button
-										variant='ghost'
-										size='icon'
-										title={
-											isWorkspaceOperationInProgress
-												? workspaceOperationMessage
-												: 'Workspace Backup'
-										}
-										disabled={isWorkspaceOperationInProgress}
-									>
-										{isWorkspaceOperationInProgress ? (
-											<LoaderCircle className='h-5 w-5 animate-spin' />
-										) : (
-											<ArchiveRestore className='h-5 w-5' />
-										)}
-									</Button>
-								</DropdownMenuTrigger>
-								<DropdownMenuContent align='end'>
-									<DropdownMenuItem
-										onClick={onExportWorkspace}
-										disabled={isWorkspaceOperationInProgress}
-									>
-										<Download className='h-4 w-4' /> Export Workspace Backup
-									</DropdownMenuItem>
-									<DropdownMenuItem
-										onClick={() => workspaceFileInputRef.current?.click()}
-										disabled={isWorkspaceOperationInProgress}
-									>
-										<Upload className='h-4 w-4' /> Restore Workspace Backup
-									</DropdownMenuItem>
-								</DropdownMenuContent>
-							</DropdownMenu>
-
 							<input
 								type='file'
 								ref={fileInputRef}
@@ -135,11 +101,47 @@ export function SidebarHeader({
 							<Button
 								variant='ghost'
 								size='icon'
-								onClick={() => fileInputRef.current?.click()}
-								title='Import Chat'
+								onClick={onExportWorkspace}
+								title={
+									isWorkspaceOperationInProgress
+										? workspaceOperationMessage
+										: 'Export Workspace Backup'
+								}
+								disabled={isWorkspaceOperationInProgress}
 							>
-								<Download className='h-5 w-5' />
+								{isWorkspaceOperationInProgress ? (
+									<LoaderCircle className='h-5 w-5 animate-spin' />
+								) : (
+									<Download className='h-5 w-5' />
+								)}
 							</Button>
+
+							<DropdownMenu>
+								<DropdownMenuTrigger asChild>
+									<Button
+										variant='ghost'
+										size='icon'
+										title='Import'
+										disabled={isWorkspaceOperationInProgress}
+									>
+										<Upload className='h-5 w-5' />
+									</Button>
+								</DropdownMenuTrigger>
+								<DropdownMenuContent align='end'>
+									<DropdownMenuItem
+										onClick={() => fileInputRef.current?.click()}
+										disabled={isWorkspaceOperationInProgress}
+									>
+										<FileUp className='h-4 w-4' /> Import One Chat (.json or .md)
+									</DropdownMenuItem>
+									<DropdownMenuItem
+										onClick={() => workspaceFileInputRef.current?.click()}
+										disabled={isWorkspaceOperationInProgress}
+									>
+										<ArchiveRestore className='h-4 w-4' /> Restore Workspace Backup (.json)
+									</DropdownMenuItem>
+								</DropdownMenuContent>
+							</DropdownMenu>
 
 							<Button
 								variant='ghost'
