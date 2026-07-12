@@ -12,8 +12,14 @@ function compareChats(a: Chat, b: Chat) {
 	return b.lastModified.getTime() - a.lastModified.getTime()
 }
 
-export function getVisibleSidebarChats(chats: Chat[], searchQuery: string) {
-	let visibleChats = chats
+export function getVisibleSidebarChats(
+	chats: Chat[],
+	searchQuery: string,
+	showSystemChat = true,
+) {
+	let visibleChats = showSystemChat
+		? chats
+		: chats.filter(chat => !chat.isSystem)
 
 	if (searchQuery.trim()) {
 		const lowerQuery = searchQuery.toLowerCase()

@@ -1,31 +1,13 @@
-import {
-	ArchiveRestore,
-	Download,
-	FileUp,
-	LoaderCircle,
-	Plus,
-	Search,
-	Upload,
-} from 'lucide-react'
-import { useRef } from 'react'
+import { Plus, Search, Settings } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '$lib/components/ui/avatar'
 import { Button } from '$lib/components/ui/button'
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuTrigger,
-} from '$lib/components/ui/dropdown-menu'
 import { Input } from '$lib/components/ui/input'
 
 interface SidebarHeaderProps {
 	searchQuery: string
 	onSearchChange: (val: string) => void
 	onCreateChat: () => void
-	onImportChat: (file: File) => void
-	onExportWorkspace: () => void
-	onImportWorkspace: (file: File) => void
-	workspaceOperation: 'exporting' | 'importing' | null
+	onOpenSettings: () => void
 	isSelectionMode: boolean
 }
 
@@ -33,40 +15,9 @@ export function SidebarHeader({
 	searchQuery,
 	onSearchChange,
 	onCreateChat,
-	onImportChat,
-	onExportWorkspace,
-	onImportWorkspace,
-	workspaceOperation,
+	onOpenSettings,
 	isSelectionMode,
 }: SidebarHeaderProps) {
-	const fileInputRef = useRef<HTMLInputElement>(null)
-	const workspaceFileInputRef = useRef<HTMLInputElement>(null)
-	const isWorkspaceOperationInProgress = workspaceOperation !== null
-	const workspaceOperationMessage =
-		workspaceOperation === 'exporting'
-			? 'Exporting workspace backup...'
-			: 'Restoring workspace backup...'
-
-	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const file = e.target.files?.[0]
-		if (file) {
-			onImportChat(file)
-		}
-		if (fileInputRef.current) fileInputRef.current.value = ''
-	}
-
-	const handleWorkspaceFileChange = (
-		e: React.ChangeEvent<HTMLInputElement>,
-	) => {
-		const file = e.target.files?.[0]
-		if (file) {
-			onImportWorkspace(file)
-		}
-		if (workspaceFileInputRef.current) {
-			workspaceFileInputRef.current.value = ''
-		}
-	}
-
 	return (
 		<div className='p-4 space-y-4'>
 			<div className='flex items-center justify-between'>
@@ -84,64 +35,14 @@ export function SidebarHeader({
 				<div className='flex items-center gap-1'>
 					{!isSelectionMode && (
 						<>
-							<input
-								type='file'
-								ref={workspaceFileInputRef}
-								onChange={handleWorkspaceFileChange}
-								className='hidden'
-								accept='.json,application/json'
-							/>
-							<input
-								type='file'
-								ref={fileInputRef}
-								onChange={handleFileChange}
-								className='hidden'
-								accept='.json,.md'
-							/>
 							<Button
 								variant='ghost'
 								size='icon'
-								onClick={onExportWorkspace}
-								title={
-									isWorkspaceOperationInProgress
-										? workspaceOperationMessage
-										: 'Export Workspace Backup'
-								}
-								disabled={isWorkspaceOperationInProgress}
+								onClick={onOpenSettings}
+								title='Settings'
 							>
-								{isWorkspaceOperationInProgress ? (
-									<LoaderCircle className='h-5 w-5 animate-spin' />
-								) : (
-									<Download className='h-5 w-5' />
-								)}
+								<Settings className='h-5 w-5' />
 							</Button>
-
-							<DropdownMenu>
-								<DropdownMenuTrigger asChild>
-									<Button
-										variant='ghost'
-										size='icon'
-										title='Import'
-										disabled={isWorkspaceOperationInProgress}
-									>
-										<Upload className='h-5 w-5' />
-									</Button>
-								</DropdownMenuTrigger>
-								<DropdownMenuContent align='end'>
-									<DropdownMenuItem
-										onClick={() => fileInputRef.current?.click()}
-										disabled={isWorkspaceOperationInProgress}
-									>
-										<FileUp className='h-4 w-4' /> Import One Chat (.json or .md)
-									</DropdownMenuItem>
-									<DropdownMenuItem
-										onClick={() => workspaceFileInputRef.current?.click()}
-										disabled={isWorkspaceOperationInProgress}
-									>
-										<ArchiveRestore className='h-4 w-4' /> Restore Workspace Backup (.json)
-									</DropdownMenuItem>
-								</DropdownMenuContent>
-							</DropdownMenu>
 
 							<Button
 								variant='ghost'
@@ -155,13 +56,6 @@ export function SidebarHeader({
 					)}
 				</div>
 			</div>
-
-			{isWorkspaceOperationInProgress && (
-				<output className='flex items-center gap-2 text-xs text-muted-foreground'>
-					<LoaderCircle className='h-3.5 w-3.5 animate-spin' />
-					{workspaceOperationMessage}
-				</output>
-			)}
 
 			<div className='relative'>
 				<Search className='absolute left-2 top-2.5 h-4 w-4 text-muted-foreground' />

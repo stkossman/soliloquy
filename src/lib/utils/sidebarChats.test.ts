@@ -65,4 +65,16 @@ describe('getVisibleSidebarChats', () => {
 			[3, 1],
 		)
 	})
+
+	it('hides system chats without removing other chats', () => {
+		const chats = [
+			chat({ id: 1, title: 'System', isSystem: true, order: 0 }),
+			chat({ id: 2, title: 'Notes', order: 1 }),
+		]
+
+		assert.deepEqual(
+			getVisibleSidebarChats(chats, '', false).map(c => c.id),
+			[2],
+		)
+	})
 })
