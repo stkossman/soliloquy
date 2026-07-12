@@ -80,6 +80,31 @@ export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 		[logic.importChat, onChatSelect],
 	)
 
+	const handleExportWorkspaceBackup = useCallback(async () => {
+		try {
+			await logic.exportWorkspaceBackup()
+			setToast({ type: 'success', message: 'Workspace backup exported.' })
+		} catch {
+			setToast({ type: 'error', message: 'Failed to export workspace backup.' })
+		}
+	}, [logic.exportWorkspaceBackup])
+
+	const handleImportWorkspaceBackup = useCallback(
+		async (file: File) => {
+			try {
+				const result = await logic.importWorkspaceBackup(file)
+				onChatSelect(null)
+				setToast({
+					type: 'success',
+					message: `Workspace restored: ${result.chatsImported} chats, ${result.messagesImported} messages.`,
+				})
+			} catch {
+				setToast({ type: 'error', message: 'Failed to restore workspace backup.' })
+			}
+		},
+		[logic.importWorkspaceBackup, onChatSelect],
+	)
+
 	const handleCreateChat = useCallback(() => {
 		logic.createNewChat(onChatSelect)
 	}, [logic.createNewChat, onChatSelect])
@@ -117,6 +142,8 @@ export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 					onSearchChange={logic.setSearchQuery}
 					onCreateChat={handleCreateChat}
 					onImportChat={handleImportWrapper}
+					onExportWorkspace={handleExportWorkspaceBackup}
+					onImportWorkspace={handleImportWorkspaceBackup}
 					isSelectionMode={logic.isSelectionMode}
 				/>
 

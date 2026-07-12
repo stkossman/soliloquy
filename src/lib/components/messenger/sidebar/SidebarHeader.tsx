@@ -1,7 +1,13 @@
-import { Download, Plus, Search } from 'lucide-react'
+import { ArchiveRestore, Download, Plus, Search, Upload } from 'lucide-react'
 import { useRef } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '$lib/components/ui/avatar'
 import { Button } from '$lib/components/ui/button'
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from '$lib/components/ui/dropdown-menu'
 import { Input } from '$lib/components/ui/input'
 
 interface SidebarHeaderProps {
@@ -9,6 +15,8 @@ interface SidebarHeaderProps {
 	onSearchChange: (val: string) => void
 	onCreateChat: () => void
 	onImportChat: (file: File) => void
+	onExportWorkspace: () => void
+	onImportWorkspace: (file: File) => void
 	isSelectionMode: boolean
 }
 
@@ -17,9 +25,12 @@ export function SidebarHeader({
 	onSearchChange,
 	onCreateChat,
 	onImportChat,
+	onExportWorkspace,
+	onImportWorkspace,
 	isSelectionMode,
 }: SidebarHeaderProps) {
 	const fileInputRef = useRef<HTMLInputElement>(null)
+	const workspaceFileInputRef = useRef<HTMLInputElement>(null)
 
 	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0]
@@ -27,6 +38,18 @@ export function SidebarHeader({
 			onImportChat(file)
 		}
 		if (fileInputRef.current) fileInputRef.current.value = ''
+	}
+
+	const handleWorkspaceFileChange = (
+		e: React.ChangeEvent<HTMLInputElement>,
+	) => {
+		const file = e.target.files?.[0]
+		if (file) {
+			onImportWorkspace(file)
+		}
+		if (workspaceFileInputRef.current) {
+			workspaceFileInputRef.current.value = ''
+		}
 	}
 
 	return (
@@ -46,6 +69,35 @@ export function SidebarHeader({
 				<div className='flex items-center gap-1'>
 					{!isSelectionMode && (
 						<>
+							<input
+								type='file'
+								ref={workspaceFileInputRef}
+								onChange={handleWorkspaceFileChange}
+								className='hidden'
+								accept='.json,application/json'
+							/>
+							<DropdownMenu>
+								<DropdownMenuTrigger asChild>
+									<Button
+										variant='ghost'
+										size='icon'
+										title='Workspace Backup'
+									>
+										<ArchiveRestore className='h-5 w-5' />
+									</Button>
+								</DropdownMenuTrigger>
+								<DropdownMenuContent align='end'>
+									<DropdownMenuItem onClick={onExportWorkspace}>
+										<Download className='h-4 w-4' /> Export Workspace Backup
+									</DropdownMenuItem>
+									<DropdownMenuItem
+										onClick={() => workspaceFileInputRef.current?.click()}
+									>
+										<Upload className='h-4 w-4' /> Restore Workspace Backup
+									</DropdownMenuItem>
+								</DropdownMenuContent>
+							</DropdownMenu>
+
 							<input
 								type='file'
 								ref={fileInputRef}

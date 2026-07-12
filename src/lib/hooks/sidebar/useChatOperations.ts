@@ -33,6 +33,14 @@ export function useChatOperations({
 		[],
 	)
 
+	const exportWorkspaceBackup = useCallback(async () => {
+		await importExportService.exportWorkspaceBackup()
+	}, [])
+
+	const importWorkspaceBackup = useCallback(async (file: File) => {
+		return importExportService.importWorkspaceBackup(file)
+	}, [])
+
 	const togglePin = useCallback(async (chat: Chat) => {
 		await chatService.togglePin(chat)
 	}, [])
@@ -115,6 +123,8 @@ export function useChatOperations({
 		setNewTitle,
 		createNewChat,
 		importChat,
+		exportWorkspaceBackup,
+		importWorkspaceBackup,
 		togglePin,
 		saveChatTitle,
 		deleteChat,
