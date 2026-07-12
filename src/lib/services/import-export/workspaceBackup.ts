@@ -240,5 +240,5 @@ export function prepareMergeWorkspaceMessages(
 }
 
 export function prepareMergeWorkspaceChats(chats: Chat[]): Omit<Chat, 'id'>[] {
-	return chats.map(omitChatId)
+	return chats.filter(chat => !chat.isSystem).map(omitChatId)
 }

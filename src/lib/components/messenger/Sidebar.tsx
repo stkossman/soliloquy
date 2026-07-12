@@ -18,8 +18,18 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from '$lib/components/ui/alert-dialog'
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from '$lib/components/ui/dialog'
+import { Button } from '$lib/components/ui/button'
 import { Separator } from '$lib/components/ui/separator'
 import { useSidebar } from '$lib/hooks/useSidebar'
+import type { WorkspaceRestoreMode } from '$lib/services/import-export/workspaceBackup'
 import type { Chat } from '$lib/types'
 import { cn } from '$lib/utils'
 import { SidebarChatList } from './sidebar/SidebarChatList'
@@ -60,6 +70,15 @@ export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 		type: 'success' | 'error'
 		message: string
 	} | null>(null)
+	const [workspaceBackupFile, setWorkspaceBackupFile] = useState<File | null>(
+		null,
+	)
+	const [workspaceRestoreMode, setWorkspaceRestoreMode] =
+		useState<WorkspaceRestoreMode>('merge')
+	const [showWorkspaceRestoreDialog, setShowWorkspaceRestoreDialog] =
+		useState(false)
+	const [showReplaceWorkspaceConfirm, setShowReplaceWorkspaceConfirm] =
+		useState(false)
 
 	useEffect(() => {
 		if (toast) {
@@ -89,14 +108,14 @@ export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 		}
 	}, [logic.exportWorkspaceBackup])
 
-	const handleImportWorkspaceBackup = useCallback(
-		async (file: File) => {
+	const restoreWorkspaceBackup = useCallback(
+		async (file: File, mode: WorkspaceRestoreMode) => {
 			try {
-				const result = await logic.importWorkspaceBackup(file)
+				const result = await logic.importWorkspaceBackup(file, mode)
 				onChatSelect(null)
 				setToast({
 					type: 'success',
-					message: `Workspace restored: ${result.chatsImported} chats, ${result.messagesImported} messages.`,
+					message: `Workspace ${mode === 'merge' ? 'merged' : 'replaced'}: ${result.chatsImported} chats, ${result.messagesImported} messages.`,
 				})
 			} catch {
 				setToast({ type: 'error', message: 'Failed to restore workspace backup.' })
@@ -104,6 +123,33 @@ export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 		},
 		[logic.importWorkspaceBackup, onChatSelect],
 	)
+
+	const handleWorkspaceRestoreRequest = useCallback((file: File) => {
+		setWorkspaceBackupFile(file)
+		setWorkspaceRestoreMode('merge')
+		setShowWorkspaceRestoreDialog(true)
+	}, [])
+
+	const handleWorkspaceRestoreContinue = useCallback(() => {
+		if (!workspaceBackupFile) return
+
+		if (workspaceRestoreMode === 'replace') {
+			setShowWorkspaceRestoreDialog(false)
+			setShowReplaceWorkspaceConfirm(true)
+			return
+		}
+
+		setShowWorkspaceRestoreDialog(false)
+		restoreWorkspaceBackup(workspaceBackupFile, workspaceRestoreMode)
+		setWorkspaceBackupFile(null)
+	}, [restoreWorkspaceBackup, workspaceBackupFile, workspaceRestoreMode])
+
+	const handleReplaceWorkspaceConfirm = useCallback(() => {
+		if (!workspaceBackupFile) return
+
+		restoreWorkspaceBackup(workspaceBackupFile, 'replace')
+		setWorkspaceBackupFile(null)
+	}, [restoreWorkspaceBackup, workspaceBackupFile])
 
 	const handleCreateChat = useCallback(() => {
 		logic.createNewChat(onChatSelect)
@@ -143,7 +189,7 @@ export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 					onCreateChat={handleCreateChat}
 					onImportChat={handleImportWrapper}
 					onExportWorkspace={handleExportWorkspaceBackup}
-					onImportWorkspace={handleImportWorkspaceBackup}
+					onImportWorkspace={handleWorkspaceRestoreRequest}
 					isSelectionMode={logic.isSelectionMode}
 				/>
 
@@ -232,6 +278,92 @@ export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 							autoFocus
 						>
 							Delete All
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
+
+			<Dialog
+				open={showWorkspaceRestoreDialog}
+				onOpenChange={setShowWorkspaceRestoreDialog}
+			>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Restore workspace backup</DialogTitle>
+						<DialogDescription>
+							Choose how to apply the selected backup to your local workspace.
+						</DialogDescription>
+					</DialogHeader>
+
+					<fieldset className='grid grid-cols-2 overflow-hidden rounded-md border'>
+						<legend className='sr-only'>Workspace restore mode</legend>
+						<button
+							type='button'
+							className={cn(
+								'px-3 py-2 text-sm font-medium transition-colors',
+								workspaceRestoreMode === 'merge'
+									? 'bg-primary text-primary-foreground'
+									: 'hover:bg-muted',
+							)}
+							onClick={() => setWorkspaceRestoreMode('merge')}
+							aria-pressed={workspaceRestoreMode === 'merge'}
+						>
+							Merge
+						</button>
+						<button
+							type='button'
+							className={cn(
+								'border-l px-3 py-2 text-sm font-medium transition-colors',
+								workspaceRestoreMode === 'replace'
+									? 'bg-destructive text-destructive-foreground'
+									: 'hover:bg-muted',
+							)}
+							onClick={() => setWorkspaceRestoreMode('replace')}
+							aria-pressed={workspaceRestoreMode === 'replace'}
+						>
+							Replace
+						</button>
+					</fieldset>
+
+					<p className='text-muted-foreground text-sm'>
+						{workspaceRestoreMode === 'merge'
+							? 'Add the backup chats and messages to the current workspace.'
+							: 'Delete all local chats and messages, then restore this backup.'}
+					</p>
+
+					<DialogFooter>
+						<Button
+							variant='outline'
+							onClick={() => setShowWorkspaceRestoreDialog(false)}
+						>
+							Cancel
+						</Button>
+						<Button onClick={handleWorkspaceRestoreContinue}>
+							Continue
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
+
+			<AlertDialog
+				open={showReplaceWorkspaceConfirm}
+				onOpenChange={setShowReplaceWorkspaceConfirm}
+			>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>Replace current workspace?</AlertDialogTitle>
+						<AlertDialogDescription>
+							This permanently deletes all local chats and messages before
+							restoring the selected backup. This action cannot be undone.
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel>Cancel</AlertDialogCancel>
+						<AlertDialogAction
+							onClick={handleReplaceWorkspaceConfirm}
+							className='bg-destructive text-destructive-foreground hover:bg-destructive/90'
+						>
+							Replace and Restore
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>

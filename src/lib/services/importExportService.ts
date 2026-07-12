@@ -100,11 +100,24 @@ export const importExportService = {
 		}
 
 		const chatIdMap = new Map<number, number>()
-		const chatsToAdd = prepareMergeWorkspaceChats(backup.chats)
+		const chatsToMerge = backup.chats.filter(chat => !chat.isSystem)
+		const chatsToAdd = prepareMergeWorkspaceChats(chatsToMerge)
 
 		await db.transaction('rw', db.chats, db.messages, async () => {
+			const systemChats = await db.chats
+				.filter(chat => chat.isSystem === true)
+				.sortBy('createdAt')
+			const duplicateSystemChatIds = systemChats
+				.slice(1)
+				.flatMap(chat => (typeof chat.id === 'number' ? [chat.id] : []))
+
+			if (duplicateSystemChatIds.length > 0) {
+				await db.messages.where('chatId').anyOf(duplicateSystemChatIds).delete()
+				await db.chats.bulkDelete(duplicateSystemChatIds)
+			}
+
 			for (let index = 0; index < chatsToAdd.length; index++) {
-				const sourceId = backup.chats[index].id
+				const sourceId = chatsToMerge[index].id
 				const newId = await db.chats.add(chatsToAdd[index])
 
 				if (typeof sourceId === 'number') {
@@ -113,7 +126,7 @@ export const importExportService = {
 			}
 
 			const messagesToAdd = prepareMergeWorkspaceMessages(
-				backup.messages,
+				backup.messages.filter(message => chatIdMap.has(message.chatId)),
 				chatIdMap,
 			)
 
@@ -123,8 +136,10 @@ export const importExportService = {
 		})
 
 		return {
-			chatsImported: backup.chats.length,
-			messagesImported: backup.messages.length,
+			chatsImported: chatsToAdd.length,
+			messagesImported: backup.messages.filter(message =>
+				chatIdMap.has(message.chatId),
+			).length,
 			mode,
 		}
 	},

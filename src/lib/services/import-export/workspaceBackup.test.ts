@@ -148,6 +148,16 @@ describe('workspace backup import', () => {
 		assert.equal(chats[0].title, 'Personal Notes')
 	})
 
+	it('excludes system chats from merge data', () => {
+		const chats = prepareMergeWorkspaceChats([
+			chat({ id: 7, isSystem: true, title: 'Soliloquy Info' }),
+			chat({ id: 8, title: 'Imported Notes' }),
+		])
+
+		assert.equal(chats.length, 1)
+		assert.equal(chats[0].title, 'Imported Notes')
+	})
+
 	it('remaps message chat ids for merge restore', () => {
 		const messages = prepareMergeWorkspaceMessages(
 			[message({ id: 70, chatId: 7 })],
