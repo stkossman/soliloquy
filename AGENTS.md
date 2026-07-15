@@ -1,158 +1,23 @@
 # AGENTS.md
 
-Guidance for AI agents working in the Soliloquy repository.
+Operational guide for coding agents working on Soliloquy.
 
-## Project Context
+## Project Overview
 
-- Soliloquy is a local-first personal notes app presented as a messenger where the only contact is the user.
-- The app stores chats and messages in the browser with IndexedDB through Dexie. There is no login flow or server-side data store in the current code.
-- The main UI is an Astro page that mounts a React messenger experience from `src/pages/index.astro`.
-- The README describes the project as privacy-focused, local-first, distraction-free, and deployed with Vercel.
+Soliloquy is a privacy-focused, local-first personal notes app presented as a
+messenger. It has no account or backend: chats and messages live in the
+browser's IndexedDB database. The current product supports chat and message
+management, pinned content, drag-and-drop ordering, chat icon/color
+personalization, Markdown rendering, single-chat JSON/Markdown transfer, full
+workspace backup/restore, and a multi-page Settings modal.
 
-## Tech Stack
-
-- Runtime/package manager: Bun. The repository has `bun.lock`; use Bun for installs and scripts.
-- App framework: Astro with `@astrojs/react`.
-- UI runtime: React 19 and TypeScript.
-- Database: Dexie over IndexedDB, with `dexie-react-hooks` for live queries.
-- Styling: Tailwind CSS via `@tailwindcss/vite`, CSS variables in `src/styles/global.css`, and shadcn-style Radix UI primitives in `src/lib/components/ui/`.
-- Icons: `lucide-react`.
-- Drag and drop: `@dnd-kit/core`, `@dnd-kit/sortable`, `@dnd-kit/utilities`.
-- Markdown: `react-markdown` and `remark-gfm`.
-- Formatting/linting: Biome. There is no ESLint config in the repository.
-- Deployment adapter: `@astrojs/vercel` in `astro.config.mjs`.
-
-## File Structure
-
-Important current paths:
-
-```text
-src/pages/
-  index.astro
-src/styles/
-  global.css
-src/lib/
-  constants.ts
-  utils.ts
-  db/
-    index.ts
-  types/
-    index.ts
-  services/
-    chatService.ts
-    messageService.ts
-    importExportService.ts
-  hooks/
-    useChatWindow.ts
-    useSidebar.ts
-    chat/
-    sidebar/
-  components/
-    messenger/
-      MessengerLayout.tsx
-      Sidebar.tsx
-      ChatWindow.tsx
-      MessageBubble.tsx
-      chat/
-      sidebar/
-    shared/
-      MarkdownRenderer.tsx
-    ui/
-  utils/
-    sidebarChats.ts
-```
-
-Root configuration and documentation:
-
-```text
-package.json
-bun.lock
-astro.config.mjs
-tsconfig.json
-biome.json
-components.json
-wrangler.jsonc
-README.md
-CONTRIBUTING.md
-ROADMAP.md
-```
-
-## Architecture
-
-- `src/pages/index.astro` imports global styles, defines metadata, and renders `MessengerLayout` with `client:only='react'`.
-- `MessengerLayout` owns the active chat id and renders `Sidebar` plus `ChatWindow`.
-- `Sidebar` is the shell for sidebar UI state such as toasts and dialogs. It delegates chat list rendering to sidebar subcomponents.
-- `ChatWindow` is the shell for an active chat. It composes chat header, pinned/search regions, message list, scroll affordance, and input.
-- `src/lib/hooks/useChatWindow.ts` and `src/lib/hooks/useSidebar.ts` are composition facades. Keep them thin; put new responsibility-specific logic in focused hooks.
-- Focused chat hooks live under `src/lib/hooks/chat/`, for example `useChatState`, `usePinnedMessages`, `useMessageSearch`, `useScrollBehavior`, `useZoomControl`, and `useKeyboardShortcuts`.
-- Focused sidebar hooks live under `src/lib/hooks/sidebar/`, for example `useChatList`, `useChatSelection`, and `useChatOperations`.
-- Dexie access is centralized in service files. Components and hooks should call services, not `db` directly.
-
-## Data Model
-
-The current domain types are in `src/lib/types/index.ts`.
-
-- `Chat`: `id`, `title`, `isPinned`, `createdAt`, `lastModified`, optional `previewText`, `draft`, `isSystem`, `order`, `icon`, and `color`.
-- `Message`: `id`, `chatId`, `content`, `createdAt`, `isEdited`, and optional `isPinned`.
-
-The database is defined in `src/lib/db/index.ts` as `SoliloquyDB` with:
-
-- `chats`: `++id, title, isPinned, order, draft, lastModified, icon, color`
-- `messages`: `++id, chatId, createdAt`
-
-The populate hook seeds a pinned system chat named `Soliloquy Info` and a regular `Notes` chat.
-
-## Service Layer
-
-Allowed Dexie entry points:
-
-```text
-src/lib/services/chatService.ts
-src/lib/services/messageService.ts
-src/lib/services/importExportService.ts
-```
-
-Rules:
-
-- Do not import `db` in components or hooks.
-- If UI code needs new data, add or extend a service method first.
-- Keep Dexie query details and transactions inside services.
-- Preserve local-first behavior unless the user explicitly asks for a different persistence model.
-
-## Code Style & Conventions
-
-- TypeScript is strict through `astro/tsconfigs/strict`.
-- Use tabs, single quotes, no semicolons, and Biome import organization as configured in `biome.json`.
-- Use `$lib/*` for imports from `src/lib/*`. The `@/*` alias maps to `src/*`.
-- Prefer local relative imports between sibling component files.
-- Use `cn` from `src/lib/utils.ts` for conditional class names.
-- UI primitives belong in `src/lib/components/ui/`; messenger-specific components belong in `src/lib/components/messenger/`.
-- Keep hook responsibilities narrow. If a hook grows beyond one responsibility, split it under `src/lib/hooks/chat/` or `src/lib/hooks/sidebar/`.
-- Keep pure transforms/helpers in `src/lib/utils/` or near the component boundary when they are tightly scoped and tested there.
-- Use `React.memo` only where stable props make it useful. Stabilize callbacks with `useCallback` when passing them to memoized children or long-lived effects.
-
-## Common Patterns
-
-- Live IndexedDB reads use `useLiveQuery` from `dexie-react-hooks` inside hooks/facades, with service methods as the query source.
-- Sidebar chat sorting is handled by `getVisibleSidebarChats` in `src/lib/utils/sidebarChats.ts`.
-- Sidebar grouping is handled by `getSidebarChatGroups` in `src/lib/components/messenger/sidebar/sidebar-chat-groups/sidebarChatGroups.ts`.
-- Keyboard shortcut detection is separated into pure logic in `src/lib/hooks/chat/keyboardShortcuts/keyboardShortcuts.ts` and the React hook `useKeyboardShortcuts`.
-- Component-specific conditional state helpers may live in a small dedicated folder under the component area, for example `src/lib/components/messenger/chat/chat-window-state/chatWindowState.ts`.
-- Chat icons and preset colors are defined in `src/lib/constants.ts`.
-- Dates in chat UI currently use Ukrainian locale formatting (`uk-UA`) in `formatChatDate`.
-
-## Development Workflows
-
-- Install dependencies with Bun after cloning or after lockfile changes.
-- Use the Astro dev server for local development.
-- Run Biome before handing off formatting or lint-sensitive changes.
-- Run a production build when changing routes, Astro config, bundling, or core UI composition.
-- For IndexedDB schema or service changes, test with a clean browser IndexedDB state as requested in `CONTRIBUTING.md`.
-- Do not create commits unless the user explicitly asks.
+Stack: Astro 5, React 19, strict TypeScript, Tailwind CSS 4, Radix-based UI
+primitives, Dexie 4 with `dexie-react-hooks`, dnd-kit, lucide-react,
+react-markdown/remark-gfm, and Biome. Use Bun; `bun.lock` is authoritative.
 
 ## Commands
 
-Use only Bun commands in this project.
+Only these package scripts are available:
 
 ```bash
 bun install
@@ -165,110 +30,117 @@ bun run lint
 bun run check
 ```
 
-Notes:
+There is no `test` or `typecheck` script. Run focused tests with Bun, for
+example `bun test src/lib/utils/sidebarChats.test.ts`, and use
+`bunx tsc --noEmit` for a manual type check when needed.
 
-- `package.json` does not currently define `test` or `typecheck` scripts.
-- Existing focused tests are `.test.ts` files using `node:test`-style APIs. If you run them manually with Bun, document the exact command and result.
-- Do not use `npm`, `yarn`, or `pnpm` commands in instructions, scripts, or final reports for this repository.
+## Project Structure
 
-## Testing Requirements
+```text
+src/pages/                 Astro routes; index.astro mounts the React app
+src/styles/                Global CSS variables and Tailwind base styles
+src/lib/components/
+  messenger/               Messenger layout, chat window, sidebar, feature UI
+    chat/                  Chat-window feature components and local helpers
+    sidebar/               Sidebar list, dialogs, selection, and settings/
+      settings/            Settings modal shell, pages, and local rows/types
+  shared/                  Reusable app-level presentation components
+  ui/                      Radix/shadcn-style primitives
+src/lib/hooks/             Thin composition hooks and focused chat/sidebar hooks
+src/lib/services/          Only layer that accesses Dexie
+  import-export/           JSON, Markdown, and workspace-backup transforms
+src/lib/db/                Dexie schema and migrations
+src/lib/types/             Domain types for Chat and Message
+src/lib/utils/             Pure UI/data helpers
+```
 
-- Add focused tests for new pure helpers and boundary logic when practical.
-- For React components or component-boundary helpers with tests, colocate the module and its test in a dedicated folder; do not put those tests loose among unrelated component files.
-- Do not create global `tests` or `__tests__` folders for this project.
-- For hook-adjacent helpers with tests, colocate the helper and test in a small folder named after the helper, for example `src/lib/hooks/chat/keyboardShortcuts/`.
-- Keep utility and service tests next to their own modules unless the module already has a more specific local folder.
-- Keep tests close to the logic they cover, following current examples:
-  - `src/lib/utils/sidebarChats.test.ts`
-  - `src/lib/hooks/sidebar/selectionState/selectionState.test.ts`
-  - `src/lib/hooks/chat/keyboardShortcuts/keyboardShortcuts.test.ts`
-  - `src/lib/components/messenger/chat/chat-window-state/chatWindowState.test.ts`
-  - `src/lib/components/messenger/sidebar/sidebar-chat-groups/sidebarChatGroups.test.ts`
-- There is no configured coverage threshold.
-- There is no React Testing Library setup in `package.json`; prefer pure helpers for logic that should be testable without DOM.
-- When tests cannot be run cleanly in the current environment, state that clearly and still run `bun run lint` and `bun run build` when relevant.
+Focused tests are colocated with their utility, service transform, or feature
+helper as `*.test.ts`; there is no global test directory or DOM test harness.
 
-## Important Rules: DO
+## Architecture And Style
 
-- Use Bun and `bun run` for project workflows.
-- Preserve local-first behavior and browser-only data storage.
-- Keep Dexie access inside service files.
+- `src/pages/index.astro` mounts `MessengerLayout` with `client:only='react'`.
+  The layout owns the active chat; `Sidebar` coordinates sidebar dialogs,
+  toasts, workspace restore flow, and `SidebarSettings`.
+- Keep orchestration components responsible for state and service callbacks.
+  Keep page/row components presentational and feature-local when they are not
+  reused elsewhere. `SidebarSettings` owns modal/page state; its Data page owns
+  file inputs.
 - Keep `useChatWindow.ts` and `useSidebar.ts` as thin composition facades.
-- Place new chat-specific hooks in `src/lib/hooks/chat/`.
-- Place new sidebar-specific hooks in `src/lib/hooks/sidebar/`.
-- Reuse existing Radix UI primitives, Lucide icons, utilities, constants, and component patterns.
-- Keep public component APIs stable unless the change requires otherwise.
-- Prefer behavior-neutral refactors when working in active refactor areas.
-- Document verification results honestly, including warnings.
+  Put focused responsibilities under `hooks/chat/` and `hooks/sidebar/`.
+- Components and hooks must call services, never `db` directly. Dexie queries,
+  transactions, schema versions, and migrations belong in `src/lib/db/` or
+  `src/lib/services/`.
+- `importExportService` coordinates browser files and database writes.
+  `services/import-export/` owns pure format parsing/serialization. Keep
+  single-chat transfer distinct from workspace backup/restore.
+- The database has `chats` and `messages` tables. The seeded `Soliloquy Info`
+  chat is a read-only system chat. Its visibility preference is stored in
+  `localStorage` and applied only to the sidebar view.
+- Use `$lib/*` aliases outside a local feature and relative imports inside a
+  feature. Use tabs, single quotes, no semicolons, TypeScript interfaces for
+  component props, and `cn` from `$lib/utils` for conditional classes.
+- Reuse existing UI primitives and Lucide icons. Preserve keyboard behavior,
+  visible focus states, labels, dialog semantics, and accessible names.
 
-## Important Rules: DON'T
+```tsx
+interface ExampleRowProps {
+	title: string
+	onClick: () => void
+}
 
-- Do not add direct `db` queries to components or hooks.
-- Do not add new business logic to `useChatWindow.ts` or `useSidebar.ts` when it can live in a focused hook/helper.
-- Do not replace Bun workflow commands with npm/yarn/pnpm.
-- Do not introduce server persistence, analytics, tracking, authentication, or network sync without explicit user direction.
-- Do not change IndexedDB schema casually. Schema changes require careful migration thinking and manual testing.
-- Do not move UI primitives out of `src/lib/components/ui/` or mix generic primitives with messenger-specific components.
-- Do not commit changes unless explicitly requested.
+export function ExampleRow({ title, onClick }: ExampleRowProps) {
+	return <Button variant='ghost' onClick={onClick}>{title}</Button>
+}
+```
 
-## Security Guidelines
+## Testing And Verification
 
-- Treat notes and messages as private local user data.
-- Keep import/export behavior explicit and user-triggered.
-- Be careful with JSON/Markdown import changes in `importExportService`; avoid broad parsing behavior that can corrupt local data.
-- Do not add remote data transmission for chats, messages, drafts, icons, colors, or exports unless the user explicitly asks.
-- Do not add secrets to the repository. No environment variable contract is currently documented in code.
+- Add focused tests for pure transforms, validation, and boundary logic when
+  practical. Keep them beside the implementation.
+- Run the narrowest relevant `bun test <files>` command after behavioral
+  changes. Include the exact command and result in the handoff.
+- Run `bun run lint` for changed TypeScript/TSX and `bunx tsc --noEmit` when
+  type contracts change. Run `bun run build` for route, build, or core UI
+  composition changes.
+- Manually verify affected browser flows, especially IndexedDB migrations,
+  imports, destructive restore confirmation, and persisted preferences.
+- Report warnings and checks that could not run honestly; do not invent results.
 
-## Domain-Specific Terms
+## Git Workflow
 
-- Chat: a note space shown in the sidebar.
-- Message: a note entry inside a chat.
-- System chat: read-only seeded chat (`Soliloquy Info`) used for app information and guidance.
-- Pinned chat: chat displayed before regular chats and sortable within the pinned group.
-- Pinned message: message shown through the pinned bar/navigation in `ChatWindow`.
-- Draft: unsent input stored on the chat record.
-- Preview text: chat sidebar snippet derived from recent message content.
-- Selection mode: sidebar multi-select mode for batch pin, unpin, and delete.
-- Order: numeric chat ordering used by drag-and-drop and sorting.
+- Make focused, reviewable changes and do not mix unrelated cleanup.
+- Use Conventional Commits when proposing or creating commits, for example
+  `feat(settings): add workspace restore action`.
+- In every handoff, list changed files and their purpose, verification results,
+  risks or assumptions, and concise manual testing steps.
+- Do not commit unless the user explicitly requests it.
 
-## Key Dependencies & Tools
+## Boundaries
 
-- `astro`: app framework and build pipeline.
-- `@astrojs/react`: React integration for Astro.
-- `@astrojs/vercel`: Vercel server output adapter.
-- `react`, `react-dom`: interactive UI.
-- `dexie`, `dexie-react-hooks`: IndexedDB storage and live queries.
-- `@dnd-kit/*`: sidebar drag-and-drop sorting.
-- `@radix-ui/react-*`: dialog, alert dialog, avatar, checkbox, context menu, dropdown menu, input-related primitives.
-- `lucide-react`: icons.
-- `react-markdown`, `remark-gfm`: Markdown rendering.
-- `tailwindcss`, `@tailwindcss/vite`, `tw-animate-css`: styling and animations.
-- `@biomejs/biome`: formatting, linting, import organization.
+### Always
 
-## Key File References
+- Inspect the existing implementation, conventions, and available scripts
+  before editing.
+- Reuse existing services, components, constants, and feature patterns.
+- Preserve local-first behavior and backward compatibility unless the task says
+  otherwise.
+- Run relevant automated checks and compare completed behavior with `SPEC.md`.
 
-- App route: `src/pages/index.astro`
-- Main layout: `src/lib/components/messenger/MessengerLayout.tsx`
-- Sidebar shell: `src/lib/components/messenger/Sidebar.tsx`
-- Chat window shell: `src/lib/components/messenger/ChatWindow.tsx`
-- Message bubble: `src/lib/components/messenger/MessageBubble.tsx`
-- Sidebar item: `src/lib/components/messenger/sidebar/SidebarItem.tsx`
-- Chat facade hook: `src/lib/hooks/useChatWindow.ts`
-- Sidebar facade hook: `src/lib/hooks/useSidebar.ts`
-- Database schema: `src/lib/db/index.ts`
-- Domain types: `src/lib/types/index.ts`
-- Services: `src/lib/services/*.ts`
-- Global styles and theme tokens: `src/styles/global.css`
-- Astro/Vite config: `astro.config.mjs`
-- Biome config: `biome.json`
-- TypeScript config: `tsconfig.json`
+### Ask First
 
-## Agent Behavior
+- Changing Dexie schema versions, migrations, or table definitions.
+- Adding or removing dependencies.
+- Changing JSON/Markdown/workspace-backup formats or restore semantics.
+- Changing CI/CD, deployment configuration, public APIs, or broad architecture.
+- Deleting functionality or performing a large cross-feature refactor.
 
-- Read the relevant code before making changes; the codebase is small enough that local context matters.
-- Prefer narrow, behavior-preserving edits.
-- Update this document when architecture, commands, or file locations change.
-- When modifying UI, check existing component composition before adding new abstractions.
-- When modifying data logic, start at the service layer and keep Dexie details there.
-- When adding tests, keep them focused and runnable without a browser unless a DOM setup is added to the project.
-- Report command results using Bun command names and mention any warnings that remain.
+### Never
+
+- Edit secrets, environment files, generated output, dependencies, or vendor
+  directories.
+- Delete or weaken failing tests merely to pass checks.
+- Query Dexie directly from components or hooks, or duplicate service business
+  logic in UI.
+- Add server persistence, analytics, authentication, tracking, or out-of-scope
+  product functionality without explicit approval.
