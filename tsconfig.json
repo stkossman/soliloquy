@@ -9,6 +9,7 @@
 			"$lib": ["src/lib"],
 			"$lib/*": ["src/lib/*"]
 		},
+		"resolveJsonModule": true,
 		"jsx": "react-jsx",
 		"jsxImportSource": "react"
 	}

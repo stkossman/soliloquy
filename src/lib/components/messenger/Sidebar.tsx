@@ -36,7 +36,7 @@ import { SidebarChatList } from './sidebar/SidebarChatList'
 import { SidebarDialogs } from './sidebar/SidebarDialogs'
 import { SidebarHeader } from './sidebar/SidebarHeader'
 import { SidebarSelectionBar } from './sidebar/SidebarSelectionBar'
-import { SidebarSettings } from './sidebar/SidebarSettings'
+import { SidebarSettings } from './sidebar/settings/SidebarSettings'
 
 interface SidebarProps {
 	activeChatId: number | null
