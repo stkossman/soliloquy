@@ -31,7 +31,7 @@ bun run check
 ```
 
 There is no `test` or `typecheck` script. Run focused tests with Bun, for
-example `bun test src/lib/utils/sidebarChats.test.ts`, and use
+example `bun test src/lib/utils/sidebar-chats/sidebarChats.test.ts`, and use
 `bunx tsc --noEmit` for a manual type check when needed.
 
 ## Project Structure
@@ -39,6 +39,7 @@ example `bun test src/lib/utils/sidebarChats.test.ts`, and use
 ```text
 src/pages/                 Astro routes; index.astro mounts the React app
 src/styles/                Global CSS variables and Tailwind base styles
+src/content/changelog/     Manual Markdown release notes
 src/lib/components/
   messenger/               Messenger layout, chat window, sidebar, feature UI
     chat/                  Chat-window feature components and local helpers
@@ -78,6 +79,11 @@ helper as `*.test.ts`; there is no global test directory or DOM test harness.
 - `importExportService` coordinates browser files and database writes.
   `services/import-export/` owns pure format parsing/serialization. Keep
   single-chat transfer distinct from workspace backup/restore.
+- Release notes are manual Markdown files in `src/content/changelog/`. Each
+  entry requires `version`, `date`, and `title` frontmatter, is loaded at build
+  time, and describes user-facing results rather than raw commits. Keep the
+  release entry synchronized with the package version; do not generate notes
+  from Git history automatically.
 - The database has `chats` and `messages` tables. The seeded `Soliloquy Info`
   chat is a read-only system chat. Its visibility preference is stored in
   `localStorage` and applied only to the sidebar view.

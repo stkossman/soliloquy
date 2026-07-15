@@ -28,6 +28,8 @@ of their data.
   confirmation, and operation feedback.
 - A Settings modal with General, Data, and About pages. It exposes system-chat
   visibility, data transfer actions, version, author, and source-code link.
+- A static `/changelog` page with manual Markdown release notes, linked from
+  Settings > About.
 - Browser-local persistence through IndexedDB and a localStorage preference for
   system-chat visibility.
 
@@ -55,6 +57,7 @@ messenger and Settings UI remain feature-local.
 
 Settings navigation is component-local. The system-chat visibility flag uses
 localStorage and filters only the sidebar list, not database queries or records.
+Release notes are build-time Markdown content with validated frontmatter.
 
 ## 5. Data Model
 
@@ -83,6 +86,7 @@ a review of backup/import compatibility before implementation.
    and messages are then replaced by validated backup data.
 7. Open Settings > About Soliloquy to view current version, author, and source
    code link.
+8. Open Release notes from About to review formal user-facing releases.
 
 ## 7. Functional Boundaries
 

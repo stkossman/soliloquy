@@ -1,0 +1,30 @@
+---
+import '@/styles/global.css'
+import { loadChangelogEntries } from '@/lib/changelog/changelog-loader/changelogLoader'
+// biome-ignore lint/correctness/noUnusedImports: Referenced by the Astro template.
+import { ChangelogPage } from '@/lib/components/changelog/changelog-page/ChangelogPage'
+
+// biome-ignore lint/correctness/noUnusedVariables: Referenced by the Astro template.
+const title = 'Release notes | Soliloquy'
+// biome-ignore lint/correctness/noUnusedVariables: Referenced by the Astro template.
+const description =
+	'Release notes for Soliloquy, a local-first personal notes workspace.'
+// biome-ignore lint/correctness/noUnusedVariables: Referenced by the Astro template.
+const entries = loadChangelogEntries()
+export const prerender = true
+---
+
+<html lang='en' class='dark'>
+	<head>
+		<meta charset='utf-8' />
+		<link rel='icon' type='image/svg+xml' href='/logo.svg' />
+		<meta name='viewport' content='width=device-width, initial-scale=1' />
+		<meta name='generator' content={Astro.generator} />
+		<title>{title}</title>
+		<meta name='description' content={description} />
+		<meta name='theme-color' content='#09090b' />
+	</head>
+	<body class='bg-background text-foreground font-sans antialiased'>
+		<ChangelogPage entries={entries} />
+	</body>
+</html>

@@ -1,9 +1,5 @@
 import { Github, Info } from 'lucide-react'
-import {
-	APP_NAME,
-	APP_SOURCE_CODE_URL,
-	APP_VERSION,
-} from '$lib/appInfo'
+import { APP_NAME, APP_SOURCE_CODE_URL, APP_VERSION } from '$lib/appInfo'
 import { Button } from '$lib/components/ui/button'
 
 export function AboutSettingsPage() {
@@ -27,15 +23,20 @@ export function AboutSettingsPage() {
 				<AboutRow label='Author' value='Kossman' />
 			</dl>
 
-			<Button variant='outline' size='sm' asChild>
-				<a
-					href={APP_SOURCE_CODE_URL}
-					target='_blank'
-					rel='noopener noreferrer'
-				>
-					<Github /> Source code
-				</a>
-			</Button>
+			<div className='flex flex-wrap gap-2'>
+				<Button variant='outline' size='sm' asChild>
+					<a href='/changelog'>Release notes</a>
+				</Button>
+				<Button variant='outline' size='sm' asChild>
+					<a
+						href={APP_SOURCE_CODE_URL}
+						target='_blank'
+						rel='noopener noreferrer'
+					>
+						<Github /> Source code
+					</a>
+				</Button>
+			</div>
 		</section>
 	)
 }
