@@ -17,6 +17,8 @@ export function useSidebar() {
 		chats: list.chats,
 		searchQuery: list.searchQuery,
 		setSearchQuery: list.setSearchQuery,
+		showSystemChat: list.showSystemChat,
+		setShowSystemChat: list.setShowSystemChat,
 		chatToEdit: operations.chatToEdit,
 		setChatToEdit: operations.setChatToEdit,
 		chatToDelete: operations.chatToDelete,

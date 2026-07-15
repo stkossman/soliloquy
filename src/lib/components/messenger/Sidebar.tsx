@@ -36,6 +36,7 @@ import { SidebarChatList } from './sidebar/SidebarChatList'
 import { SidebarDialogs } from './sidebar/SidebarDialogs'
 import { SidebarHeader } from './sidebar/SidebarHeader'
 import { SidebarSelectionBar } from './sidebar/SidebarSelectionBar'
+import { SidebarSettings } from './sidebar/settings/SidebarSettings'
 
 interface SidebarProps {
 	activeChatId: number | null
@@ -81,6 +82,7 @@ export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 		useState(false)
 	const [showReplaceWorkspaceConfirm, setShowReplaceWorkspaceConfirm] =
 		useState(false)
+	const [showSettings, setShowSettings] = useState(false)
 	const [workspaceOperation, setWorkspaceOperation] =
 		useState<WorkspaceOperation | null>(null)
 	const workspaceOperationRef = useRef<WorkspaceOperation | null>(null)
@@ -188,6 +190,10 @@ export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 		logic.createNewChat(onChatSelect)
 	}, [logic.createNewChat, onChatSelect])
 
+	const handleOpenSettings = useCallback(() => {
+		setShowSettings(true)
+	}, [])
+
 	const handlePinChat = useCallback(
 		(chat: Chat) => {
 			logic.togglePin(chat)
@@ -220,10 +226,7 @@ export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 					searchQuery={logic.searchQuery}
 					onSearchChange={logic.setSearchQuery}
 					onCreateChat={handleCreateChat}
-					onImportChat={handleImportWrapper}
-					onExportWorkspace={handleExportWorkspaceBackup}
-					onImportWorkspace={handleWorkspaceRestoreRequest}
-					workspaceOperation={workspaceOperation}
+					onOpenSettings={handleOpenSettings}
 					isSelectionMode={logic.isSelectionMode}
 				/>
 
@@ -288,6 +291,17 @@ export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 				onSaveEdit={logic.saveChatTitle}
 				onCloseDelete={() => logic.setChatToDelete(null)}
 				onConfirmDelete={() => logic.deleteChat(activeChatId, onChatSelect)}
+			/>
+
+			<SidebarSettings
+				open={showSettings}
+				onOpenChange={setShowSettings}
+				showSystemChat={logic.showSystemChat}
+				onShowSystemChatChange={logic.setShowSystemChat}
+				onImportChat={handleImportWrapper}
+				onExportWorkspace={handleExportWorkspaceBackup}
+				onImportWorkspace={handleWorkspaceRestoreRequest}
+				workspaceOperation={workspaceOperation}
 			/>
 
 			<AlertDialog
