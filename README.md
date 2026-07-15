@@ -38,7 +38,7 @@ IndexedDB: no account, server, or tracking is required.
 ## Release Notes
 
 Soliloquy `v0.1.0` is the first formal release. Read the current release notes
-at [**/changelog**](/changelog).
+at [**Releases**](https://github.com/stkossman/soliloquy/releases) or on website [**Release Notes**](https://soliloquy-notes.vercel.app/changelog).
 
 ## Tech Stack
 
