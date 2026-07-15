@@ -2,11 +2,11 @@ import { db } from '$lib/db'
 import {
 	parseSingleChatJsonImport,
 	serializeSingleChatJsonExport,
-} from './import-export/singleChatJson'
+} from './import-export/single-chat-json/singleChatJson'
 import {
 	parseSingleChatMarkdownImport,
 	serializeSingleChatMarkdownExport,
-} from './import-export/singleChatMarkdown'
+} from './import-export/single-chat-markdown/singleChatMarkdown'
 import {
 	parseWorkspaceBackupImport,
 	prepareMergeWorkspaceChats,
@@ -14,7 +14,7 @@ import {
 	prepareReplaceWorkspaceData,
 	serializeWorkspaceBackup,
 	type WorkspaceRestoreMode,
-} from './import-export/workspaceBackup'
+} from './import-export/workspace-backup/workspaceBackup'
 
 function downloadTextFile(content: string, fileName: string, type: string) {
 	const blob = new Blob([content], { type })

@@ -5,6 +5,7 @@ import { Button } from '$lib/components/ui/button'
 import { Textarea } from '$lib/components/ui/textarea'
 import type { Message } from '$lib/types'
 import { ChatFormattingToolbar } from './ChatFormattingToolbar'
+import { ChatInputStatus } from './ChatInputStatus'
 
 interface ChatInputProps {
 	value: string
@@ -114,27 +115,14 @@ export function ChatInput({
 		}, 0)
 	}
 
-	if (isPinnedView) {
+	if (isPinnedView || isSystemChat) {
 		return (
-			<div className='border-t p-4 bg-background'>
-				<Button
-					variant='secondary'
-					className='w-full text-destructive hover:text-destructive hover:bg-destructive/10 uppercase text-xs font-semibold tracking-wide'
-					onClick={onUnpinAll}
-				>
-					Unpin all {pinnedCount} messages
-				</Button>
-			</div>
-		)
-	}
-
-	if (isSystemChat) {
-		return (
-			<div className='border-t p-4 bg-background'>
-				<div className='flex h-12 items-center justify-center rounded-xl bg-muted/20 text-xs text-muted-foreground italic'>
-					This is a system chat. Read-only.
-				</div>
-			</div>
+			<ChatInputStatus
+				isPinnedView={isPinnedView}
+				pinnedCount={pinnedCount}
+				onUnpinAll={onUnpinAll}
+				isSystemChat={isSystemChat}
+			/>
 		)
 	}
 

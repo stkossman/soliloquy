@@ -18,18 +18,9 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from '$lib/components/ui/alert-dialog'
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from '$lib/components/ui/dialog'
-import { Button } from '$lib/components/ui/button'
 import { Separator } from '$lib/components/ui/separator'
 import { useSidebar } from '$lib/hooks/useSidebar'
-import type { WorkspaceRestoreMode } from '$lib/services/import-export/workspaceBackup'
+import type { WorkspaceRestoreMode } from '$lib/services/import-export/workspace-backup/workspaceBackup'
 import type { Chat } from '$lib/types'
 import { cn } from '$lib/utils'
 import { SidebarChatList } from './sidebar/SidebarChatList'
@@ -37,6 +28,7 @@ import { SidebarDialogs } from './sidebar/SidebarDialogs'
 import { SidebarHeader } from './sidebar/SidebarHeader'
 import { SidebarSelectionBar } from './sidebar/SidebarSelectionBar'
 import { SidebarSettings } from './sidebar/settings/SidebarSettings'
+import { WorkspaceRestoreDialogs } from './sidebar/WorkspaceRestoreDialogs'
 
 interface SidebarProps {
 	activeChatId: number | null
@@ -87,13 +79,16 @@ export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 		useState<WorkspaceOperation | null>(null)
 	const workspaceOperationRef = useRef<WorkspaceOperation | null>(null)
 
-	const startWorkspaceOperation = useCallback((operation: WorkspaceOperation) => {
-		if (workspaceOperationRef.current) return false
+	const startWorkspaceOperation = useCallback(
+		(operation: WorkspaceOperation) => {
+			if (workspaceOperationRef.current) return false
 
-		workspaceOperationRef.current = operation
-		setWorkspaceOperation(operation)
-		return true
-	}, [])
+			workspaceOperationRef.current = operation
+			setWorkspaceOperation(operation)
+			return true
+		},
+		[],
+	)
 
 	const finishWorkspaceOperation = useCallback(() => {
 		workspaceOperationRef.current = null
@@ -130,7 +125,11 @@ export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 		} finally {
 			finishWorkspaceOperation()
 		}
-	}, [finishWorkspaceOperation, logic.exportWorkspaceBackup, startWorkspaceOperation])
+	}, [
+		finishWorkspaceOperation,
+		logic.exportWorkspaceBackup,
+		startWorkspaceOperation,
+	])
 
 	const restoreWorkspaceBackup = useCallback(
 		async (file: File, mode: WorkspaceRestoreMode) => {
@@ -144,7 +143,10 @@ export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 					message: `Workspace ${mode === 'merge' ? 'merged' : 'replaced'}: ${result.chatsImported} chats, ${result.messagesImported} messages.`,
 				})
 			} catch {
-				setToast({ type: 'error', message: 'Failed to restore workspace backup.' })
+				setToast({
+					type: 'error',
+					message: 'Failed to restore workspace backup.',
+				})
 			} finally {
 				finishWorkspaceOperation()
 			}
@@ -331,91 +333,16 @@ export function Sidebar({ activeChatId, onChatSelect }: SidebarProps) {
 				</AlertDialogContent>
 			</AlertDialog>
 
-			<Dialog
-				open={showWorkspaceRestoreDialog}
-				onOpenChange={setShowWorkspaceRestoreDialog}
-			>
-				<DialogContent>
-					<DialogHeader>
-						<DialogTitle>Restore workspace backup</DialogTitle>
-						<DialogDescription>
-							Choose how to apply the selected backup to your local workspace.
-						</DialogDescription>
-					</DialogHeader>
-
-					<fieldset className='grid grid-cols-2 overflow-hidden rounded-md border'>
-						<legend className='sr-only'>Workspace restore mode</legend>
-						<button
-							type='button'
-							className={cn(
-								'px-3 py-2 text-sm font-medium transition-colors',
-								workspaceRestoreMode === 'merge'
-									? 'bg-primary text-primary-foreground'
-									: 'hover:bg-muted',
-							)}
-							onClick={() => setWorkspaceRestoreMode('merge')}
-							aria-pressed={workspaceRestoreMode === 'merge'}
-						>
-							Merge
-						</button>
-						<button
-							type='button'
-							className={cn(
-								'border-l px-3 py-2 text-sm font-medium transition-colors',
-								workspaceRestoreMode === 'replace'
-									? 'bg-destructive text-destructive-foreground'
-									: 'hover:bg-muted',
-							)}
-							onClick={() => setWorkspaceRestoreMode('replace')}
-							aria-pressed={workspaceRestoreMode === 'replace'}
-						>
-							Replace
-						</button>
-					</fieldset>
-
-					<p className='text-muted-foreground text-sm'>
-						{workspaceRestoreMode === 'merge'
-							? 'Add the backup chats and messages to the current workspace.'
-							: 'Delete all local chats and messages, then restore this backup.'}
-					</p>
-
-					<DialogFooter>
-						<Button
-							variant='outline'
-							onClick={() => setShowWorkspaceRestoreDialog(false)}
-						>
-							Cancel
-						</Button>
-						<Button onClick={handleWorkspaceRestoreContinue}>
-							Continue
-						</Button>
-					</DialogFooter>
-				</DialogContent>
-			</Dialog>
-
-			<AlertDialog
-				open={showReplaceWorkspaceConfirm}
-				onOpenChange={setShowReplaceWorkspaceConfirm}
-			>
-				<AlertDialogContent>
-					<AlertDialogHeader>
-						<AlertDialogTitle>Replace current workspace?</AlertDialogTitle>
-						<AlertDialogDescription>
-							This permanently deletes all local chats and messages before
-							restoring the selected backup. This action cannot be undone.
-						</AlertDialogDescription>
-					</AlertDialogHeader>
-					<AlertDialogFooter>
-						<AlertDialogCancel>Cancel</AlertDialogCancel>
-						<AlertDialogAction
-							onClick={handleReplaceWorkspaceConfirm}
-							className='bg-destructive text-destructive-foreground hover:bg-destructive/90'
-						>
-							Replace and Restore
-						</AlertDialogAction>
-					</AlertDialogFooter>
-				</AlertDialogContent>
-			</AlertDialog>
+			<WorkspaceRestoreDialogs
+				isRestoreDialogOpen={showWorkspaceRestoreDialog}
+				onRestoreDialogOpenChange={setShowWorkspaceRestoreDialog}
+				mode={workspaceRestoreMode}
+				onModeChange={setWorkspaceRestoreMode}
+				onContinue={handleWorkspaceRestoreContinue}
+				isReplaceConfirmOpen={showReplaceWorkspaceConfirm}
+				onReplaceConfirmOpenChange={setShowReplaceWorkspaceConfirm}
+				onConfirmReplace={handleReplaceWorkspaceConfirm}
+			/>
 		</>
 	)
 }
