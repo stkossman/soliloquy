@@ -1,6 +1,6 @@
 <div align="center">
   <img src="./public/logo.svg" alt="Soliloquy Logo" width="120" height="120"/>
-  
+
   <h1>Soliloquy</h1>
   <p>
     <strong>A private dialogue with yourself.</strong><br>
@@ -8,7 +8,8 @@
   </p>
 
   <p>
-    <img src="https://img.shields.io/badge/Status-On_Hold-orange?style=flat-square" alt="Status" />
+    <img src="https://img.shields.io/badge/Status-Active-brightgreen?style=flat-square" alt="Status: Active" />
+    <img src="https://img.shields.io/badge/Version-v0.1.0-blue?style=flat-square" alt="Version: v0.1.0" />
     <img src="https://img.shields.io/badge/Stack-Astro_•_React_•_Dexie-blue?style=flat-square" alt="Tech Stack" />
     <img src="https://img.shields.io/badge/Privacy-100%25_Local-gray?style=flat-square" alt="Privacy" />
     <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="License" /></a>
@@ -17,75 +18,95 @@
 
 > ***Soliloquy** - a speech in a play that the character speaks to himself or herself or to the people watching rather than to the other characters.*
 
-**Soliloquy** reimagines the concept of "Saved Messages". It's not just a note-taking app; it's a messenger where the only contact is **you**. 
+**Soliloquy** is a local-first personal notes app presented as a messenger where
+the only contact is **you**. Chats and messages stay in your browser through
+IndexedDB: no account, server, or tracking is required.
 
-Built with a focus on privacy and speed, Soliloquy stores all data directly in your browser using **IndexedDB**. No servers, no tracking, no login screens. Just open and write.
-
-## 💎 Key Features
+## Key Features
 
 | Feature | Description |
 | :--- | :--- |
-| **🔒 Local-First** | 100% of your data lives in your browser (IndexedDB). Zero cloud dependency. |
-| **💬 Messenger UX** | Familiar interface. If you know how to use Telegram, you know Soliloquy. |
-| **📌 Power Pinning** | Pin chats and messages. Navigate through pinned messages like a carousel. |
-| **📝 Rich Text** | Visual formatting menu, Markdown support, and code highlighting. |
-| **⚡ Blazing Fast** | Powered by **Bun** and **Astro**. Instant load times and reactivity. |
-| **🎨 Personalization** | Custom icons and colors for every chat to match your mood. |
+| **Local workspace** | Chats and messages persist locally in IndexedDB through Dexie. |
+| **Messenger-style notes** | Create, edit, pin, delete, search, reorder, and organize chats and messages. |
+| **Markdown writing** | Markdown rendering, visual formatting controls, pinned messages, and spoiler syntax. |
+| **Chat personalization** | Choose a preset icon and color for every chat. |
+| **Data portability** | Import one chat from JSON or Markdown, or export it in either format. |
+| **Workspace backup** | Export all chats and messages to JSON; restore through Merge or Replace with validation and confirmation. |
+| **Settings** | Manage system chat visibility, data actions, release notes, version, author, and source code. |
+| **System chat** | Keep the read-only Soliloquy Info chat available, or hide it from the sidebar without deleting its content. |
 
-## 🛠️ Tech Stack
+## Release Notes
+
+Soliloquy `v0.1.0` is the first formal release. Read the current release notes
+at [**/changelog**](/changelog).
+
+## Tech Stack
 
 <div align="center">
-  <img src="https://skillicons.dev/icons?i=astro,react,ts,tailwind,bun" />
+  <img src="https://skillicons.dev/icons?i=astro,react,ts,tailwind,bun" alt="Astro, React, TypeScript, Tailwind CSS, and Bun" />
 </div>
 
 - **Runtime:** [Bun](https://bun.sh)
 - **Framework:** [Astro](https://astro.build) + [React](https://react.dev)
-- **Database:** [Dexie.js](https://dexie.org) (IndexedDB wrapper)
-- **Styling:** [TailwindCSS](https://tailwindcss.com) + [shadcn/ui](https://ui.shadcn.com)
-- **Formatter:** [Biome](https://biomejs.dev/)
+- **Database:** [Dexie.js](https://dexie.org) over IndexedDB
+- **Styling:** [Tailwind CSS](https://tailwindcss.com) with Radix UI primitives
+- **UI:** [Lucide](https://lucide.dev) icons and dnd-kit drag and drop
+- **Formatting and linting:** [Biome](https://biomejs.dev/)
 - **Deployment:** [Vercel](https://vercel.com/)
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
+
 - **Bun** (v1.0+)
 
 ### Installation
 
 1. Clone the repository:
-```bash
-git clone https://github.com/stkossman/soliloquy.git
-cd soliloquy
-```
+
+   ```bash
+   git clone https://github.com/stkossman/soliloquy.git
+   cd soliloquy
+   ```
 
 2. Install dependencies:
-```bash
-bun install
-```
+
+   ```bash
+   bun install
+   ```
 
 3. Run the development server:
+
+   ```bash
+   bun run dev
+   ```
+
+4. Open `http://localhost:4321`.
+
+### Useful Commands
+
 ```bash
-bun dev
+bun run dev
+bun run build
+bun run preview
+bun run lint
+bun run format
 ```
 
-4. Open your browser at `http://localhost:4321`
+## Roadmap
 
-## 🗺️ Roadmap & Future
-I am currently in Phase 6 of development. Here is what I am working on next:
+Planned next steps include media support and theme controls. Workspace backup,
+restore, and chat personalization are already available.
 
-- [ ] **Media Support**:
-  - [ ] Image upload via Clipboard (`Ctrl+V`) or Attachment button
-  - [ ] Modal preview with caption support before sending
-  - [ ] Optimized local storage for blobs
-- [ ] **Data Portability**: Global backup (Import/Export full database).
-- [ ] **Personalization**: Light/Dark mode toggle.]
+👉 [View the full roadmap](ROADMAP.md)
 
-👉 [View full Roadmap & History](ROADMAP.md)
+## Contributing
 
-## 🤝 Contributing
-
-Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md) (English & Ukrainian) to get started.
+Contributions are welcome. Read the [Contributing Guide](CONTRIBUTING.md)
+(English and Ukrainian) to get started.
 
 ---
 
-<div align="center"> <p>Developed with ❤️ by <a href="https://github.com/stkossman">Kossman</a> 🇺🇦</p>
+<div align="center">
+  <p>Developed with ❤️ by <a href="https://github.com/stkossman">Kossman</a> 🇺🇦</p>
+</div>

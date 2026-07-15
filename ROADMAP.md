@@ -2,7 +2,7 @@
 
 This document tracks the progress and future plans for Soliloquy.
 
-## 🟢 Current Focus: Phase 6 (Advanced Functionality)
+## 🟢 Current Focus: Phase 6 (Media and Theme)
 
 - [x] **Editor Experience**:
     - [x] **Visual Formatting Menu**: Floating context menu for Bold, Italic, Spoiler, etc.
@@ -10,12 +10,13 @@ This document tracks the progress and future plans for Soliloquy.
     - [x] **Search within Chat**: Ctrl+F, jump to date, message highlighting.
 - [x] **Personalization**:
     - [x] **Chat Identity**: Custom Icons and Colors for chats.
+- [x] **Data Portability**:
+    - [x] **Single Chat Transfer**: JSON and Markdown import/export.
+    - [x] **Workspace Backup**: Full database JSON export and validated Merge or Replace restore.
 - [ ] **Media Support** (Next Up):
     - [ ] **Image Upload**: Paste from clipboard or file picker.
     - [ ] **Preview Modal**: Crop/View and add caption before sending.
     - [ ] **Combined Bubble**: Image + Text in a single message block.
-- [ ] **Data Portability**:
-    - [ ] **Global Backup**: Full DB export/import.
 - [ ] **Theme**:
     - [ ] Light/Dark mode toggle.
 
