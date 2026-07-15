@@ -66,6 +66,10 @@ helper as `*.test.ts`; there is no global test directory or DOM test harness.
   Keep page/row components presentational and feature-local when they are not
   reused elsewhere. `SidebarSettings` owns modal/page state; its Data page owns
   file inputs.
+- Do not split a component mechanically by line count. Split when it mixes
+  independent UI sections, dialog logic, transformations, or business state;
+  orchestration components may remain larger when they only coordinate focused
+  children and callbacks.
 - Keep `useChatWindow.ts` and `useSidebar.ts` as thin composition facades.
   Put focused responsibilities under `hooks/chat/` and `hooks/sidebar/`.
 - Components and hooks must call services, never `db` directly. Dexie queries,
@@ -97,7 +101,13 @@ export function ExampleRow({ title, onClick }: ExampleRowProps) {
 ## Testing And Verification
 
 - Add focused tests for pure transforms, validation, and boundary logic when
-  practical. Keep them beside the implementation.
+  practical. Unit and component tests live beside the implementation they
+  exercise.
+- When a production file has its own test, place both in a feature-local
+  directory. Do not leave many production/test pairs mixed in one broad
+  directory. Do not create a directory for a simple untested file unless it
+  also has closely related local files. Integration and end-to-end tests may
+  use dedicated directories when the project adds them.
 - Run the narrowest relevant `bun test <files>` command after behavioral
   changes. Include the exact command and result in the handoff.
 - Run `bun run lint` for changed TypeScript/TSX and `bunx tsc --noEmit` when

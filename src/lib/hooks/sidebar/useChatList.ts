@@ -1,7 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect, useState } from 'react'
 import { chatService } from '$lib/services/chatService'
-import { getVisibleSidebarChats } from '$lib/utils/sidebarChats'
+import { getVisibleSidebarChats } from '$lib/utils/sidebar-chats/sidebarChats'
 
 const SYSTEM_CHAT_VISIBILITY_STORAGE_KEY = 'soliloquy-show-system-chat'
 

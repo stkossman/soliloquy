@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react'
 import { chatService } from '$lib/services/chatService'
 import { importExportService } from '$lib/services/importExportService'
 import type { Chat } from '$lib/types'
-import type { WorkspaceRestoreMode } from '$lib/services/import-export/workspaceBackup'
+import type { WorkspaceRestoreMode } from '$lib/services/import-export/workspace-backup/workspaceBackup'
 
 interface UseChatOperationsParams {
 	selectedChatIds: Set<number>
